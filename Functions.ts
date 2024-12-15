@@ -121,6 +121,36 @@ async function notify_on_end_of_support_changes(product: string, vendor: string,
     
 }
 
+function extract_versions_from_json(response_json: any, manufacturer: string): any {
+
+    if(manufacturer === 'OPSWAT'){
+
+    let listofVersions = response_json.data.plugins;
+
+    for(const version of listofVersions){
+        
+        if(version.data.contents!== undefined){
+
+            listofVersions = version.data.contents;
+            console.log('listofVersions',listofVersions);
+        }
+    }
+
+    return listofVersions;
+}
+
+else if(manufacturer === 'FORTRA'){
+
+    //here will be the code for FORTRA
+    return response_json;
+}
+
+return null;
+
+
+
+}
+
 async function notify_new_version(newVersion: VersionData) {
     const changes: string[] = [];
     
@@ -177,4 +207,4 @@ async function sendEmail({ subject, body }: { subject: string, body: string }) {
     }
 }
 
-export { notify_on_end_of_support, notify_new_version, sendEmail, parseDate, notify_on_end_of_support_changes };
+export { notify_on_end_of_support, notify_new_version, sendEmail, parseDate, notify_on_end_of_support_changes, extract_versions_from_json };

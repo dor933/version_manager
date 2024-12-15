@@ -8,6 +8,6 @@ const Db_1 = require("./Db");
 const db = new Db_1.Database();
 const data = require('./Data.json');
 node_cron_1.default.schedule('*/1 * * * *', () => {
-    console.log('Running every 1 minutes');
+    console.log('Running every 1 minute');
     db.HandleData();
 });

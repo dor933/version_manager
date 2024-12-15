@@ -17,6 +17,7 @@ exports.notify_new_version = notify_new_version;
 exports.sendEmail = sendEmail;
 exports.parseDate = parseDate;
 exports.notify_on_end_of_support_changes = notify_on_end_of_support_changes;
+exports.extract_versions_from_json = extract_versions_from_json;
 const nodemailer_1 = __importDefault(require("nodemailer"));
 function parseDate(dateStr) {
     if (!dateStr)
@@ -110,6 +111,23 @@ function notify_on_end_of_support_changes(product, vendor, version, oldDate, new
             // });
         }
     });
+}
+function extract_versions_from_json(response_json, manufacturer) {
+    if (manufacturer === 'OPSWAT') {
+        let listofVersions = response_json.data.plugins;
+        for (const version of listofVersions) {
+            if (version.data.contents !== undefined) {
+                listofVersions = version.data.contents;
+                console.log('listofVersions', listofVersions);
+            }
+        }
+        return listofVersions;
+    }
+    else if (manufacturer === 'FORTRA') {
+        //here will be the code for FORTRA
+        return response_json;
+    }
+    return null;
 }
 function notify_new_version(newVersion) {
     return __awaiter(this, void 0, void 0, function* () {

@@ -1,7 +1,6 @@
 export interface ProductData {
     ProductId: number;
     ProductName: string;
-    Vendor: VendorData;
     Versions: VersionData[];
     JSON_URL: string;
 }

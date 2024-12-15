@@ -22,10 +22,6 @@ let firstiteration = true;
 const sqlite3 = require('sqlite3').verbose();
 class Database {
     constructor() {
-        //delete old file 
-        // if(fs.existsSync('./my-database.db')){
-        //     fs.unlinkSync('./my-database.db');  
-        // }
         this.db = new sqlite3.Database('./my-database.db');
         console.log(Data);
         this.HandleData();
@@ -40,16 +36,7 @@ class Database {
                     yield this.createTable('Product', ['ProductId INTEGER PRIMARY KEY AUTOINCREMENT', 'ProductName TEXT', 'VendorId INTEGER', 'JSON_URL TEXT']);
                     yield this.insertData('Product', ['ProductName', 'VendorId', 'JSON_URL'], [product.ProductName, vendor.VendorId.toString(), product.JSON_URL]);
                     let listofVersions = yield axios_1.default.get(product.JSON_URL);
-                    console.log(listofVersions);
-                    listofVersions = listofVersions.data.plugins;
-                    console.log('listofVersions', listofVersions);
-                    //itertate over array
-                    for (const version of listofVersions) {
-                        if (version.data.contents !== undefined) {
-                            listofVersions = version.data.contents;
-                            console.log('listofVersions', listofVersions);
-                        }
-                    }
+                    listofVersions = (0, Functions_1.extract_versions_from_json)(listofVersions, vendor.VendorName);
                     for (const version of listofVersions) {
                         //skip first iteration
                         if (firstiteration) {
@@ -78,7 +65,7 @@ class Database {
                         ], Version);
                         if (EndOfSupportDate_DateTime) {
                             const daysUntilEOS = Math.ceil((EndOfSupportDate_DateTime.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-                            if (daysUntilEOS <= 30) {
+                            if (daysUntilEOS <= 30 && daysUntilEOS >= 0) {
                                 yield (0, Functions_1.notify_on_end_of_support)(Version, daysUntilEOS);
                             }
                         }
@@ -192,22 +179,6 @@ class Database {
                 }
             });
         });
-    }
-    // Query data
-    queryData(table, columns) {
-        try {
-            this.db.all(`SELECT * FROM ${table}`, [], (err, rows) => {
-                if (err) {
-                    console.error('Error fetching data', err.message);
-                }
-                else {
-                    console.log('Data:', rows);
-                }
-            });
-        }
-        catch (err) {
-            console.error('Error fetching data', err.message);
-        }
     }
     UpdateRecord(table, columns, values, identifier, identifierValue) {
         try {

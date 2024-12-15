@@ -1,6 +1,6 @@
 import fs from 'fs';
 import axios from 'axios';
-import { notify_on_end_of_support, notify_on_end_of_support_changes, notify_new_version } from './Functions';
+import { notify_on_end_of_support, notify_on_end_of_support_changes, notify_new_version, extract_versions_from_json } from './Functions';
 import { parseDate } from './Functions';
 import { DataStructure, VersionData} from './types';
 import { Version } from './Classes';
@@ -36,19 +36,8 @@ class Database {
                 await this.insertData('Product', [ 'ProductName', 'VendorId', 'JSON_URL'], [ product.ProductName, vendor.VendorId.toString(), product.JSON_URL]);
 
                 let listofVersions:any = await axios.get(product.JSON_URL)
-                console.log(listofVersions);
-                listofVersions = listofVersions.data.plugins;
-                console.log('listofVersions',listofVersions);
-
-                //itertate over array
-                for(const version of listofVersions){
-                    
-                    if(version.data.contents!== undefined){
-
-                        listofVersions = version.data.contents;
-                        console.log('listofVersions',listofVersions);
-                    }
-                }
+        
+                listofVersions = extract_versions_from_json(listofVersions, vendor.VendorName);
 
 
                 for(const version of listofVersions){
@@ -165,13 +154,9 @@ class Database {
                             const EndOfSupportDate_DateTime = parseDate(rows[0]?.EndOfSupportDate)
                             const EndOfSupportDate_DateTime_new = parseDate(values[3]);
 
-                            //if both are not a date
-                            console.log('EndOfSupportDate_DateTime',EndOfSupportDate_DateTime);
-                            console.log('EndOfSupportDate_DateTime_new',EndOfSupportDate_DateTime_new);
 
                             if(!EndOfSupportDate_DateTime && !EndOfSupportDate_DateTime_new){
                                
-                                console.log('entered if statement');
                                 resolve(false);
                             }
                             else if(rows[0]?.EndOfSupportDate !== values[3]){
@@ -262,5 +247,5 @@ class Database {
 
 
 
-export {  Database, };
+export {  Database };
 
