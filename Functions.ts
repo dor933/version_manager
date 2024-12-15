@@ -1,6 +1,7 @@
 import fs from 'fs';
 import axios from 'axios';
-import { Version } from './Classes';
+import { Product, Vendor, Version } from './Classes';
+import nodemailer from 'nodemailer';
 
 function parseDate(dateStr: string): Date | null {
     if (!dateStr) return null;
@@ -76,6 +77,31 @@ async function notify_on_end_of_support(vers: Version, daysUntilEOS: number) {
     });
 }
 
+async function notify_on_end_of_support_changes(product: Product, vendor: Vendor, version: Version, oldDate: Date, newDate: Date) {
+    const changes: string[] = [];
+
+    changes.push(`End of Support date changed from ${oldDate.toDateString()} to ${newDate.toDateString()}`);
+
+    if (changes.length > 0) {
+        const emailBody = `
+            End of Support Date Change Notification
+            
+            Product: ${product.ProductName}
+            Vendor: ${vendor.VendorName}
+            Version: ${version.VersionNumber}
+            Changes Detected:
+            ${changes.join('\n')}
+        `;
+
+        await sendEmail({
+            subject: `End of Support Date Change: ${product.ProductName} ${version.VersionNumber}`,
+            body: emailBody
+        });
+    }
+
+    
+}
+
 async function notify_version_changes(oldVersion: Version, newVersion: Version) {
     const changes: string[] = [];
     
@@ -106,11 +132,35 @@ async function notify_version_changes(oldVersion: Version, newVersion: Version) 
     }
 }
 
-// Helper function for sending emails (implementation depends on your email service)
 async function sendEmail({ subject, body }: { subject: string, body: string }) {
-    // Implement your email sending logic here
-    // Example: using AWS SES, SendGrid, or other email service
-    console.log('Sending email:', { subject, body });
+    const transporter = nodemailer.createTransport({
+        host: "smtp.office365.com", // Exchange server address
+        port: 587,                  // Standard secure SMTP port
+        secure: false,              // true for 465, false for other ports
+        auth: {
+            user: process.env.EMAIL_USER,     // Your Exchange email
+            pass: process.env.EMAIL_PASSWORD  // Your Exchange password
+        },
+        tls: {
+            ciphers: 'SSLv3:TLSv1:TLSv1.1:TLSv1.2:TLSv1.3',  // Supports multiple cipher suites
+            rejectUnauthorized: false
+        }
+    });
+
+    try {
+        const info = await transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to: process.env.EMAIL_RECIPIENT,
+            subject: subject,
+            text: body,
+        });
+
+        console.log('Email sent:', info.messageId);
+        return info;
+    } catch (error) {
+        console.error('Error sending email:', error);
+        throw error;
+    }
 }
 
-export { notify_on_end_of_support, notify_version_changes, sendEmail, parseDate };
+export { notify_on_end_of_support, notify_version_changes, sendEmail, parseDate, notify_on_end_of_support_changes };

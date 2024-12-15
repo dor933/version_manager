@@ -8,11 +8,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.notify_on_end_of_support = notify_on_end_of_support;
 exports.notify_version_changes = notify_version_changes;
 exports.sendEmail = sendEmail;
 exports.parseDate = parseDate;
+exports.notify_on_end_of_support_changes = notify_on_end_of_support_changes;
+const nodemailer_1 = __importDefault(require("nodemailer"));
 function parseDate(dateStr) {
     if (!dateStr)
         return null;
@@ -78,6 +83,27 @@ function notify_on_end_of_support(vers, daysUntilEOS) {
         });
     });
 }
+function notify_on_end_of_support_changes(product, vendor, version, oldDate, newDate) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const changes = [];
+        changes.push(`End of Support date changed from ${oldDate.toDateString()} to ${newDate.toDateString()}`);
+        if (changes.length > 0) {
+            const emailBody = `
+            End of Support Date Change Notification
+            
+            Product: ${product.ProductName}
+            Vendor: ${vendor.VendorName}
+            Version: ${version.VersionNumber}
+            Changes Detected:
+            ${changes.join('\n')}
+        `;
+            yield sendEmail({
+                subject: `End of Support Date Change: ${product.ProductName} ${version.VersionNumber}`,
+                body: emailBody
+            });
+        }
+    });
+}
 function notify_version_changes(oldVersion, newVersion) {
     return __awaiter(this, void 0, void 0, function* () {
         const changes = [];
@@ -106,11 +132,34 @@ function notify_version_changes(oldVersion, newVersion) {
         }
     });
 }
-// Helper function for sending emails (implementation depends on your email service)
 function sendEmail(_a) {
     return __awaiter(this, arguments, void 0, function* ({ subject, body }) {
-        // Implement your email sending logic here
-        // Example: using AWS SES, SendGrid, or other email service
-        console.log('Sending email:', { subject, body });
+        const transporter = nodemailer_1.default.createTransport({
+            host: "smtp.office365.com", // Exchange server address
+            port: 587, // Standard secure SMTP port
+            secure: false, // true for 465, false for other ports
+            auth: {
+                user: process.env.EMAIL_USER, // Your Exchange email
+                pass: process.env.EMAIL_PASSWORD // Your Exchange password
+            },
+            tls: {
+                ciphers: 'SSLv3:TLSv1:TLSv1.1:TLSv1.2:TLSv1.3', // Supports multiple cipher suites
+                rejectUnauthorized: false
+            }
+        });
+        try {
+            const info = yield transporter.sendMail({
+                from: process.env.EMAIL_USER,
+                to: process.env.EMAIL_RECIPIENT,
+                subject: subject,
+                text: body,
+            });
+            console.log('Email sent:', info.messageId);
+            return info;
+        }
+        catch (error) {
+            console.error('Error sending email:', error);
+            throw error;
+        }
     });
 }
