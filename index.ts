@@ -8,8 +8,8 @@ const db = new Database();
 
 
 const data = require('./Data.json');
-nodecron.schedule('*/1 * * * *', () => {
-    console.log('Running every 1 minutes');
+nodecron.schedule('*/10 * * * *', () => {
+    console.log('Running every 10 minutes');
 
 
     db.HandleData();

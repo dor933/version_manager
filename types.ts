@@ -22,11 +22,10 @@ export interface VersionData {
     VersionId: number;
     VersionName: string;
     ProductId: number;
-    ReleaseDate: Date;
-    EndOfSupportDate: Date;
+    ReleaseDate?: Date
+    EndOfSupportDate?: Date;
+    ProductName?: string;
+    VendorName?: string;
 }
 
-export interface Array_of_string_or_number {
-    [key: string]: string | number;
-}
 

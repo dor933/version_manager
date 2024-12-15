@@ -1,8 +1,9 @@
 import fs from 'fs';
 import axios from 'axios';
-import { notify_on_end_of_support, notify_on_end_of_support_changes } from './Functions';
+import { notify_on_end_of_support, notify_on_end_of_support_changes, notify_new_version } from './Functions';
 import { parseDate } from './Functions';
-import { DataStructure} from './types';
+import { DataStructure, VersionData} from './types';
+import { Version } from './Classes';
 const Data=require('./Data.json') as DataStructure;
 
 
@@ -15,11 +16,6 @@ const sqlite3 = require('sqlite3').verbose();
 class Database {
     db: any;
     constructor() {
-        //delete old file 
-
-        // if(fs.existsSync('./my-database.db')){
-        //     fs.unlinkSync('./my-database.db');  
-        // }
 
         this.db = new sqlite3.Database('./my-database.db');
         console.log(Data);
@@ -67,33 +63,40 @@ class Database {
                     let EndOfSupportDate_DateTime = parseDate(version[2]) 
 
 
-                    console.log('ReleaseDate_DateTime',ReleaseDate_DateTime);
-                    console.log('EndOfSupportDate_DateTime',EndOfSupportDate_DateTime);
+                    const Version:VersionData= {
+                        VersionId: idversion,
+                        VersionName: version[0],
+                        ProductId: product.ProductId,
+                        ReleaseDate: ReleaseDate_DateTime ? ReleaseDate_DateTime : undefined,
+                        EndOfSupportDate: EndOfSupportDate_DateTime ? EndOfSupportDate_DateTime : undefined ,
+                        ProductName: product.ProductName,
+                        VendorName: vendor.VendorName
+                    }
 
 
 
-                    //define ProductId as the foreign key from Product table
                     await this.createTable('Version');              
                     await this.insertData('Version', 
                         [ 'VersionName', 'ProductId', 'ReleaseDate', 'EndOfSupportDate', 'ProductName', 'VendorName'], 
                         [
-                            version[0], 
-                            product.ProductId, 
-                            ReleaseDate_DateTime ? ReleaseDate_DateTime.toISOString() : 'NULL', 
-                            EndOfSupportDate_DateTime ? EndOfSupportDate_DateTime.toISOString() : 'NULL',
-                            product.ProductName,
-                            vendor.VendorName
-                        ]
+                            Version.VersionName, 
+                            Version.ProductId.toString(), 
+                            Version.ReleaseDate ? Version.ReleaseDate.toISOString() : 'NULL', 
+                            Version.EndOfSupportDate ? Version.EndOfSupportDate.toISOString() : 'NULL',
+                            Version.ProductName!,
+                            Version.VendorName!
+                        ] , 
+                        Version
                     );
 
 
 
-                    // Only calculate daysUntilEOS and notify if EndOfSupportDate exists
-                    // if (EndOfSupportDate_DateTime) {
-                    //     const daysUntilEOS = Math.ceil((EndOfSupportDate_DateTime.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-                    //     this.UpdateData('Version', ['EndOfSupportDate'], [EndOfSupportDate_DateTime.toISOString()]);
-                    //     // await notify_on_end_of_support(version, daysUntilEOS);
-                    // }
+                   if (EndOfSupportDate_DateTime) {
+                        const daysUntilEOS = Math.ceil((EndOfSupportDate_DateTime.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+                        if(daysUntilEOS <= 30 && daysUntilEOS >= 0){
+                            await notify_on_end_of_support(Version, daysUntilEOS);
+                        }
+                    }
                 }
             }
         }
@@ -135,7 +138,7 @@ class Database {
         });
     }
 
-    async insertData(table: string, columns: string[], values: string[]) {
+    async insertData(table: string, columns: string[], values: string[], versionData?: VersionData) {
 
 
         return new Promise((resolve, reject) => {
@@ -146,45 +149,51 @@ class Database {
                     }
                     return `'${value}'`;
                 }).join(',');
-
-                console.log('valuesString',valuesString);
                 
                 const columnsString = columns.join(',');
-                console.log('select query')
-
-                console.log(`SELECT * FROM ${table} WHERE ${columns[0]} = "${values[0]}" AND ${columns[1]} = "${values[1]}" `);
 
                 this.db.all(`SELECT * FROM ${table} WHERE ${columns[0]} = "${values[0]}" AND ${columns[1]} = "${values[1]}" `, (err: Error, rows: any) => {
                     if (err) {
                         console.error('Error fetching data', err.message);
                         reject(err);
                     } else {
-                        console.log('Data:', rows);
 
-                                     
-
+                                    
                         if(table === 'Version' && rows.length > 0){
 
-                            if(rows[0]?.EndOfSupportDate === null && values[3] === 'NULL'){
+                            //try to parse the EndOfSupportDate and values[3] to date   
+                            const EndOfSupportDate_DateTime = parseDate(rows[0]?.EndOfSupportDate)
+                            const EndOfSupportDate_DateTime_new = parseDate(values[3]);
+
+                            //if both are not a date
+                            console.log('EndOfSupportDate_DateTime',EndOfSupportDate_DateTime);
+                            console.log('EndOfSupportDate_DateTime_new',EndOfSupportDate_DateTime_new);
+
+                            if(!EndOfSupportDate_DateTime && !EndOfSupportDate_DateTime_new){
+                               
+                                console.log('entered if statement');
                                 resolve(false);
                             }
-                            if(rows[0]?.EndOfSupportDate !== values[3]){
+                            else if(rows[0]?.EndOfSupportDate !== values[3]){
                                 console.log('Record already exists but EndOfSupportDate is different');
                                 this.UpdateRecord(table, ['EndOfSupportDate'], [values[3]], 'VersionName', rows[0].VersionName);
-                                notify_on_end_of_support_changes(rows[0].ProductName, rows[0].VendorName, rows[0].VersionName, rows[0].EndOfSupportDate, new Date(values[3]));   
+                                notify_on_end_of_support_changes(rows[0].ProductName, rows[0].VendorName, rows[0].VersionName, EndOfSupportDate_DateTime? EndOfSupportDate_DateTime : undefined, EndOfSupportDate_DateTime_new? EndOfSupportDate_DateTime_new : undefined);   
                                 resolve(false);
                             }
-                                else{
+
+
+                            else{
                                 resolve(true);
                             }
                         }
                         
-                        if(rows?.length > 0){
+                        else if(rows?.length > 0){
                             console.log('Record already exists');
                             resolve(false);
                         }
 
                      
+                        else{
 
                         // If no rows found, execute insert query
                         this.db.run(`INSERT INTO ${table} (${columnsString}) VALUES (${valuesString})`, (err: Error) => {
@@ -193,17 +202,21 @@ class Database {
                                 reject(err);
                             } else {
                                 console.log('Data inserted successfully');
+                                if(table === 'Version'){
+                              
+                                    notify_new_version(versionData!);
+                                }
                                 resolve(true);
                             }
                         }); 
                     }
+                }
                 });
 
                
              
 
                 
-                console.log(`INSERT INTO ${table} (${columnsString}) VALUES (${valuesString})`);
                 
             
             } catch(err: any) {
@@ -211,30 +224,6 @@ class Database {
             }
         });
     }
-
-
-
-// Query data
-    queryData(table: string, columns: string) {
-        try{
-
-        this.db.all(`SELECT * FROM ${table}`, [], (err:Error, rows:any) => {
-            if (err) {
-                console.error('Error fetching data', err.message);
-            } else {
-                console.log('Data:', rows);
-            }
-        });
-    }
-    catch(err:any){
-        console.error('Error fetching data', err.message);
-    }
-    } 
-
-
-
-    
-
 
     
   

@@ -58,24 +58,30 @@ class Database {
                         }
                         let ReleaseDate_DateTime = (0, Functions_2.parseDate)(version[1]);
                         let EndOfSupportDate_DateTime = (0, Functions_2.parseDate)(version[2]);
-                        console.log('ReleaseDate_DateTime', ReleaseDate_DateTime);
-                        console.log('EndOfSupportDate_DateTime', EndOfSupportDate_DateTime);
-                        //define ProductId as the foreign key from Product table
+                        const Version = {
+                            VersionId: idversion,
+                            VersionName: version[0],
+                            ProductId: product.ProductId,
+                            ReleaseDate: ReleaseDate_DateTime ? ReleaseDate_DateTime : undefined,
+                            EndOfSupportDate: EndOfSupportDate_DateTime ? EndOfSupportDate_DateTime : undefined,
+                            ProductName: product.ProductName,
+                            VendorName: vendor.VendorName
+                        };
                         yield this.createTable('Version');
                         yield this.insertData('Version', ['VersionName', 'ProductId', 'ReleaseDate', 'EndOfSupportDate', 'ProductName', 'VendorName'], [
-                            version[0],
-                            product.ProductId,
-                            ReleaseDate_DateTime ? ReleaseDate_DateTime.toISOString() : 'NULL',
-                            EndOfSupportDate_DateTime ? EndOfSupportDate_DateTime.toISOString() : 'NULL',
-                            product.ProductName,
-                            vendor.VendorName
-                        ]);
-                        // Only calculate daysUntilEOS and notify if EndOfSupportDate exists
-                        // if (EndOfSupportDate_DateTime) {
-                        //     const daysUntilEOS = Math.ceil((EndOfSupportDate_DateTime.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-                        //     this.UpdateData('Version', ['EndOfSupportDate'], [EndOfSupportDate_DateTime.toISOString()]);
-                        //     // await notify_on_end_of_support(version, daysUntilEOS);
-                        // }
+                            Version.VersionName,
+                            Version.ProductId.toString(),
+                            Version.ReleaseDate ? Version.ReleaseDate.toISOString() : 'NULL',
+                            Version.EndOfSupportDate ? Version.EndOfSupportDate.toISOString() : 'NULL',
+                            Version.ProductName,
+                            Version.VendorName
+                        ], Version);
+                        if (EndOfSupportDate_DateTime) {
+                            const daysUntilEOS = Math.ceil((EndOfSupportDate_DateTime.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+                            if (daysUntilEOS <= 30) {
+                                yield (0, Functions_1.notify_on_end_of_support)(Version, daysUntilEOS);
+                            }
+                        }
                     }
                 }
             }
@@ -119,7 +125,7 @@ class Database {
             });
         });
     }
-    insertData(table, columns, values) {
+    insertData(table, columns, values, versionData) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 try {
@@ -129,10 +135,7 @@ class Database {
                         }
                         return `'${value}'`;
                     }).join(',');
-                    console.log('valuesString', valuesString);
                     const columnsString = columns.join(',');
-                    console.log('select query');
-                    console.log(`SELECT * FROM ${table} WHERE ${columns[0]} = "${values[0]}" AND ${columns[1]} = "${values[1]}" `);
                     this.db.all(`SELECT * FROM ${table} WHERE ${columns[0]} = "${values[0]}" AND ${columns[1]} = "${values[1]}" `, (err, rows) => {
                         var _a, _b;
                         if (err) {
@@ -140,39 +143,49 @@ class Database {
                             reject(err);
                         }
                         else {
-                            console.log('Data:', rows);
                             if (table === 'Version' && rows.length > 0) {
-                                if (((_a = rows[0]) === null || _a === void 0 ? void 0 : _a.EndOfSupportDate) === null && values[3] === 'NULL') {
+                                //try to parse the EndOfSupportDate and values[3] to date   
+                                const EndOfSupportDate_DateTime = (0, Functions_2.parseDate)((_a = rows[0]) === null || _a === void 0 ? void 0 : _a.EndOfSupportDate);
+                                const EndOfSupportDate_DateTime_new = (0, Functions_2.parseDate)(values[3]);
+                                //if both are not a date
+                                console.log('EndOfSupportDate_DateTime', EndOfSupportDate_DateTime);
+                                console.log('EndOfSupportDate_DateTime_new', EndOfSupportDate_DateTime_new);
+                                if (!EndOfSupportDate_DateTime && !EndOfSupportDate_DateTime_new) {
+                                    console.log('entered if statement');
                                     resolve(false);
                                 }
-                                if (((_b = rows[0]) === null || _b === void 0 ? void 0 : _b.EndOfSupportDate) !== values[3]) {
+                                else if (((_b = rows[0]) === null || _b === void 0 ? void 0 : _b.EndOfSupportDate) !== values[3]) {
                                     console.log('Record already exists but EndOfSupportDate is different');
                                     this.UpdateRecord(table, ['EndOfSupportDate'], [values[3]], 'VersionName', rows[0].VersionName);
-                                    (0, Functions_1.notify_on_end_of_support_changes)(rows[0].ProductName, rows[0].VendorName, rows[0].VersionName, rows[0].EndOfSupportDate, new Date(values[3]));
+                                    (0, Functions_1.notify_on_end_of_support_changes)(rows[0].ProductName, rows[0].VendorName, rows[0].VersionName, EndOfSupportDate_DateTime ? EndOfSupportDate_DateTime : undefined, EndOfSupportDate_DateTime_new ? EndOfSupportDate_DateTime_new : undefined);
                                     resolve(false);
                                 }
                                 else {
                                     resolve(true);
                                 }
                             }
-                            if ((rows === null || rows === void 0 ? void 0 : rows.length) > 0) {
+                            else if ((rows === null || rows === void 0 ? void 0 : rows.length) > 0) {
                                 console.log('Record already exists');
                                 resolve(false);
                             }
-                            // If no rows found, execute insert query
-                            this.db.run(`INSERT INTO ${table} (${columnsString}) VALUES (${valuesString})`, (err) => {
-                                if (err) {
-                                    console.log('Error inserting data', err.message);
-                                    reject(err);
-                                }
-                                else {
-                                    console.log('Data inserted successfully');
-                                    resolve(true);
-                                }
-                            });
+                            else {
+                                // If no rows found, execute insert query
+                                this.db.run(`INSERT INTO ${table} (${columnsString}) VALUES (${valuesString})`, (err) => {
+                                    if (err) {
+                                        console.log('Error inserting data', err.message);
+                                        reject(err);
+                                    }
+                                    else {
+                                        console.log('Data inserted successfully');
+                                        if (table === 'Version') {
+                                            (0, Functions_1.notify_new_version)(versionData);
+                                        }
+                                        resolve(true);
+                                    }
+                                });
+                            }
                         }
                     });
-                    console.log(`INSERT INTO ${table} (${columnsString}) VALUES (${valuesString})`);
                 }
                 catch (err) {
                     reject(err);

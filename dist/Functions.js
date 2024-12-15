@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.notify_on_end_of_support = notify_on_end_of_support;
-exports.notify_version_changes = notify_version_changes;
+exports.notify_new_version = notify_new_version;
 exports.sendEmail = sendEmail;
 exports.parseDate = parseDate;
 exports.notify_on_end_of_support_changes = notify_on_end_of_support_changes;
@@ -24,7 +24,8 @@ function parseDate(dateStr) {
     // Try parsing various date formats
     const parsedDate = new Date(dateStr);
     if (!isNaN(parsedDate.getTime())) {
-        return parsedDate;
+        // Create new date using UTC values to preserve timezone
+        return new Date(Date.UTC(parsedDate.getUTCFullYear(), parsedDate.getUTCMonth(), parsedDate.getUTCDate(), parsedDate.getUTCHours(), parsedDate.getUTCMinutes(), parsedDate.getUTCSeconds()));
     }
     // Try parsing "September 6, 2023" format
     const monthNames = ['january', 'february', 'march', 'april', 'may', 'june',
@@ -33,32 +34,36 @@ function parseDate(dateStr) {
     if (parts) {
         const month = monthNames.indexOf(parts[1]);
         if (month !== -1) {
-            return new Date(parseInt(parts[3]), month, parseInt(parts[2]));
+            // Use UTC for this format as well
+            return new Date(Date.UTC(parseInt(parts[3]), month, parseInt(parts[2])));
         }
     }
     // Try parsing "06 Oct 2022" format
     const shortParts = dateStr.match(/(\d{2})\s+(\w{3})\s+(\d{4})/);
     if (shortParts) {
-        return new Date(`${shortParts[2]} ${shortParts[1]} ${shortParts[3]}`);
+        const tempDate = new Date(`${shortParts[2]} ${shortParts[1]} ${shortParts[3]}`);
+        // Use UTC for this format as well
+        return new Date(Date.UTC(tempDate.getUTCFullYear(), tempDate.getUTCMonth(), tempDate.getUTCDate()));
     }
     console.error(`Unable to parse date: ${dateStr}`);
     return null;
 }
-function notify_on_end_of_support(vers, daysUntilEOS) {
+function notify_on_end_of_support(versionData, daysUntilEOS) {
     return __awaiter(this, void 0, void 0, function* () {
-        const vendor = vers.Product.Vendor;
-        const product = vers.Product;
-        const version = vers;
+        var _a, _b;
+        const vendor = versionData.VendorName;
+        const product = versionData.ProductName;
+        const version = versionData.VersionName;
         // Calculate days until end of support
         let emailBody = '';
         if (daysUntilEOS <= 30) { // Notify when 30 days or less remaining
             emailBody = `
             Warning: End of Support Approaching
             
-            Product: ${product.ProductName}
-            Vendor: ${vendor.VendorName}
-            Version: ${version.VersionNumber}
-            End of Support Date: ${version.EndOfSupportDate.toDateString()}
+            Product: ${product}
+            Vendor: ${vendor}
+            Version: ${version}
+            End of Support Date: ${(_a = versionData.EndOfSupportDate) === null || _a === void 0 ? void 0 : _a.toDateString()}
             Days Remaining: ${daysUntilEOS}
             
             Please take necessary actions to upgrade or migrate from this version.
@@ -68,67 +73,62 @@ function notify_on_end_of_support(vers, daysUntilEOS) {
             emailBody = `
             Critical: End of Support Approaching - 7 days or less remaining
             
-            Product: ${product.ProductName}
-            Vendor: ${vendor.VendorName}
-            Version: ${version.VersionNumber}
-            End of Support Date: ${version.EndOfSupportDate.toDateString()}
+            Product: ${product}
+            Vendor: ${vendor}
+            Version: ${version}
+            End of Support Date: ${(_b = versionData.EndOfSupportDate) === null || _b === void 0 ? void 0 : _b.toDateString()}
             Days Remaining: ${daysUntilEOS}
             
             Please take necessary actions to upgrade or migrate from this version.
         `;
         }
-        yield sendEmail({
-            subject: `End of Support Alert: ${product.ProductName} ${version.VersionNumber}`,
-            body: emailBody
-        });
+        // console.log('emailBody',emailBody);
+        // await sendEmail({
+        //     subject: `End of Support Alert: ${product} ${version}`,
+        //     body: emailBody
+        // });
     });
 }
 function notify_on_end_of_support_changes(product, vendor, version, oldDate, newDate) {
     return __awaiter(this, void 0, void 0, function* () {
         const changes = [];
-        changes.push(`End of Support date changed from ${oldDate.toDateString()} to ${newDate.toDateString()}`);
+        changes.push(`End of Support date changed from ${!oldDate ? 'null' : oldDate.toDateString()} to ${!newDate ? 'null' : newDate.toDateString()}`);
         if (changes.length > 0) {
             const emailBody = `
             End of Support Date Change Notification
             
-            Product: ${product.ProductName}
-            Vendor: ${vendor.VendorName}
-            Version: ${version.VersionNumber}
+            Product: ${product}
+            Vendor: ${vendor}
+            Version: ${version}
             Changes Detected:
             ${changes.join('\n')}
         `;
-            yield sendEmail({
-                subject: `End of Support Date Change: ${product.ProductName} ${version.VersionNumber}`,
-                body: emailBody
-            });
+            console.log('emailBody', emailBody);
+            // await sendEmail({
+            //     subject: `End of Support Date Change: ${product} ${version}`,
+            //     body: emailBody
+            // });
         }
     });
 }
-function notify_version_changes(oldVersion, newVersion) {
+function notify_new_version(newVersion) {
     return __awaiter(this, void 0, void 0, function* () {
         const changes = [];
         // Compare relevant fields
-        if (oldVersion.VersionNumber !== newVersion.VersionNumber) {
-            changes.push(`Version number changed from ${oldVersion.VersionNumber} to ${newVersion.VersionNumber}`);
-        }
-        if (oldVersion.EndOfSupportDate.getTime() !== newVersion.EndOfSupportDate.getTime()) {
-            changes.push(`End of Support date changed from ${oldVersion.EndOfSupportDate.toDateString()} to ${newVersion.EndOfSupportDate.toDateString()}`);
-        }
-        // Add more field comparisons as needed
+        changes.push(`New Version Added: ${newVersion.VersionName}`);
         if (changes.length > 0) {
             const emailBody = `
             Version Change Notification
             
-            Product: ${newVersion.Product.ProductName}
-            Vendor: ${newVersion.Product.Vendor.VendorName}
-            
+            Product: ${newVersion.ProductName}
             Changes Detected:
             ${changes.join('\n')}
         `;
-            yield sendEmail({
-                subject: `Version Changes Detected: ${newVersion.Product.ProductName}`,
-                body: emailBody
-            });
+            console.log('emailBody', emailBody);
+            // await sendEmail({
+            //     subject: `Version Changes Detected: ${newVersion.ProductName}`,
+            //     body: emailBody
+            // });
         }
     });
 }
@@ -139,8 +139,8 @@ function sendEmail(_a) {
             port: 587, // Standard secure SMTP port
             secure: false, // true for 465, false for other ports
             auth: {
-                user: process.env.EMAIL_USER, // Your Exchange email
-                pass: process.env.EMAIL_PASSWORD // Your Exchange password
+                user: process.env.USER_EMAIL, // Your Exchange email
+                pass: process.env.USER_PASSWORD // Your Exchange password
             },
             tls: {
                 ciphers: 'SSLv3:TLSv1:TLSv1.1:TLSv1.2:TLSv1.3', // Supports multiple cipher suites
@@ -149,7 +149,7 @@ function sendEmail(_a) {
         });
         try {
             const info = yield transporter.sendMail({
-                from: process.env.EMAIL_USER,
+                from: process.env.USER_EMAIL,
                 to: process.env.EMAIL_RECIPIENT,
                 subject: subject,
                 text: body,
