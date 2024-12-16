@@ -86,12 +86,12 @@ async function notify_on_end_of_support(versionData: VersionData    , daysUntilE
         `;
     }
     
-    // console.log('emailBody',emailBody);
+    console.log('emailBody',emailBody);
 
-    // await sendEmail({
-    //     subject: `End of Support Alert: ${product} ${version}`,
-    //     body: emailBody
-    // });
+    await sendEmail({
+        subject: `End of Support Alert: ${product} ${version}`,
+        body: emailBody
+    });
 }
 
 async function notify_on_end_of_support_changes(product: string, vendor: string, version: string, oldDate?: Date, newDate?: Date) {
@@ -170,10 +170,10 @@ async function notify_new_version(newVersion: VersionData) {
 
         console.log('emailBody',emailBody);
         
-        // await sendEmail({
-        //     subject: `Version Changes Detected: ${newVersion.ProductName}`,
-        //     body: emailBody
-        // });
+        await sendEmail({
+            subject: `Version Changes Detected: ${newVersion.ProductName}`,
+            body: emailBody
+        });
     }
 }
 

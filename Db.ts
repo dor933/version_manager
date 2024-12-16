@@ -32,7 +32,7 @@ class Database {
 
             for(const product of vendor.Products){
                 firstiteration = true;
-                await this.createTable('Product', ['ProductId INTEGER PRIMARY KEY AUTOINCREMENT', 'ProductName TEXT', 'VendorId INTEGER', 'JSON_URL TEXT']);
+                await this.createTable('Product', ['ProductId INTEGER PRIMARY KEY AUTOINCREMENT', 'ProductName TEXT', 'VendorId INTEGER', 'JSON_URL TEXT', 'FOREIGN KEY (VendorId) REFERENCES Vendor(VendorId)']);
                 await this.insertData('Product', [ 'ProductName', 'VendorId', 'JSON_URL'], [ product.ProductName, vendor.VendorId.toString(), product.JSON_URL]);
 
                 let listofVersions:any = await axios.get(product.JSON_URL)
