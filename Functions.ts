@@ -1,7 +1,7 @@
-import fs from 'fs';
-import axios from 'axios';
 import nodemailer from 'nodemailer';
 import { VersionData } from './types';
+import dotenv from 'dotenv';
+dotenv.config();
 
 function parseDate(dateStr: string): Date | null {
     if (!dateStr) return null;
@@ -112,10 +112,10 @@ async function notify_on_end_of_support_changes(product: string, vendor: string,
 
         console.log('emailBody',emailBody);
 
-        // await sendEmail({
-        //     subject: `End of Support Date Change: ${product} ${version}`,
-        //     body: emailBody
-        // });
+        await sendEmail({
+            subject: `End of Support Date Change: ${product} ${version}`,
+            body: emailBody
+        });
     }
 
     
@@ -160,6 +160,7 @@ async function notify_new_version(newVersion: VersionData) {
     
     if (changes.length > 0) {
         const emailBody = `
+        
             Version Change Notification
             
             Product: ${newVersion.ProductName}
@@ -178,13 +179,10 @@ async function notify_new_version(newVersion: VersionData) {
 
 async function sendEmail({ subject, body }: { subject: string, body: string }) {
     const transporter = nodemailer.createTransport({
-        host: "smtp.office365.com", // Exchange server address
-        port: 587,                  // Standard secure SMTP port
+        host: "mail.bulwarx.local", // Exchange server address
+        port: 25,                  // Standard secure SMTP port
         secure: false,              // true for 465, false for other ports
-        auth: {
-            user: process.env.USER_EMAIL,     // Your Exchange email
-            pass: process.env.USER_PASSWORD  // Your Exchange password
-        },
+   
         tls: {
             ciphers: 'SSLv3:TLSv1:TLSv1.1:TLSv1.2:TLSv1.3',  // Supports multiple cipher suites
             rejectUnauthorized: false
