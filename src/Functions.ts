@@ -1,7 +1,8 @@
-import nodemailer from 'nodemailer';
-import { VersionData } from './types';
 import dotenv from 'dotenv';
 dotenv.config();
+import nodemailer from 'nodemailer';
+import { VersionData } from './types';
+import { createEmailTemplate } from './emailTemplate';
 
 function parseDate(dateStr: string): Date | null {
     if (!dateStr) return null;
@@ -86,12 +87,12 @@ async function notify_on_end_of_support(versionData: VersionData    , daysUntilE
         `;
     }
     
-    console.log('emailBody',emailBody);
+    // console.log('emailBody',emailBody);
 
-    await sendEmail({
-        subject: `End of Support Alert: ${product} ${version}`,
-        body: emailBody
-    });
+    // await sendEmail({
+    //     subject: `End of Support Alert: ${product} ${version}`,
+    //     body: emailBody
+    // });
 }
 
 async function notify_on_end_of_support_changes(product: string, vendor: string, version: string, oldDate?: Date, newDate?: Date) {
@@ -100,21 +101,24 @@ async function notify_on_end_of_support_changes(product: string, vendor: string,
     changes.push(`End of Support date changed from ${!oldDate ? 'null' : oldDate.toDateString()} to ${!newDate ? 'null' : newDate.toDateString()}`);
 
     if (changes.length > 0) {
-        const emailBody = `
-            End of Support Date Change Notification
-            
-            Product: ${product}
-            Vendor: ${vendor}
-            Version: ${version}
-            Changes Detected:
-            ${changes.join('\n')}
-        `;
+        const emailBody =
+        
+        {
+            name:'Dor',
+            subject: `End of Support Date Change: ${product} ${version}`,
+            row1: `Hey Dor`,
+            row2: `Your support for the app is ending soon.`,
+            row3: `Changes Detected:`,
+            row4: `${changes.join('\n')}`   
+        }
+
+  
 
         console.log('emailBody',emailBody);
 
         await sendEmail({
             subject: `End of Support Date Change: ${product} ${version}`,
-            body: emailBody
+            content: emailBody
         });
     }
 
@@ -160,7 +164,6 @@ async function notify_new_version(newVersion: VersionData) {
     
     if (changes.length > 0) {
         const emailBody = `
-        
             Version Change Notification
             
             Product: ${newVersion.ProductName}
@@ -170,14 +173,14 @@ async function notify_new_version(newVersion: VersionData) {
 
         console.log('emailBody',emailBody);
         
-        await sendEmail({
-            subject: `Version Changes Detected: ${newVersion.ProductName}`,
-            body: emailBody
-        });
+        // await sendEmail({
+        //     subject: `Version Changes Detected: ${newVersion.ProductName}`,
+        //     body: emailBody
+        // });
     }
 }
 
-async function sendEmail({ subject, body }: { subject: string, body: string }) {
+async function sendEmail({ subject, content }: { subject: string, content: any }) {
     const transporter = nodemailer.createTransport({
         host: "mail.bulwarx.local", // Exchange server address
         port: 25,                  // Standard secure SMTP port
@@ -194,7 +197,8 @@ async function sendEmail({ subject, body }: { subject: string, body: string }) {
             from: process.env.USER_EMAIL,
             to: process.env.EMAIL_RECIPIENT,
             subject: subject,
-            text: body,
+            html: createEmailTemplate(content)
+            
         });
 
         console.log('Email sent:', info.messageId);
