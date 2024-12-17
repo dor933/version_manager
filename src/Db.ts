@@ -34,13 +34,15 @@ class Database {
             await this.insertData('Vendor', ['VendorName', 'contactInfo', 'WebsiteUrl'], [ vendor.VendorName, vendor.contactInfo, vendor.WebsiteUrl]);
 
             for(const product of vendor.Products){
+
                 firstiteration = true;
+
                 await this.createTable('Product', [
-                    'ProductName TEXT',
-                    'VendorId INTEGER NOT NULL',
+                    'ProductName TEXT PRIMARY KEY',
+                    'VendorName TEXT NOT NULL',
                     'JSON_URL TEXT',
-                    'PRIMARY KEY (ProductName, VendorId)',
-                    'FOREIGN KEY (VendorId) REFERENCES Vendor(VendorId)'
+                    'PRIMARY KEY (ProductName, VendorName)',
+                    'FOREIGN KEY (VendorName) REFERENCES Vendor(VendorName)'
                 ]);
                 await this.insertData('Product', [ 'ProductName', 'VendorId', 'JSON_URL'], [ product.ProductName, vendor.VendorId.toString(), product.JSON_URL]);
 
@@ -52,8 +54,8 @@ class Database {
                 for(const version of listofVersions){
                     
                     //skip first iteration
-                   
-                    if(version[0]==='**Release number**'){
+                    if(firstiteration){
+                        firstiteration = false;
                         continue;
                     }
 
