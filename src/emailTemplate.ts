@@ -9,6 +9,9 @@ interface Content {
     row2: string;
     row3: string;
     row4: string;
+    row5: string;
+    row6: string;
+    row7: string;
     name: string;
 }
 
@@ -77,43 +80,50 @@ export const createEmailTemplate = (content: Content) => `
                                     </tr>
                                     
                                     <!-- Content Rows -->
-                                    <tr>
-                                        <td align="center" style="padding-bottom: 20px;">
-                                            <div style="color: #5E5E5E; font-size: 24px; max-width: 700px;">
+                                    <tr style="width:100%;">
+                                        <td align="center" style="padding-bottom: 25px; ">
+                                            <div style="color: #5E5E5E; font-size: 24px; max-width: 1000px;">
                                                 ${content.row1}
                                             </div>
                                         </td>
                                     </tr>
-                                    <tr>
-                                        <td align="center" style="padding-bottom: 20px;">
-                                            <div style="color: #5E5E5E; font-size: 24px; max-width: 700px;">
+                                    <tr style="width:100%;">
+                                        <td align="center" style="padding-bottom: 25px; ">
+                                            <div style="color: #5E5E5E; font-size: 24px; max-width: 1000px;">
                                                 ${content.row2}
                                             </div>
                                         </td>
                                     </tr>
-                                    <tr>
-                                        <td align="center" style="padding-bottom: 20px;">
-                                            <div style="color: #5E5E5E; font-size: 24px; max-width: 700px;">
+                                    <tr style="width:100%;">
+                                        <td align="center" style="padding-bottom: 25px; ">
+                                            <div style="color: #5E5E5E; font-size: 24px; max-width: 1000px;">
                                                 ${content.row3}
                                             </div>
                                         </td>
                                     </tr>
-                                    <tr>
-                                        <td align="center" style="padding-bottom: 20px;">
-                                            <div style="color: #5E5E5E; font-size: 24px; max-width: 700px;">
+                                    <tr style="width:100%;">
+                                        <td align="center" style="padding-bottom: 25px; ">
+                                            <div style="color: #5E5E5E; font-size: 24px; max-width: 1000px;">
                                                 ${content.row4}
+                                                <span style="color: #3490EC; font-size: 24px; font-weight: 700;">
+                                                ${content.row5}
+                                                </span>
+                                                ${content.row6}
+                                                <span style="color: #3490EC; font-size: 24px; font-weight: 700;">
+                                                ${content.row7}
+                                                </span>
                                             </div>
                                         </td>
                                     </tr>
                                     
                                     <!-- Button -->
                                     <tr>
-                                        <td align="center" style="padding-top: 20px;">
+                                        <td align="center" style="padding-top: 25px;">
                                             <table cellpadding="0" cellspacing="0">
                                                 <tr>
                                                     <td style="background: #3490EC; border-radius: 60px; padding: 20px 40px; width: 100%;">
                                                         <span style="color: #FFFFFF; font-size: 18px; font-weight: bold; text-decoration: none; display: block; text-align: center; width: 100%;">
-                                                            We will keep you updated with any changes
+                                                           Stay tuned for updates
                                                         </span>
                                                     </td>
                                                 </tr>

@@ -50,58 +50,56 @@ function parseDate(dateStr: string): Date | null {
 }
 
 async function notify_on_end_of_support(versionData: VersionData    , daysUntilEOS: number) {
-    const vendor = versionData.VendorName;
     const product = versionData.ProductName;
     const version = versionData.VersionName;
     
     // Calculate days until end of support
 
-    let emailBody = '';
+    let emailBody = {}
     
     if (daysUntilEOS <= 30) { // Notify when 30 days or less remaining
-        emailBody = `
-            Warning: End of Support Approaching
-            
-            Product: ${product}
-            Vendor: ${vendor}
-            Version: ${version}
-            End of Support Date: ${versionData.EndOfSupportDate?.toDateString()}
-            Days Remaining: ${daysUntilEOS}
-            
-            Please take necessary actions to upgrade or migrate from this version.
-        `;
+        
+        emailBody = {
+            name:'Dor',
+            subject: `End of Support Alert: ${product} ${version}`,
+            row1: `Hey Dor`,
+            row2: `The end of support date for ${product} ${version} is approaching.`,
+            row3: `End of Support Date:`,
+            row4: `The end of support date for ${product} ${version} is:`,
+            row5: `${versionData.EndOfSupportDate?.toDateString()} ,`,
+            row6: `Number of days remaining:`,
+            row7: `${daysUntilEOS}`
+
+        }
         
     
     }
     else if (daysUntilEOS <= 7) {
-        emailBody = `
-            Critical: End of Support Approaching - 7 days or less remaining
-            
-            Product: ${product}
-            Vendor: ${vendor}
-            Version: ${version}
-            End of Support Date: ${versionData.EndOfSupportDate?.toDateString()}
-            Days Remaining: ${daysUntilEOS}
-            
-            Please take necessary actions to upgrade or migrate from this version.
-        `;
+        emailBody = {
+            name:'Dor',
+            subject: `Critical: End of Support Approaching - 7 days or less remaining`,
+            row1: `Hey Dor`,
+            row2: `The end of support date for ${product} ${version} is approaching.`,
+            row3: `End of Support Date:`,
+            row4: `The end of support date for ${product} ${version} is:`,
+            row5: `${versionData.EndOfSupportDate?.toDateString()} ,`,
+            row6: `Number of days remaining:`,
+            row7: `${daysUntilEOS}`
+        }
     }
     
-    // console.log('emailBody',emailBody);
+    console.log('emailBody',emailBody);
 
-    // await sendEmail({
-    //     subject: `End of Support Alert: ${product} ${version}`,
-    //     body: emailBody
-    // });
+    await sendEmail({
+        subject: `End of Support Alert: ${product} ${version}`,
+        content: emailBody
+    });
 }
 
 async function notify_on_end_of_support_changes(product: string, vendor: string, version: string, oldDate?: Date, newDate?: Date) {
-    const changes: string[] = [];
 
-    changes.push(`End of Support date changed from ${!oldDate ? 'null' : oldDate.toDateString()} to ${!newDate ? 'null' : newDate.toDateString()}`);
 
-    if (changes.length > 0) {
-        const emailBody =
+    const emailBody =
         
         {
             name:'Dor',
@@ -109,7 +107,10 @@ async function notify_on_end_of_support_changes(product: string, vendor: string,
             row1: `Hey Dor`,
             row2: `The end of support date for ${product} ${version} has been changed.`,
             row3: `Changes Detected:`,
-            row4: `${changes.join('\n')}`   
+            row4: `End of Support Date changed from `,
+            row5: `${oldDate ? oldDate.toDateString() : 'No old date'}`,
+            row6: `to`,
+            row7: `${newDate ? newDate.toDateString() : 'No new date'}`
         }
 
   
@@ -120,7 +121,7 @@ async function notify_on_end_of_support_changes(product: string, vendor: string,
             subject: `End of Support Date Change: ${product} ${version}`,
             content: emailBody
         });
-    }
+    
 
     
 }
