@@ -107,7 +107,7 @@ async function notify_on_end_of_support_changes(product: string, vendor: string,
             name:'Dor',
             subject: `End of Support Date Change: ${product} ${version}`,
             row1: `Hey Dor`,
-            row2: `Your support for the app is ending soon.`,
+            row2: `The end of support date for ${product} ${version} has been changed.`,
             row3: `Changes Detected:`,
             row4: `${changes.join('\n')}`   
         }
