@@ -1,6 +1,6 @@
 export interface ProductData {
-    ProductId: number;
     ProductName: string;
+    VendorId: number;
     Versions: VersionData[];
     JSON_URL: string;
 }
@@ -18,13 +18,12 @@ export interface DataStructure {
 } 
 
 export interface VersionData {
-    VersionId: number;
     VersionName: string;
-    ProductId: number;
+    ProductName: string;
+    VendorName: string;
     ReleaseDate?: Date
     EndOfSupportDate?: Date;
-    ProductName?: string;
-    VendorName?: string;
+  
 }
 
 

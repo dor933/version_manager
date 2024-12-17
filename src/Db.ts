@@ -4,7 +4,10 @@ import { notify_on_end_of_support, notify_on_end_of_support_changes, notify_new_
 import { parseDate } from './Functions';
 import { DataStructure, VersionData} from './types';
 import { Version } from './Classes';
-const Data=require('./Data.json') as DataStructure;
+const path = require('path');
+const Data=require(path.join(__dirname, '../Data.json')) as DataStructure;
+
+
 
 
 let idversion = 0;
@@ -27,12 +30,18 @@ class Database {
 
     async HandleData() : Promise<boolean> {
         for (const vendor of Data.Vendors) {
-            await this.createTable( 'Vendor', ['VendorId INTEGER PRIMARY KEY AUTOINCREMENT', 'VendorName TEXT', 'contactInfo TEXT', 'WebsiteUrl TEXT']);
+            await this.createTable( 'Vendor', ['VendorName TEXT PRIMARY KEY', 'contactInfo TEXT', 'WebsiteUrl TEXT']);
             await this.insertData('Vendor', ['VendorName', 'contactInfo', 'WebsiteUrl'], [ vendor.VendorName, vendor.contactInfo, vendor.WebsiteUrl]);
 
             for(const product of vendor.Products){
                 firstiteration = true;
-                await this.createTable('Product', ['ProductId INTEGER PRIMARY KEY AUTOINCREMENT', 'ProductName TEXT', 'VendorId INTEGER', 'JSON_URL TEXT', 'FOREIGN KEY (VendorId) REFERENCES Vendor(VendorId)']);
+                await this.createTable('Product', [
+                    'ProductName TEXT',
+                    'VendorId INTEGER NOT NULL',
+                    'JSON_URL TEXT',
+                    'PRIMARY KEY (ProductName, VendorId)',
+                    'FOREIGN KEY (VendorId) REFERENCES Vendor(VendorId)'
+                ]);
                 await this.insertData('Product', [ 'ProductName', 'VendorId', 'JSON_URL'], [ product.ProductName, vendor.VendorId.toString(), product.JSON_URL]);
 
                 let listofVersions:any = await axios.get(product.JSON_URL)
@@ -43,8 +52,8 @@ class Database {
                 for(const version of listofVersions){
                     
                     //skip first iteration
-                    if(firstiteration){
-                        firstiteration = false;
+                   
+                    if(version[0]==='**Release number**'){
                         continue;
                     }
 
@@ -53,27 +62,24 @@ class Database {
 
 
                     const Version:VersionData= {
-                        VersionId: idversion,
                         VersionName: version[0],
-                        ProductId: product.ProductId,
+                        ProductName: product.ProductName,
+                        VendorName: vendor.VendorName,
                         ReleaseDate: ReleaseDate_DateTime ? ReleaseDate_DateTime : undefined,
                         EndOfSupportDate: EndOfSupportDate_DateTime ? EndOfSupportDate_DateTime : undefined ,
-                        ProductName: product.ProductName,
-                        VendorName: vendor.VendorName
                     }
 
 
 
                     await this.createTable('Version');              
                     await this.insertData('Version', 
-                        [ 'VersionName', 'ProductId', 'ReleaseDate', 'EndOfSupportDate', 'ProductName', 'VendorName'], 
+                        [ 'VersionName', 'ProductName', 'VendorName', 'ReleaseDate', 'EndOfSupportDate'], 
                         [
                             Version.VersionName, 
-                            Version.ProductId.toString(), 
+                            Version.ProductName!,
+                            Version.VendorName!,
                             Version.ReleaseDate ? Version.ReleaseDate.toISOString() : 'NULL', 
                             Version.EndOfSupportDate ? Version.EndOfSupportDate.toISOString() : 'NULL',
-                            Version.ProductName!,
-                            Version.VendorName!
                         ] , 
                         Version
                     );
@@ -83,7 +89,7 @@ class Database {
                    if (EndOfSupportDate_DateTime) {
                         const daysUntilEOS = Math.ceil((EndOfSupportDate_DateTime.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
                         if(daysUntilEOS <= 30 && daysUntilEOS >= 0){
-                            await notify_on_end_of_support(Version, daysUntilEOS);
+                            // await notify_on_end_of_support(Version, daysUntilEOS);
                         }
                     }
                 }
@@ -101,14 +107,14 @@ class Database {
                 let sql;
                 if (table === 'Version') {
                     sql = `CREATE TABLE IF NOT EXISTS Version (
-                        VersionId INTEGER PRIMARY KEY AUTOINCREMENT,
                         VersionName TEXT,
-                        ProductId INTEGER,
-                        ReleaseDate DATE,
-                        EndOfSupportDate DATE,
                         ProductName TEXT,
                         VendorName TEXT,
-                        FOREIGN KEY (ProductId) REFERENCES Product(ProductId)
+                        ReleaseDate DATE,
+                        EndOfSupportDate DATE,
+                        FOREIGN KEY (ProductName) REFERENCES Product(ProductName),
+                        FOREIGN KEY (VendorName) REFERENCES Vendor(VendorName),
+                        PRIMARY KEY (VersionName, ProductName, VendorName)
                     )`;
                 } else {
                     const columnsString = columns!.join(',');
@@ -141,7 +147,7 @@ class Database {
                 
                 const columnsString = columns.join(',');
 
-                this.db.all(`SELECT * FROM ${table} WHERE ${columns[0]} = "${values[0]}" AND ${columns[1]} = "${values[1]}" `, (err: Error, rows: any) => {
+                this.db.all(`SELECT * FROM ${table} WHERE ${columns[0]} = "${values[0]}" AND ${columns[1]} = "${values[1]}" ${table==='Version' ? `AND ${columns[2]} = "${values[2]}"` : ''} `, (err: Error, rows: any) => {
                     if (err) {
                         console.error('Error fetching data', err.message);
                         reject(err);
@@ -152,16 +158,16 @@ class Database {
 
                             //try to parse the EndOfSupportDate and values[3] to date   
                             const EndOfSupportDate_DateTime = parseDate(rows[0]?.EndOfSupportDate)
-                            const EndOfSupportDate_DateTime_new = parseDate(values[3]);
+                            const EndOfSupportDate_DateTime_new = parseDate(values[4]);
 
 
                             if(!EndOfSupportDate_DateTime && !EndOfSupportDate_DateTime_new){
                                
                                 resolve(false);
                             }
-                            else if(rows[0]?.EndOfSupportDate !== values[3]){
+                            else if(rows[0]?.EndOfSupportDate !== values[4]){
                                 console.log('Record already exists but EndOfSupportDate is different');
-                                this.UpdateRecord(table, ['EndOfSupportDate'], [values[3]], 'VersionName', rows[0].VersionName);
+                                this.UpdateRecord(table, ['EndOfSupportDate'], [values[4]], 'VersionName', rows[0].VersionName);
                                 notify_on_end_of_support_changes(rows[0].ProductName, rows[0].VendorName, rows[0].VersionName, EndOfSupportDate_DateTime? EndOfSupportDate_DateTime : undefined, EndOfSupportDate_DateTime_new? EndOfSupportDate_DateTime_new : undefined);   
                                 resolve(false);
                             }
