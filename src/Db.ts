@@ -38,13 +38,13 @@ class Database {
                 firstiteration = true;
 
                 await this.createTable('Product', [
-                    'ProductName TEXT PRIMARY KEY',
+                    'ProductName TEXT',
                     'VendorName TEXT NOT NULL',
                     'JSON_URL TEXT',
                     'PRIMARY KEY (ProductName, VendorName)',
                     'FOREIGN KEY (VendorName) REFERENCES Vendor(VendorName)'
                 ]);
-                await this.insertData('Product', [ 'ProductName', 'VendorId', 'JSON_URL'], [ product.ProductName, vendor.VendorId.toString(), product.JSON_URL]);
+                await this.insertData('Product', [ 'ProductName', 'VendorName', 'JSON_URL'], [ product.ProductName, vendor.VendorName, product.JSON_URL]);
 
                 let listofVersions:any = await axios.get(product.JSON_URL)
         
@@ -91,12 +91,13 @@ class Database {
                    if (EndOfSupportDate_DateTime) {
                         const daysUntilEOS = Math.ceil((EndOfSupportDate_DateTime.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
                         if(daysUntilEOS <= 30 && daysUntilEOS >= 0){
-                            // await notify_on_end_of_support(Version, daysUntilEOS);
+                            await notify_on_end_of_support(Version, daysUntilEOS);
                         }
                     }
                 }
             }
         }
+        firstiteration = true;
         idversion = 0;
         return true;
 

@@ -103,7 +103,7 @@ export const createEmailTemplate = (content: Content) => `
                                     </tr>
                                     <tr style="width:100%;">
                                         <td align="center" style="padding-bottom: 25px; ">
-                                            <div style="color: #5E5E5E; font-size: 24px; ">
+                                            <div style="color: #5E5E5E; font-size: 24px;">
                                                 ${content.row4}
                                                 <span style="color: #3490EC; font-size: 24px; font-weight: 700;">
                                                 ${content.row5}
@@ -117,10 +117,10 @@ export const createEmailTemplate = (content: Content) => `
                                     </tr>
                                     
                                     <!-- Button -->
-                                    <tr>
+                                    <tr style="width:100%;">
                                         <td align="center" style="padding-top: 25px;">
                                             <table cellpadding="0" cellspacing="0">
-                                                <tr>
+                                                <tr style="width:100%;">
                                                     <td style="background: #3490EC; border-radius: 60px; padding: 20px 40px; width: 100%;">
                                                         <span style="color: #FFFFFF; font-size: 18px; font-weight: bold; text-decoration: none; display: block; text-align: center; width: 100%;">
                                                            Stay tuned for updates
