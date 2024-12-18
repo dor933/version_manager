@@ -80,28 +80,28 @@ export const createEmailTemplate = (content: Content) => `
                                     </tr>
                                     
                                     <!-- Content Rows -->
-                                    <tr style="width:100%;">
+                                    <tr style="max-width:500px;">
                                         <td align="center" style="padding-bottom: 25px; ">
                                             <div style="color: #5E5E5E; font-size: 24px;">
                                                 ${content.row1}
                                             </div>
                                         </td>
                                     </tr>
-                                    <tr style="width:100%;">
+                                    <tr style="max-width:500px;">
                                         <td align="center" style="padding-bottom: 25px; ">
                                             <div style="color: #5E5E5E; font-size: 24px;">
                                                 ${content.row2}
                                             </div>
                                         </td>
                                     </tr>
-                                    <tr style="width:100%;">
+                                    <tr style="max-width:500px;">
                                         <td align="center" style="padding-bottom: 25px; ">
                                             <div style="color: #5E5E5E; font-size: 24px; ">
                                                 ${content.row3}
                                             </div>
                                         </td>
                                     </tr>
-                                    <tr style="width:100%;">
+                                    <tr style="max-width:500px;">
                                         <td align="center" style="padding-bottom: 25px; ">
                                             <div style="color: #5E5E5E; font-size: 24px;">
                                                 ${content.row4}
@@ -117,10 +117,10 @@ export const createEmailTemplate = (content: Content) => `
                                     </tr>
                                     
                                     <!-- Button -->
-                                    <tr style="width:100%;">
+                                        <tr style="max-width:500px;">
                                         <td align="center" style="padding-top: 25px;">
-                                            <table cellpadding="0" cellspacing="0">
-                                                <tr style="width:100%;">
+                                            <table cellpadding="0" cellspacing="0" width="300px">
+                                                <tr style="max-width:500px;">
                                                     <td style="background: #3490EC; border-radius: 60px; padding: 20px 40px; width: 100%;">
                                                         <span style="color: #FFFFFF; font-size: 18px; font-weight: bold; text-decoration: none; display: block; text-align: center; width: 100%;">
                                                            Stay tuned for updates
