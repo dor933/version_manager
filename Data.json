@@ -26,6 +26,26 @@
                     "ProductName": "Metadefender_Vault",
                     "ProductId": 4,
                     "JSON_URL": "https://api.developerhub.io/api/public/page/203120"
+                },
+                {
+                    "ProductName": "Metadefender_Gateway_Email_Security",
+                    "ProductId": 5,
+                    "JSON_URL": "https://api.developerhub.io/api/public/page/309708"
+                },
+                {
+                    "ProductName": "Metadefender_Icap_Server",
+                    "ProductId": 6,
+                    "JSON_URL": "https://api.developerhub.io/api/public/page/299965"
+                },
+                {
+                    "ProductName": "Metadefender_MFT",
+                    "ProductId": 7,
+                    "JSON_URL": "https://api.developerhub.io/api/public/page/311954"
+                },
+                {
+                    "ProductName": "Metadefender_Cloud",
+                    "ProductId": 8,
+                    "JSON_URL": "https://api.developerhub.io/api/public/page/311954"
                 }
            
         
