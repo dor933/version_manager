@@ -59,7 +59,24 @@ async function notify_on_end_of_support(versionData: VersionData    , daysUntilE
     let emailBody = {}
     
     if (daysUntilEOS <= 7) { // Notify when 30 days or less remaining
+
+        emailBody = {
+            name:'Dor',
+            subject: `Critical: End of Support Approaching - 7 days or less remaining`,
+            row1: `Hey Dor`,
+            row2: `The end of support date for ${product} ${version} is approaching.`,
+            row3: `End of Support Date:`,
+            row4: `The end of support date for ${product} ${version} is:`,
+            row5: `${versionData.EndOfSupportDate?.toDateString()} ,`,
+            row6: `Number of days remaining:`,
+            row7: `${daysUntilEOS}`
+        }
         
+      
+        
+    
+    }
+    else if (daysUntilEOS <= 30) {
         emailBody = {
             name:'Dor',
             subject: `End of Support Alert: ${product} ${version}`,
@@ -72,21 +89,7 @@ async function notify_on_end_of_support(versionData: VersionData    , daysUntilE
             row7: `${daysUntilEOS}`
 
         }
-        
-    
-    }
-    else if (daysUntilEOS <= 30) {
-        emailBody = {
-            name:'Dor',
-            subject: `Critical: End of Support Approaching - 7 days or less remaining`,
-            row1: `Hey Dor`,
-            row2: `The end of support date for ${product} ${version} is approaching.`,
-            row3: `End of Support Date:`,
-            row4: `The end of support date for ${product} ${version} is:`,
-            row5: `${versionData.EndOfSupportDate?.toDateString()} ,`,
-            row6: `Number of days remaining:`,
-            row7: `${daysUntilEOS}`
-        }
+  
     }
     
     console.log('emailBody',emailBody);
