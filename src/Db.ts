@@ -1,11 +1,13 @@
 import fs from 'fs';
 import axios from 'axios';
-import { notify_on_end_of_support, notify_on_end_of_support_changes, notify_new_version, extract_versions_from_json } from './Functions';
+import { notify_on_end_of_support, notify_on_end_of_support_changes, notify_new_version, extract_versions_from_json, sendEmail } from './Functions';
 import { parseDate } from './Functions';
 import { DataStructure, VersionData} from './types';
 import { Version } from './Classes';
 const path = require('path');
 const Data=require(path.join(__dirname, '../Data.json')) as DataStructure;
+let errorCount=0;
+
 
 
 
@@ -21,13 +23,17 @@ class Database {
 
         this.db = new sqlite3.Database('./my-database.db');
         console.log(Data);
-        this.HandleData();
+        this.HandleData(true);
+      
 
    
         
     }
 
-    async HandleData() : Promise<boolean> {
+    async HandleData(isinit?:boolean) : Promise<boolean | any> {
+
+        try{
+
         for (const vendor of Data.Vendors) {
             await this.createTable( 'Vendor', ['VendorName TEXT PRIMARY KEY', 'contactInfo TEXT', 'WebsiteUrl TEXT']);
             await this.insertData('Vendor', ['VendorName', 'contactInfo', 'WebsiteUrl'], [ vendor.VendorName, vendor.contactInfo, vendor.WebsiteUrl]);
@@ -78,7 +84,8 @@ class Database {
                             Version.ReleaseDate ? Version.ReleaseDate.toISOString() : 'NULL', 
                             Version.EndOfSupportDate ? Version.EndOfSupportDate.toISOString() : 'NULL',
                         ] , 
-                        Version
+                        Version,
+                        isinit
                     );
 
 
@@ -94,6 +101,30 @@ class Database {
         }
         idversion = 0;
         return true;
+    }
+    catch(error){
+        errorCount++;
+        if(errorCount>3){
+            const emailBody =
+            {
+               "name":"Dor",
+               "subject":`Error in Version Manager`,
+               "row1":"Hey Dor",
+               "row2":`There is an error in Version Manager`,
+               "row3":"Error Details:",
+               "row4":"",
+               "row5":error+".",
+               "row6":"Please check the logs for more details",
+               "row7":"and let me know if you need any help",
+            }
+            await sendEmail({
+               subject: `Error in Version Manager`,
+               content: emailBody
+           });
+           errorCount=0;
+        }
+        return error;
+    }
 
         
     }
@@ -130,7 +161,7 @@ class Database {
         });
     }
 
-    async insertData(table: string, columns: string[], values: string[], versionData?: VersionData) {
+    async insertData(table: string, columns: string[], values: string[], versionData?: VersionData, isinit?:boolean) {
 
 
         return new Promise((resolve, reject) => {
@@ -143,6 +174,8 @@ class Database {
                 }).join(',');
                 
                 const columnsString = columns.join(',');
+
+                console.log(`SELECT * FROM ${table} WHERE ${columns[0]} = "${values[0]}" AND ${columns[1]} = "${values[1]}" ${table==='Version' ? `AND ${columns[2]} = "${values[2]}"` : ''} `)
 
                 this.db.all(`SELECT * FROM ${table} WHERE ${columns[0]} = "${values[0]}" AND ${columns[1]} = "${values[1]}" ${table==='Version' ? `AND ${columns[2]} = "${values[2]}"` : ''} `, (err: Error, rows: any) => {
                     if (err) {
@@ -192,7 +225,7 @@ class Database {
                                 console.log('Data inserted successfully');
                                 if(table === 'Version'){
                               
-                                    notify_new_version(versionData!);
+                                   !isinit && notify_new_version(versionData!);
                                 }
                                 resolve(true);
                             }
