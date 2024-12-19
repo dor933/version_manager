@@ -11,7 +11,6 @@ const Data=require(path.join(__dirname, '../Data.json')) as DataStructure;
 
 
 let idversion = 0;
-let firstiteration = true;
 
 
 const sqlite3 = require('sqlite3').verbose();
@@ -35,7 +34,6 @@ class Database {
 
             for(const product of vendor.Products){
 
-                firstiteration = true;
 
                 await this.createTable('Product', [
                     'ProductName TEXT',
@@ -48,16 +46,12 @@ class Database {
 
                 let listofVersions:any = await axios.get(product.JSON_URL)
         
-                listofVersions = extract_versions_from_json(listofVersions, vendor.VendorName);
+                listofVersions = extract_versions_from_json(listofVersions, vendor.VendorName, product.ProductName);
 
 
                 for(const version of listofVersions){
                     
-                    //skip first iteration
-                    if(firstiteration){
-                        firstiteration = false;
-                        continue;
-                    }
+                   
 
                     let ReleaseDate_DateTime = parseDate(version[1]);
                     let EndOfSupportDate_DateTime = parseDate(version[2]) 
@@ -71,6 +65,7 @@ class Database {
                         EndOfSupportDate: EndOfSupportDate_DateTime ? EndOfSupportDate_DateTime : undefined ,
                     }
 
+                    console.log('Version', Version);
 
 
                     await this.createTable('Version');              
@@ -97,7 +92,6 @@ class Database {
                 }
             }
         }
-        firstiteration = true;
         idversion = 0;
         return true;
 

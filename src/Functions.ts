@@ -3,6 +3,7 @@ dotenv.config();
 import nodemailer from 'nodemailer';
 import { VersionData } from './types';
 import { createEmailTemplate } from './emailTemplate';
+import { Type1Products, Type2Products } from './types';
 
 function parseDate(dateStr: string): Date | null {
     if (!dateStr) return null;
@@ -126,9 +127,13 @@ async function notify_on_end_of_support_changes(product: string, vendor: string,
     
 }
 
-function extract_versions_from_json(response_json: any, manufacturer: string): any {
+function extract_versions_from_json(response_json: any, manufacturer: string, productName: string): any {
 
     if(manufacturer === 'OPSWAT'){
+
+        if(isType1Product(productName)){
+            console.log(`Processing Type1 product: ${productName}`);
+        
 
     let listofVersions = response_json.data.plugins;
 
@@ -137,11 +142,49 @@ function extract_versions_from_json(response_json: any, manufacturer: string): a
         if(version.data.contents!== undefined){
 
             listofVersions = version.data.contents;
+
+
             console.log('listofVersions',listofVersions);
         }
     }
 
+    listofVersions = listofVersions.filter((version:any)=>!version[0].includes('Release number')  && !version[0].includes('Release Number'));
+
     return listofVersions;
+                                 
+}
+    else{
+
+        let listofVersions = response_json.data.publicVersions;
+        let listtoreturn:any[]=[];
+        let i=0;
+
+        console.log('listofVersions',listofVersions);
+
+        for(const version of listofVersions){
+
+            
+            let vresion_name=version.name;
+
+           
+
+        
+
+            
+            let versobject=[vresion_name,null,null];
+            
+            listtoreturn.push(versobject);
+
+            
+        
+
+        }
+
+        console.log('listtoreturn',listtoreturn);
+        return listtoreturn;
+
+        }
+
 }
 
 else if(manufacturer === 'FORTRA'){
@@ -154,6 +197,10 @@ return null;
 
 
 
+}
+
+function isType1Product(productName: string): productName is Type1Products {
+    return ['Metadefender_Core', 'OCMv7', 'Metadefender_Kiosk', 'Metadefender_Vault', 'Metadefender_Gateway_Email_Security', 'Metadefender_Icap_Server', 'Metadefender_MFT', 'Metadefender_Cloud'].includes(productName);
 }
 
 async function notify_new_version(newVersion: VersionData) {
@@ -182,32 +229,32 @@ async function notify_new_version(newVersion: VersionData) {
 }
 
 async function sendEmail({ subject, content }: { subject: string, content: any }) {
-    const transporter = nodemailer.createTransport({
-        host: "mail.bulwarx.local", // Exchange server address
-        port: 25,                  // Standard secure SMTP port
-        secure: false,              // true for 465, false for other ports
+    // const transporter = nodemailer.createTransport({
+    //     host: "mail.bulwarx.local", // Exchange server address
+    //     port: 25,                  // Standard secure SMTP port
+    //     secure: false,              // true for 465, false for other ports
    
-        tls: {
-            ciphers: 'SSLv3:TLSv1:TLSv1.1:TLSv1.2:TLSv1.3',  // Supports multiple cipher suites
-            rejectUnauthorized: false
-        }
-    });
+    //     tls: {
+    //         ciphers: 'SSLv3:TLSv1:TLSv1.1:TLSv1.2:TLSv1.3',  // Supports multiple cipher suites
+    //         rejectUnauthorized: false
+    //     }
+    // });
 
-    try {
-        const info = await transporter.sendMail({
-            from: process.env.USER_EMAIL,
-            to: process.env.EMAIL_RECIPIENT,
-            subject: subject,
-            html: createEmailTemplate(content)
+    // try {
+    //     const info = await transporter.sendMail({
+    //         from: process.env.USER_EMAIL,
+    //         to: process.env.EMAIL_RECIPIENT,
+    //         subject: subject,
+    //         html: createEmailTemplate(content)
             
-        });
+    //     });
 
-        console.log('Email sent:', info.messageId);
-        return info;
-    } catch (error) {
-        console.error('Error sending email:', error);
-        throw error;
-    }
+    //     console.log('Email sent:', info.messageId);
+    //     return info;
+    // } catch (error) {
+    //     console.error('Error sending email:', error);
+    //     throw error;
+    // }
 }
 
 export { notify_on_end_of_support, notify_new_version, sendEmail, parseDate, notify_on_end_of_support_changes, extract_versions_from_json };

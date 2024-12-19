@@ -1,37 +1,46 @@
- // {
-
-            //"ProductName": "mdss"
-
-
-            // }           ,
-            // {
-
-            //     "ProductName": "client"
-
-
-            // }   ,
-            
-            // {
-
-            //     "ProductName": "email gw secuirty"
-
-
-            // }        ,
-            // {
-            //     "ProductName":"icap"
-            // }   ,
-            // {
-            //     "ProductName":"mddrive"
-            // },
-            // {
-            //     "ProductName":"cloud"
-            // },
-            // {
-            //     "ProductName":"endpoint"
-            // },
-            // {
-            //     "ProductName":"sendbox"
-            // },
-            // {
-            //     "ProductName":"cloud email gw"
-            // }
+   {
+                    "ProductName": "Metadefender_Cloud_Email_Security",
+                    "ProductId": 10,
+                    "JSON_URL": ""
+                },
+                {
+                    "ProductName": "Metadefender_Drive",
+                    "ProductId": 11,
+                    "JSON_URL": ""
+                },
+                {
+                    "ProductName": "Metadefender_Storage_Secuitry",
+                    "ProductId": 12,
+                    "JSON_URL": ""
+                },
+                {
+                    "ProductName": "Metadefender_Update_Downloader",
+                    "ProductId": 13,
+                    "JSON_URL": ""
+                },
+                {
+                    "ProductName": "OPSWAT Central Managment",
+                    "ProductId": 14,
+                    "JSON_URL": ""
+                },
+                {
+                    "ProductName": "Metadefender Endpoint",
+                    "ProductId": 15,
+                    "JSON_URL": ""
+                },
+                {
+                    "ProductName": "Cloud Secuirty For Salesforce",
+                    "ProductId": 16,
+                    "JSON_URL": ""
+                },
+                {
+                    "ProductName": "Metadefender_Secuirty_Gateway",
+                    "ProductId": 17,
+                    "JSON_URL": ""
+                },
+              
+                {
+                    "ProductName": "Metadefender_Software_Supply_Chain",
+                    "ProductId": 18,
+                    "JSON_URL": ""
+                }

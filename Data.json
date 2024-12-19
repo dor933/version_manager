@@ -20,7 +20,6 @@
                     "ProductName": "Metadefender_Kiosk",
                     "ProductId": 3,
                     "JSON_URL": "https://api.developerhub.io/api/public/page/262922"
-
                 },
                 {
                     "ProductName": "Metadefender_Vault",
@@ -46,11 +45,64 @@
                     "ProductName": "Metadefender_Cloud",
                     "ProductId": 8,
                     "JSON_URL": "https://api.developerhub.io/api/public/page/311954"
+                },
+                {
+                    "ProductName": "Metadefender_Sandbox",
+                    "ProductId": 9,
+                    "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Ffilescan%2Frelease-notes"
+                },
+                {
+                    "ProductName": "Metadefender_Cloud_Email_Security",
+                    "ProductId": 10,
+                    "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fmdces%2Frelease-notes"
+                },
+                        {
+                    "ProductName": "Metadefender_Drive",
+                    "ProductId": 11,
+                    "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fmddrive%2Frelease-notes"
+                },
+                {
+                    "ProductName": "Metadefender_Kiosk_Linux",
+                    "ProductId": 12,
+                    "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fmdkiosk-linux%2Frelease-notes"
+                },
+                {
+                    "ProductName": "Metadefender_Storage_Secuitry",
+                    "ProductId": 13,
+                    "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fmdss%2Frelease-notes"
+                },
+                {
+                    "ProductName": "Metadefender_Update_Downloader",
+                    "ProductId": 14,
+                    "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fmddownloader%2Frelease-notes"
+                },
+                {
+                    "ProductName": "Metadefender Endpoint",
+                    "ProductId": 15,
+                    "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fmdendpoint%2Frelease-notes"
+                },
+                {
+                    "ProductName": "Cloud Secuirty For Salesforce",
+                    "ProductId": 16,
+                    "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fcsfs%2Frelease-notes"
+                },
+                {
+                    "ProductName": "Metadefender_Secuirty_Gateway",
+                    "ProductId": 17,
+                    "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fnetwall%2Frelease-notes"
+                },
+                {
+                    "ProductName": "Metadefender_Software_Supply_Chain",
+                    "ProductId": 18,
+                    "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fsupply-chain%2Frelease-notes"
+                },
+                {
+                    "ProductName": "Metadefender_Central_Management",
+                    "ProductId": 19,
+                    "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Focm%2Fknowledgebase"
                 }
-           
-        
-        
-        ]
+
+            ]
         }
     ]
 }
