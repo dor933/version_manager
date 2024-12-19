@@ -58,7 +58,7 @@ async function notify_on_end_of_support(versionData: VersionData    , daysUntilE
 
     let emailBody = {}
     
-    if (daysUntilEOS <= 30) { // Notify when 30 days or less remaining
+    if (daysUntilEOS <= 7) { // Notify when 30 days or less remaining
         
         emailBody = {
             name:'Dor',
@@ -75,7 +75,7 @@ async function notify_on_end_of_support(versionData: VersionData    , daysUntilE
         
     
     }
-    else if (daysUntilEOS <= 7) {
+    else if (daysUntilEOS <= 30) {
         emailBody = {
             name:'Dor',
             subject: `Critical: End of Support Approaching - 7 days or less remaining`,
