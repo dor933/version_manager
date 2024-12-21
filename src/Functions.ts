@@ -238,32 +238,32 @@ async function notify_new_version(newVersion: VersionData) {
 }
 
 async function sendEmail({ subject, content }: { subject: string, content: any }) {
-    // const transporter = nodemailer.createTransport({
-    //     host: "mail.bulwarx.local", // Exchange server address
-    //     port: 25,                  // Standard secure SMTP port
-    //     secure: false,              // true for 465, false for other ports
+    const transporter = nodemailer.createTransport({
+        host: "mail.bulwarx.local", // Exchange server address
+        port: 25,                  // Standard secure SMTP port
+        secure: false,              // true for 465, false for other ports
    
-    //     tls: {
-    //         ciphers: 'SSLv3:TLSv1:TLSv1.1:TLSv1.2:TLSv1.3',  // Supports multiple cipher suites
-    //         rejectUnauthorized: false
-    //     }
-    // });
+        tls: {
+            ciphers: 'SSLv3:TLSv1:TLSv1.1:TLSv1.2:TLSv1.3',  // Supports multiple cipher suites
+            rejectUnauthorized: false
+        }
+    });
 
-    // try {
-    //     const info = await transporter.sendMail({
-    //         from: process.env.USER_EMAIL,
-    //         to: process.env.EMAIL_RECIPIENT,
-    //         subject: subject,
-    //         html: createEmailTemplate(content)
+    try {
+        const info = await transporter.sendMail({
+            from: process.env.USER_EMAIL,
+            to: process.env.EMAIL_RECIPIENT,
+            subject: subject,
+            html: createEmailTemplate(content)
             
-    //     });
+        });
 
-    //     console.log('Email sent:', info.messageId);
-    //     return info;
-    // } catch (error) {
-    //     console.error('Error sending email:', error);
-    //     throw error;
-    // }
+        console.log('Email sent:', info.messageId);
+        return info;
+    } catch (error) {
+        console.error('Error sending email:', error);
+        throw error;
+    }
 }
 
 export { notify_on_end_of_support, notify_new_version, sendEmail, parseDate, notify_on_end_of_support_changes, extract_versions_from_json };
