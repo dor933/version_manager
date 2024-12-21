@@ -1,0 +1,2 @@
+{"error":{"__augmented":true,"code":"SQLITE_ERROR","errno":1},"level":"error","message":"Error in Version Manager","timestamp":"2024-12-21T15:22:00.538Z"}
+{"error":{"__augmented":true,"code":"SQLITE_ERROR","errno":1},"level":"error","message":"Error in Version Manager- Error Count: 1","timestamp":"2024-12-21T15:24:00.392Z"}

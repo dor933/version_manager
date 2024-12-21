@@ -6,13 +6,14 @@ import { DataStructure, VersionData} from './types';
 import { Version } from './Classes';
 const path = require('path');
 const Data=require(path.join(__dirname, '../Data.json')) as DataStructure;
+import winston from 'winston';
 let errorCount=0;
+import { logger } from './index';
 
 
 
 
 
-let idversion = 0;
 
 
 const sqlite3 = require('sqlite3').verbose();
@@ -22,8 +23,6 @@ class Database {
     constructor() {
 
         this.db = new sqlite3.Database('./my-database.db');
-        console.log(Data);
-        this.HandleData(true);
       
 
    
@@ -36,7 +35,9 @@ class Database {
 
         for (const vendor of Data.Vendors) {
             await this.createTable( 'Vendor', ['VendorName TEXT PRIMARY KEY', 'contactInfo TEXT', 'WebsiteUrl TEXT']);
-            await this.insertData('Vendor', ['VendorName', 'contactInfo', 'WebsiteUrl'], [ vendor.VendorName, vendor.contactInfo, vendor.WebsiteUrl]);
+          await this.insertData('Vendor', ['VendorName', 'contactInfo', 'WebsiteUrl'], [ vendor.VendorName, vendor.contactInfo, vendor.WebsiteUrl]);
+
+         
 
             for(const product of vendor.Products){
 
@@ -71,7 +72,6 @@ class Database {
                         EndOfSupportDate: EndOfSupportDate_DateTime ? EndOfSupportDate_DateTime : undefined ,
                     }
 
-                    console.log('Version', Version);
 
 
                     await this.createTable('Version');              
@@ -99,11 +99,12 @@ class Database {
                 }
             }
         }
-        idversion = 0;
+        logger.info('Successfully completed version check');
         return true;
     }
     catch(error){
         errorCount++;
+        logger.error('Error in Version Manager- Error Count: '+errorCount, { error });
         if(errorCount>3){
             const emailBody =
             {
@@ -175,7 +176,6 @@ class Database {
                 
                 const columnsString = columns.join(',');
 
-                console.log(`SELECT * FROM ${table} WHERE ${columns[0]} = "${values[0]}" AND ${columns[1]} = "${values[1]}" ${table==='Version' ? `AND ${columns[2]} = "${values[2]}"` : ''} `)
 
                 this.db.all(`SELECT * FROM ${table} WHERE ${columns[0]} = "${values[0]}" AND ${columns[1]} = "${values[1]}" ${table==='Version' ? `AND ${columns[2]} = "${values[2]}"` : ''} `, (err: Error, rows: any) => {
                     if (err) {
@@ -209,7 +209,6 @@ class Database {
                         }
                         
                         else if(rows?.length > 0){
-                            console.log('Record already exists');
                             resolve(false);
                         }
 
@@ -268,13 +267,15 @@ class Database {
    }
     
 
-    close() {
-        this.db.close((err:Error) => {
-            if (err) {
-                console.error('Error closing database', err.message);
-            } else {
-                console.log('Database connection closed.');
-            }
+    public async close(): Promise<void> {
+        return new Promise((resolve, reject) => {
+            this.db.close((err: Error | null) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve();
+                }
+            });
         });
     }
 }

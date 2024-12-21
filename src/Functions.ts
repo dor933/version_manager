@@ -132,13 +132,16 @@ async function notify_on_end_of_support_changes(product: string, vendor: string,
 
 function extract_versions_from_json(response_json: any, manufacturer: string, productName: string): any {
 
+
+
     if(manufacturer === 'OPSWAT'){
 
         if(isType1Product(productName)){
-            console.log(`Processing Type1 product: ${productName}`);
         
 
     let listofVersions = response_json.data.plugins;
+
+    try{
 
     for(const version of listofVersions){
         
@@ -147,33 +150,32 @@ function extract_versions_from_json(response_json: any, manufacturer: string, pr
             listofVersions = version.data.contents;
 
 
-            console.log('listofVersions',listofVersions);
         }
     }
 
     listofVersions = listofVersions.filter((version:any)=>!version[0].includes('Release number')  && !version[0].includes('Release Number'));
 
     return listofVersions;
+}
+catch(error){
+    console.error('Error extracting versions from JSON when processing Type1 product:', error);
+    return null;
+}
                                  
 }
     else{
+
+        try{
 
         let listofVersions = response_json.data.publicVersions;
         let listtoreturn:any[]=[];
         let i=0;
 
-        console.log('listofVersions',listofVersions);
 
         for(const version of listofVersions){
 
             
-            let vresion_name=version.name;
-
-           
-
-        
-
-            
+            let vresion_name=version.name;        
             let versobject=[vresion_name,null,null];
             
             listtoreturn.push(versobject);
@@ -183,10 +185,14 @@ function extract_versions_from_json(response_json: any, manufacturer: string, pr
 
         }
 
-        console.log('listtoreturn',listtoreturn);
         return listtoreturn;
 
         }
+        catch(error){
+            console.error('Error extracting versions from JSON when processing Type2 product:', error);
+            return null;
+        }
+    }
 
 }
 
@@ -232,32 +238,32 @@ async function notify_new_version(newVersion: VersionData) {
 }
 
 async function sendEmail({ subject, content }: { subject: string, content: any }) {
-    const transporter = nodemailer.createTransport({
-        host: "mail.bulwarx.local", // Exchange server address
-        port: 25,                  // Standard secure SMTP port
-        secure: false,              // true for 465, false for other ports
+    // const transporter = nodemailer.createTransport({
+    //     host: "mail.bulwarx.local", // Exchange server address
+    //     port: 25,                  // Standard secure SMTP port
+    //     secure: false,              // true for 465, false for other ports
    
-        tls: {
-            ciphers: 'SSLv3:TLSv1:TLSv1.1:TLSv1.2:TLSv1.3',  // Supports multiple cipher suites
-            rejectUnauthorized: false
-        }
-    });
+    //     tls: {
+    //         ciphers: 'SSLv3:TLSv1:TLSv1.1:TLSv1.2:TLSv1.3',  // Supports multiple cipher suites
+    //         rejectUnauthorized: false
+    //     }
+    // });
 
-    try {
-        const info = await transporter.sendMail({
-            from: process.env.USER_EMAIL,
-            to: process.env.EMAIL_RECIPIENT,
-            subject: subject,
-            html: createEmailTemplate(content)
+    // try {
+    //     const info = await transporter.sendMail({
+    //         from: process.env.USER_EMAIL,
+    //         to: process.env.EMAIL_RECIPIENT,
+    //         subject: subject,
+    //         html: createEmailTemplate(content)
             
-        });
+    //     });
 
-        console.log('Email sent:', info.messageId);
-        return info;
-    } catch (error) {
-        console.error('Error sending email:', error);
-        throw error;
-    }
+    //     console.log('Email sent:', info.messageId);
+    //     return info;
+    // } catch (error) {
+    //     console.error('Error sending email:', error);
+    //     throw error;
+    // }
 }
 
 export { notify_on_end_of_support, notify_new_version, sendEmail, parseDate, notify_on_end_of_support_changes, extract_versions_from_json };

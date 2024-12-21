@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start:server": "node dist/index.js",
-    "start": "concurrently tsc \"npm run start:server\""
+    "start": "concurrently tsc && npm run start:server"
   },
   "keywords": [],
   "author": "",
@@ -23,6 +23,7 @@
     "dotenv": "^16.4.7",
     "node-cron": "^3.0.3",
     "nodemailer": "^6.9.16",
-    "sqlite3": "^5.1.7"
+    "sqlite3": "^5.1.7",
+    "winston": "^3.17.0"
   }
 }
