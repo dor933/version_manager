@@ -4,6 +4,7 @@ import nodemailer from 'nodemailer';
 import { VersionData } from './types';
 import { createEmailTemplate } from './emailTemplate';
 import { Type1Products, Type2Products } from './types';
+import { logger } from './index';
 
 function parseDate(dateStr: string): Date | null {
     if (!dateStr) return null;
@@ -94,10 +95,17 @@ async function notify_on_end_of_support(versionData: VersionData    , daysUntilE
     
     console.log('emailBody',emailBody);
 
+    try{
+
     await sendEmail({
         subject: `End of Support Alert: ${product} ${version}`,
         content: emailBody
     });
+}
+catch(error){
+    logger.error('Error sending email:', { error });
+}
+
 }
 
 async function notify_on_end_of_support_changes(product: string, vendor: string, version: string, oldDate?: Date, newDate?: Date) {
@@ -121,10 +129,16 @@ async function notify_on_end_of_support_changes(product: string, vendor: string,
 
         console.log('emailBody',emailBody);
 
+        try{
+
         await sendEmail({
             subject: `End of Support Date Change: ${product} ${version}`,
             content: emailBody
         });
+    }
+    catch(error){
+        logger.error('Error sending email:', { error });
+    }
     
 
     
@@ -158,7 +172,7 @@ function extract_versions_from_json(response_json: any, manufacturer: string, pr
     return listofVersions;
 }
 catch(error){
-    console.error('Error extracting versions from JSON when processing Type1 product:', error);
+    logger.error('Error extracting versions from JSON when processing Type1 product:', { error });
     return null;
 }
                                  
@@ -189,7 +203,7 @@ catch(error){
 
         }
         catch(error){
-            console.error('Error extracting versions from JSON when processing Type2 product:', error);
+            logger.error('Error extracting versions from JSON when processing Type2 product:', { error });
             return null;
         }
     }
@@ -229,11 +243,17 @@ async function notify_new_version(newVersion: VersionData) {
             row7: `${newVersion.ReleaseDate? newVersion.ReleaseDate.toDateString() : 'No release date'}`,
           
         }
-        
+
+        try{
+
         await sendEmail({
             subject: `Version Changes Detected: ${newVersion.ProductName}`,
             content: emailBody
         });
+    }
+    catch(error){
+        logger.error('Error sending email:', { error });
+    }
     
 }
 

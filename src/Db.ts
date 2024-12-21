@@ -1,6 +1,6 @@
 import fs from 'fs';
 import axios from 'axios';
-import { notify_on_end_of_support, notify_on_end_of_support_changes, notify_new_version, extract_versions_from_json, sendEmail } from './Functions';
+import { notify_on_end_of_support, notify_on_end_of_support_changes, notify_new_version, extract_versions_from_json } from './Functions';
 import { parseDate } from './Functions';
 import { DataStructure, VersionData} from './types';
 import { Version } from './Classes';
@@ -93,7 +93,7 @@ class Database {
                    if (EndOfSupportDate_DateTime) {
                         const daysUntilEOS = Math.ceil((EndOfSupportDate_DateTime.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
                         if(daysUntilEOS <= 30 && daysUntilEOS >= 0){
-                            await notify_on_end_of_support(Version, daysUntilEOS);
+                         notify_on_end_of_support(Version, daysUntilEOS);
                         }
                     }
                 }

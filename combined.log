@@ -102,3 +102,12 @@
 {"error":"getaddrinfo ENOTFOUND mail.bulwarx.local","level":"error","message":"Error during version check:","timestamp":"2024-12-21T15:50:04.538Z"}
 {"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2024-12-21T15:50:24.877Z"}
 {"level":"info","message":"Stopped cron job","timestamp":"2024-12-21T15:50:24.878Z"}
+{"level":"info","message":"Starting version manager service with 1 minute interval","timestamp":"2024-12-21T16:22:19.317Z"}
+{"level":"info","message":"Starting scheduled version check","timestamp":"2024-12-21T16:23:00.566Z"}
+{"error":{"code":"EDNS","command":"CONN","errno":-3008,"hostname":"mail.bulwarx.local","syscall":"getaddrinfo"},"level":"error","message":"Error sending email:","timestamp":"2024-12-21T16:23:04.986Z"}
+{"error":{"code":"EDNS","command":"CONN","errno":-3008,"hostname":"mail.bulwarx.local","syscall":"getaddrinfo"},"level":"error","message":"Error sending email:","timestamp":"2024-12-21T16:23:06.202Z"}
+{"error":{"code":"EDNS","command":"CONN","errno":-3008,"hostname":"mail.bulwarx.local","syscall":"getaddrinfo"},"level":"error","message":"Error sending email:","timestamp":"2024-12-21T16:23:06.633Z"}
+{"error":{"code":"EDNS","command":"CONN","errno":-3008,"hostname":"mail.bulwarx.local","syscall":"getaddrinfo"},"level":"error","message":"Error sending email:","timestamp":"2024-12-21T16:23:07.102Z"}
+{"level":"info","message":"Successfully completed version check","timestamp":"2024-12-21T16:23:16.087Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2024-12-21T16:23:38.390Z"}
+{"level":"info","message":"Stopped cron job","timestamp":"2024-12-21T16:23:38.392Z"}
