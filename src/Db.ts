@@ -103,27 +103,7 @@ class Database {
         return true;
     }
     catch(error){
-        errorCount++;
-        logger.error('Error in Version Manager- Error Count: '+errorCount, { error });
-        if(errorCount>3){
-            const emailBody =
-            {
-               "name":"Dor",
-               "subject":`Error in Version Manager`,
-               "row1":"Hey Dor",
-               "row2":`There is an error in Version Manager`,
-               "row3":"Error Details:",
-               "row4":"",
-               "row5":error+".",
-               "row6":"Please check the logs for more details",
-               "row7":"and let me know if you need any help",
-            }
-            await sendEmail({
-               subject: `Error in Version Manager`,
-               content: emailBody
-           });
-           errorCount=0;
-        }
+   
         return error;
     }
 

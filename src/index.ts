@@ -3,6 +3,8 @@ import { Database } from './Db';
 import { sendEmail } from './Functions';
 import winston from 'winston';
 
+let errorCount=0;
+
 // Configure logger
 const logger = winston.createLogger({
     level: 'info',
@@ -36,9 +38,35 @@ function startCronJob() {
         logger.info('Starting scheduled version check');
         
         try {
-            await db.HandleData();
+           let res= await db.HandleData();
+           if(res instanceof Error){
+            throw new Error(res.message);
+           }
         } catch (error) {
             logger.error('Error during version check:', { error: error instanceof Error ? error.message : 'Unknown error' });
+                 errorCount++;
+            if(errorCount>3){
+            const emailBody =
+            {
+               "name":"Dor",
+               "subject":`Error in Version Manager`,
+               "row1":"Hey Dor",
+               "row2":`There is an error in Version Manager`,
+               "row3":"Error Details:",
+               "row4":"",
+               "row5":error+".",
+               "row6":"Please check the logs for more details",
+               "row7":"and let me know if you need any help",
+            }
+         
+           await shutdown('Error in Version Manager');
+           errorCount=0;
+
+           await sendEmail({
+            subject: `Error in Version Manager`,
+            content: emailBody
+        });
+        }
         }
     });
 }
