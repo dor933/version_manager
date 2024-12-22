@@ -2,8 +2,34 @@ import nodecron from 'node-cron';
 import { Database } from './Db';
 import { sendEmail } from './Functions';
 import winston from 'winston';
-
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
 let errorCount=0;
+let notificationEmails:any;
+
+
+async function getEmails(){
+
+const argv = await yargs(hideBin(process.argv))
+    .option('emails', {
+        alias: 'e',
+        type: 'string',
+        description: 'Email addresses to send notifications (comma-separated)',
+        default: process.env.NOTIFICATION_EMAILS || ''
+    })
+    .argv;
+
+    console.log('argv',argv);
+
+// Convert emails string to array and validate
+
+notificationEmails = argv.emails
+
+
+
+
+    startCronJob();
+}
 
 // Configure logger
 const logger = winston.createLogger({
@@ -33,6 +59,7 @@ let cronJob: nodecron.ScheduledTask;
 // Start the cron job
 function startCronJob() {
     logger.info(`Starting version manager service with ${interval} minute interval`);
+    console.log('notificationEmails',notificationEmails);
     
     cronJob = nodecron.schedule(`*/${interval} * * * *`, async () => {
         logger.info('Starting scheduled version check');
@@ -43,30 +70,45 @@ function startCronJob() {
             throw new Error(res.message);
            }
         } catch (error) {
-            logger.error('Error during version check:', { error: error instanceof Error ? error.message : 'Unknown error' });
-                 errorCount++;
-            if(errorCount>3){
-            const emailBody =
-            {
-               "name":"Dor",
-               "subject":`Error in Version Manager`,
-               "row1":"Hey Dor",
-               "row2":`There is an error in Version Manager`,
-               "row3":"Error Details:",
-               "row4":"",
-               "row5":error+".",
-               "row6":"Please check the logs for more details",
-               "row7":"and let me know if you need any help",
-            }
-         
-           await shutdown('Error in Version Manager');
-           errorCount=0;
 
-           await sendEmail({
-            subject: `Error in Version Manager`,
-            content: emailBody
-        });
-        }
+            while(errorCount<=3){
+                try{
+                  let res=  await db.HandleData();
+                  if(res instanceof Error){
+                    throw new Error(res.message);
+                   }
+                    break;
+                }catch(error){
+                    errorCount++;
+                    logger.error('Error during version check:', { error: error instanceof Error ? error.message : 'Unknown error' });
+                    const emailBody =
+                    {
+                       "name":"Dor",
+                       "subject":`Error in Version Manager`,
+                       "row1":"Hey Dor",
+                       "row2":`There is an error in Version Manager`,
+                       "row3":"Error Details:",
+                       "row4":"",
+                       "row5":error+".",
+                       "row6":"Please check the logs for more details.",
+                       "row7":"",
+                    }
+                    await sendEmail({
+                        subject: `Error in Version Manager`,
+                        content: emailBody,
+                    });
+                }
+            }
+
+            if(errorCount>3){
+
+            await shutdown('Error in Version Manager');
+            errorCount=0;
+            }
+           
+
+      
+        
         }
     });
 }
@@ -109,10 +151,10 @@ process.on('unhandledRejection', (reason) => {
 });
 
 // Start the application
-startCronJob();
+getEmails();
 
 
-export { logger };
+export { logger,notificationEmails };
 
 
 

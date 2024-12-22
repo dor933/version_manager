@@ -1,12 +1,23 @@
 {
   "name": "versions_manager",
   "version": "1.0.0",
+  "bin": "dist/index.js",
+  "pkg": {
+    "assets": [
+      "dist/**/*",
+      "Data.json",
+      ".env"
+    ],
+    "targets": [ "node18-win-x64" ]
+  },
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "package": "pkg .",
     "start:server": "node dist/index.js",
-    "start": "concurrently tsc && npm run start:server"
+    "start": "npm run build && npm run start:server"
   },
   "keywords": [],
   "author": "",
@@ -15,6 +26,7 @@
     "@types/node": "^22.10.1",
     "@types/node-cron": "^3.0.11",
     "@types/nodemailer": "^6.4.17",
+    "@types/yargs": "^17.0.33",
     "typescript": "^5.7.2"
   },
   "dependencies": {
@@ -22,6 +34,7 @@
     "concurrently": "^9.1.0",
     "dotenv": "^16.4.7",
     "node-cron": "^3.0.3",
+    "node-windows": "^1.0.0-beta.8",
     "nodemailer": "^6.9.16",
     "sqlite3": "^5.1.7",
     "winston": "^3.17.0"

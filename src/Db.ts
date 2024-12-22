@@ -1,13 +1,9 @@
-import fs from 'fs';
 import axios from 'axios';
 import { notify_on_end_of_support, notify_on_end_of_support_changes, notify_new_version, extract_versions_from_json } from './Functions';
 import { parseDate } from './Functions';
 import { DataStructure, VersionData} from './types';
-import { Version } from './Classes';
 const path = require('path');
-const Data=require(path.join(__dirname, '../Data.json')) as DataStructure;
-import winston from 'winston';
-let errorCount=0;
+const Data=require('../Data.json') as DataStructure;
 import { logger } from './index';
 
 
@@ -22,7 +18,7 @@ class Database {
     db: any;
     constructor() {
 
-        this.db = new sqlite3.Database('./my-database.db');
+        this.db = new sqlite3.Database(path.join(__dirname, '../my-database.db'));
       
 
    
@@ -162,7 +158,7 @@ class Database {
                         console.error('Error fetching data', err.message);
                         reject(err);
                     } else {
-
+                    
                                     
                         if(table === 'Version' && rows.length > 0){
 

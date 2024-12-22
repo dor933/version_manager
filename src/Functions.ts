@@ -4,7 +4,7 @@ import nodemailer from 'nodemailer';
 import { VersionData } from './types';
 import { createEmailTemplate } from './emailTemplate';
 import { Type1Products, Type2Products } from './types';
-import { logger } from './index';
+import { logger,notificationEmails } from './index';
 
 function parseDate(dateStr: string): Date | null {
     if (!dateStr) return null;
@@ -47,7 +47,7 @@ function parseDate(dateStr: string): Date | null {
         ));
     }
 
-    console.error(`Unable to parse date: ${dateStr}`);
+    console.log(`Unable to parse date: ${dateStr}` , ',Product may not have a release or end of support date');
     return null;
 }
 
@@ -257,7 +257,7 @@ async function notify_new_version(newVersion: VersionData) {
     
 }
 
-async function sendEmail({ subject, content }: { subject: string, content: any }) {
+async function sendEmail({ subject, content }: { subject: string, content: any, to?: string }) {
     const transporter = nodemailer.createTransport({
         host: "mail.bulwarx.local", // Exchange server address
         port: 25,                  // Standard secure SMTP port
@@ -272,7 +272,7 @@ async function sendEmail({ subject, content }: { subject: string, content: any }
     try {
         const info = await transporter.sendMail({
             from: process.env.USER_EMAIL,
-            to: process.env.EMAIL_RECIPIENT,
+            to: notificationEmails,
             subject: subject,
             html: createEmailTemplate(content)
             

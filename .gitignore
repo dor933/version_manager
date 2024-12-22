@@ -17,4 +17,6 @@
 .vscode/
 .idea/
 
+.exe
+
 # Logs

@@ -36,3 +36,8 @@
 {"error":{"code":"EDNS","command":"CONN","errno":-3008,"hostname":"mail.bulwarx.local","syscall":"getaddrinfo"},"level":"error","message":"Error sending email:","timestamp":"2024-12-21T16:23:06.202Z"}
 {"error":{"code":"EDNS","command":"CONN","errno":-3008,"hostname":"mail.bulwarx.local","syscall":"getaddrinfo"},"level":"error","message":"Error sending email:","timestamp":"2024-12-21T16:23:06.633Z"}
 {"error":{"code":"EDNS","command":"CONN","errno":-3008,"hostname":"mail.bulwarx.local","syscall":"getaddrinfo"},"level":"error","message":"Error sending email:","timestamp":"2024-12-21T16:23:07.102Z"}
+{"error":"SQLITE_ERROR: near \"VendorName\": syntax error","level":"error","message":"Error during version check:","timestamp":"2024-12-22T07:59:00.793Z"}
+{"error":"SQLITE_ERROR: near \"VendorName\": syntax error","level":"error","message":"Error during version check:","timestamp":"2024-12-22T07:59:13.174Z"}
+{"error":"SQLITE_ERROR: near \"VendorName\": syntax error","level":"error","message":"Error during version check:","timestamp":"2024-12-22T07:59:13.921Z"}
+{"error":"SQLITE_ERROR: near \"VendorName\": syntax error","level":"error","message":"Error during version check:","timestamp":"2024-12-22T07:59:14.170Z"}
+{"error":{"code":"EPROTOCOL","command":"CONN","response":"421 4.3.2 The maximum number of concurrent connections has exceeded a limit, closing transmission channel","responseCode":421},"level":"error","message":"Error sending email:","timestamp":"2024-12-22T15:04:03.488Z"}
