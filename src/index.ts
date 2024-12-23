@@ -5,7 +5,9 @@ import winston from 'winston';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 let errorCount=0;
-let notificationEmails:any;
+let notificationEmails:any= process.env.NOTIFICATION_EMAILS;
+let croninterval:any= process.env.CRON_INTERVAL;
+let isinit=true;
 
 
 async function getEmails(){
@@ -17,13 +19,23 @@ const argv = await yargs(hideBin(process.argv))
         description: 'Email addresses to send notifications (comma-separated)',
         default: process.env.NOTIFICATION_EMAILS || ''
     })
+    .option('interval', {
+        alias: 'i',
+        type: 'number',
+        description: 'Cron job interval in minutes',
+        default: process.env.CRON_INTERVAL || 60
+    })
     .argv;
 
-    console.log('argv',argv);
 
-// Convert emails string to array and validate
 
-notificationEmails = argv.emails
+
+
+notificationEmails = argv.emails!==''? argv.emails : argv.email!==''? argv.email : process.env.NOTIFICATION_EMAILS;
+croninterval= argv.interval? argv.interval: parseInt(process.env.CRON_INTERVAL!)
+
+console.log('Notification Emails are now:', notificationEmails)
+console.log('Interval is:', croninterval)
 
 
 
@@ -52,16 +64,16 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // Configuration
-const interval = process.env.CRON_INTERVAL ? parseInt(process.env.CRON_INTERVAL) : 1;
 const db = new Database();
 let cronJob: nodecron.ScheduledTask;
 
 // Start the cron job
 function startCronJob() {
-    logger.info(`Starting version manager service with ${interval} minute interval`);
+    logger.info(`Starting version manager service with ${croninterval} minute interval`);
+    isinit=false;
     console.log('notificationEmails',notificationEmails);
     
-    cronJob = nodecron.schedule(`*/${interval} * * * *`, async () => {
+    cronJob = nodecron.schedule(`*/${croninterval} * * * *`, async () => {
         logger.info('Starting scheduled version check');
         
         try {
@@ -151,10 +163,12 @@ process.on('unhandledRejection', (reason) => {
 });
 
 // Start the application
-getEmails();
+(async () => {
+    await db.HandleData();
+    getEmails();
+})();
 
-
-export { logger,notificationEmails };
+export { logger, notificationEmails, isinit };
 
 
 

@@ -41,3 +41,7 @@
 {"error":"SQLITE_ERROR: near \"VendorName\": syntax error","level":"error","message":"Error during version check:","timestamp":"2024-12-22T07:59:13.921Z"}
 {"error":"SQLITE_ERROR: near \"VendorName\": syntax error","level":"error","message":"Error during version check:","timestamp":"2024-12-22T07:59:14.170Z"}
 {"error":{"code":"EPROTOCOL","command":"CONN","response":"421 4.3.2 The maximum number of concurrent connections has exceeded a limit, closing transmission channel","responseCode":421},"level":"error","message":"Error sending email:","timestamp":"2024-12-22T15:04:03.488Z"}
+{"level":"error","message":"Unhandled Rejection:","reason":{},"timestamp":"2024-12-23T13:37:27.602Z"}
+{"level":"error","message":"Unhandled Rejection:","reason":{},"timestamp":"2024-12-23T13:56:54.321Z"}
+{"level":"error","message":"Unhandled Rejection:","reason":{},"timestamp":"2024-12-23T13:58:56.634Z"}
+{"level":"error","message":"Unhandled Rejection:","reason":{},"timestamp":"2024-12-23T14:05:13.446Z"}

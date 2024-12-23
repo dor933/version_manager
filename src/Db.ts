@@ -18,7 +18,7 @@ class Database {
     db: any;
     constructor() {
 
-        this.db = new sqlite3.Database(path.join(__dirname, '../my-database.db'));
+        this.db = new sqlite3.Database( './my-database.db');
       
 
    
@@ -81,7 +81,7 @@ class Database {
                             Version.EndOfSupportDate ? Version.EndOfSupportDate.toISOString() : 'NULL',
                         ] , 
                         Version,
-                        isinit
+                        
                     );
 
 
@@ -138,7 +138,7 @@ class Database {
         });
     }
 
-    async insertData(table: string, columns: string[], values: string[], versionData?: VersionData, isinit?:boolean) {
+    async insertData(table: string, columns: string[], values: string[], versionData?: VersionData) {
 
 
         return new Promise((resolve, reject) => {
@@ -200,7 +200,7 @@ class Database {
                                 console.log('Data inserted successfully');
                                 if(table === 'Version'){
                               
-                                   !isinit && notify_new_version(versionData!);
+                                    notify_new_version(versionData!);
                                 }
                                 resolve(true);
                             }

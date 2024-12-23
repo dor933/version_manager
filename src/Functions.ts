@@ -4,7 +4,7 @@ import nodemailer from 'nodemailer';
 import { VersionData } from './types';
 import { createEmailTemplate } from './emailTemplate';
 import { Type1Products, Type2Products } from './types';
-import { logger,notificationEmails } from './index';
+import { logger,notificationEmails,isinit } from './index';
 
 function parseDate(dateStr: string): Date | null {
     if (!dateStr) return null;
@@ -258,6 +258,11 @@ async function notify_new_version(newVersion: VersionData) {
 }
 
 async function sendEmail({ subject, content }: { subject: string, content: any, to?: string }) {
+
+    if(isinit || notificationEmails===''){
+        return
+    }
+
     const transporter = nodemailer.createTransport({
         host: "mail.bulwarx.local", // Exchange server address
         port: 25,                  // Standard secure SMTP port
