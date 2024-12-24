@@ -770,3 +770,11 @@
 {"level":"info","message":"Starting version manager service with 560 minute interval","timestamp":"2024-12-23T16:01:42.178Z"}
 {"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2024-12-23T16:01:49.390Z"}
 {"level":"info","message":"Stopped cron job","timestamp":"2024-12-23T16:01:49.402Z"}
+{"level":"info","message":"Starting version manager service with 1 minute interval","timestamp":"2024-12-24T15:46:00.745Z"}
+{"level":"info","message":"Starting scheduled version check","timestamp":"2024-12-24T15:46:00.749Z"}
+{"level":"info","message":"Successfully completed version check","timestamp":"2024-12-24T15:46:17.509Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2024-12-24T15:46:22.880Z"}
+{"level":"info","message":"Stopped cron job","timestamp":"2024-12-24T15:46:22.882Z"}
+{"level":"info","message":"Starting version manager service with 10 minute interval","timestamp":"2024-12-24T15:47:13.616Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2024-12-24T15:47:18.296Z"}
+{"level":"info","message":"Stopped cron job","timestamp":"2024-12-24T15:47:18.297Z"}

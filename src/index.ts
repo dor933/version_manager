@@ -164,7 +164,7 @@ process.on('unhandledRejection', (reason) => {
 
 // Start the application
 (async () => {
-    await db.HandleData();
+    // await db.HandleData();
     getEmails();
 })();
 
