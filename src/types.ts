@@ -24,6 +24,8 @@ export interface VersionData {
     VendorName: string;
     ReleaseDate?: Date
     EndOfSupportDate?: Date;
+    LevelOfSupport?:string;
+    Extended_Support_End_Date?:Date
   
 }
 

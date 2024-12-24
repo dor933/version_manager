@@ -58,6 +58,8 @@ class Database {
 
                     let ReleaseDate_DateTime = parseDate(version[1]!);
                     let EndOfSupportDate_DateTime = parseDate(version[2]!) 
+                    let LevelOfSupport= version[3]
+                    let ExtendedEndOfSupportDate= parseDate(version[4]!);
 
 
                     const Version:VersionData= {
@@ -66,19 +68,23 @@ class Database {
                         VendorName: vendor.VendorName,
                         ReleaseDate: ReleaseDate_DateTime ? ReleaseDate_DateTime : undefined,
                         EndOfSupportDate: EndOfSupportDate_DateTime ? EndOfSupportDate_DateTime : undefined ,
+                        LevelOfSupport: LevelOfSupport? LevelOfSupport:undefined,
+                        Extended_Support_End_Date: ExtendedEndOfSupportDate? ExtendedEndOfSupportDate:undefined
                     }
 
 
 
                     await this.createTable('Version');              
                     await this.insertData('Version', 
-                        [ 'VersionName', 'ProductName', 'VendorName', 'ReleaseDate', 'EndOfSupportDate'], 
+                        [ 'VersionName', 'ProductName', 'VendorName', 'ReleaseDate', 'EndOfSupportDate', 'LevelOfSupport', 'Extended_Support_End_Date'], 
                         [
                             Version.VersionName, 
                             Version.ProductName!,
                             Version.VendorName!,
                             Version.ReleaseDate ? Version.ReleaseDate.toISOString() : 'NULL', 
                             Version.EndOfSupportDate ? Version.EndOfSupportDate.toISOString() : 'NULL',
+                            Version.LevelOfSupport? Version.LevelOfSupport : 'NULL',
+                            Version.Extended_Support_End_Date? Version.Extended_Support_End_Date.toISOString() : 'NULL'
                         ] , 
                         Version,
                         
@@ -87,9 +93,14 @@ class Database {
 
 
                    if (EndOfSupportDate_DateTime) {
+
+                     let daysUntilExtendedEOS
                         const daysUntilEOS = Math.ceil((EndOfSupportDate_DateTime.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-                        if(daysUntilEOS <= 30 && daysUntilEOS >= 0){
-                         notify_on_end_of_support(Version, daysUntilEOS);
+                        if(ExtendedEndOfSupportDate){
+                             daysUntilExtendedEOS= Math.ceil((ExtendedEndOfSupportDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+                        }
+                        if((daysUntilEOS <= 30 && daysUntilEOS >= 0) || daysUntilExtendedEOS && daysUntilExtendedEOS <14){
+                         notify_on_end_of_support(Version, daysUntilEOS, daysUntilExtendedEOS && daysUntilExtendedEOS );
                         }
                     }
                 }

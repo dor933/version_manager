@@ -5,6 +5,7 @@ import { VersionData } from './types';
 import { createEmailTemplate } from './emailTemplate';
 import { Type1Products, Type2Products, version_extracted } from './types';
 import { logger,notificationEmails,isinit } from './index';
+import { Version } from './Classes';
 
 function parseDate(dateStr: string): Date | null {
     if (!dateStr) return null;
@@ -51,13 +52,33 @@ function parseDate(dateStr: string): Date | null {
     return null;
 }
 
-async function notify_on_end_of_support(versionData: VersionData    , daysUntilEOS: number) {
+async function notify_on_end_of_support(versionData: VersionData , daysUntilEOS: number, daysUntilExtendedEOS?:number) {
     const product = versionData.ProductName;
     const version = versionData.VersionName;
     
     // Calculate days until end of support
 
     let emailBody = {}
+
+    if(daysUntilExtendedEOS){
+
+        
+        emailBody = {
+            name:'Dor',
+            subject: `End of Extended Support Alert: ${product} ${version}`,
+            row1: `Hey Dor`,
+            row2: `The end of extended support date for ${product} ${version} is approaching.`,
+            row3: `End of Support Date:`,
+            row4: `The end of extended support date for ${product} ${version} is:`,
+            row5: `${versionData.Extended_Support_End_Date?.toDateString()} ,`,
+            row6: `Number of days remaining:`,
+            row7: `${daysUntilEOS}`
+
+        }
+
+    }
+
+    else{
     
     if (daysUntilEOS <= 7) { // Notify when 30 days or less remaining
 
@@ -92,6 +113,7 @@ async function notify_on_end_of_support(versionData: VersionData    , daysUntilE
         }
   
     }
+}
     
     console.log('emailBody',emailBody);
 
@@ -99,7 +121,8 @@ async function notify_on_end_of_support(versionData: VersionData    , daysUntilE
 
     await sendEmail({
         subject: `End of Support Alert: ${product} ${version}`,
-        content: emailBody
+        content: emailBody,
+        vendor_name: versionData.VendorName
     });
 }
 catch(error){
@@ -133,7 +156,8 @@ async function notify_on_end_of_support_changes(product: string, vendor: string,
 
         await sendEmail({
             subject: `End of Support Date Change: ${product} ${version}`,
-            content: emailBody
+            content: emailBody,
+            vendor_name: vendor
         });
     }
     catch(error){
@@ -249,7 +273,8 @@ async function notify_new_version(newVersion: VersionData) {
 
         await sendEmail({
             subject: `Version Changes Detected: ${newVersion.ProductName}`,
-            content: emailBody
+            content: emailBody,
+            vendor_name: newVersion.VendorName
         });
     }
     catch(error){
@@ -258,11 +283,13 @@ async function notify_new_version(newVersion: VersionData) {
     
 }
 
-async function sendEmail({ subject, content }: { subject: string, content: any, to?: string }) {
+async function sendEmail({ subject, content, vendor_name, to }: { subject: string, content: any, vendor_name:string, to?: string}) {
 
     if(isinit || notificationEmails===''){
         return
     }
+    
+    
 
     const transporter = nodemailer.createTransport({
         host: "mail.bulwarx.local", // Exchange server address
@@ -280,7 +307,7 @@ async function sendEmail({ subject, content }: { subject: string, content: any, 
             from: process.env.USER_EMAIL,
             to: notificationEmails,
             subject: subject,
-            html: createEmailTemplate(content)
+            html: createEmailTemplate(content, vendor_name)
             
         });
 

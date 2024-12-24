@@ -15,7 +15,7 @@ interface Content {
     name: string;
 }
 
-export const createEmailTemplate = (content: Content) => `  
+export const createEmailTemplate = (content: Content, vendorname:string) => `  
     <!DOCTYPE html>
     <html>
     <head>
@@ -40,7 +40,8 @@ export const createEmailTemplate = (content: Content) => `
                         <!-- Logo Section -->
                         <tr>
                             <td align="center" style="padding-bottom: 67px;">
-                                <img src="https://static.wixstatic.com/media/122b90_67401fc021a44296b98b2b0d82bd5bea~mv2.png" 
+                            
+                                <img src=${vendorname==='OPSWAT'? "https://static.wixstatic.com/media/122b90_67401fc021a44296b98b2b0d82bd5bea~mv2.png"  : vendorname==='Fortra'? "https://static.fortra.com/hs-logo.png" : null}
                                      alt="Logo" 
                                      style="width: 200px; height: 100px; border-radius: 25px;" />
                             </td>
