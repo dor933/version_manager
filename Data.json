@@ -102,7 +102,36 @@
                     "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Focm%2Fknowledgebase"
                 }
 
+            ] 
+
+          
+        } ,
+        {
+            "VendorId": 2,
+            "VendorName": "Fortra",
+            "contactInfo": "ContactInfo1",
+            "WebsiteUrl": "https://www.fortra.com",
+            "JSON_URL": "https://api.portal.fortra.com/kbarticles/goanywhere-mft-end-of-support-life-policy-and-supported-versions-OWMyY2VkZTktZGFmMS1lZTExLTkwNGMtMDAyMjQ4MGFlMjg0?productSlug=goanywhere-mft",
+            "Products": [ 
+                {
+                    "ProductName": "Goanywhere MFT",
+                    "ProductId": 1
+                    
+                } ,
+
+                {
+                    "ProductName": "Goanywhere Gateway",
+                    "ProductId": 2
+                 
+                },
+                {
+                    "ProductName": "Goanywhere Agent",
+                    "ProductId": 3
+                    
+                }
+
             ]
+                
         }
     ]
 }

@@ -3,7 +3,7 @@ dotenv.config();
 import nodemailer from 'nodemailer';
 import { VersionData } from './types';
 import { createEmailTemplate } from './emailTemplate';
-import { Type1Products, Type2Products } from './types';
+import { Type1Products, Type2Products, version_extracted } from './types';
 import { logger,notificationEmails,isinit } from './index';
 
 function parseDate(dateStr: string): Date | null {
@@ -144,9 +144,10 @@ async function notify_on_end_of_support_changes(product: string, vendor: string,
     
 }
 
-function extract_versions_from_json(response_json: any, manufacturer: string, productName: string): any {
+function extract_versions_from_json(response_json: any, manufacturer: string, productName: string): version_extracted[]  {
 
 
+    let version_extracted_ret: version_extracted[] = []
 
     if(manufacturer === 'OPSWAT'){
 
@@ -161,19 +162,19 @@ function extract_versions_from_json(response_json: any, manufacturer: string, pr
         
         if(version.data.contents!== undefined){
 
-            listofVersions = version.data.contents;
+            version_extracted_ret = version.data.contents;
 
 
         }
     }
 
-    listofVersions = listofVersions.filter((version:any)=>!version[0].includes('Release number')  && !version[0].includes('Release Number'));
+    version_extracted_ret = version_extracted_ret.filter((version:any)=>!version[0].includes('Release number')  && !version[0].includes('Release Number'));
 
-    return listofVersions;
+    return version_extracted_ret;
 }
 catch(error){
     logger.error('Error extracting versions from JSON when processing Type1 product:', { error });
-    return null;
+    return version_extracted_ret
 }
                                  
 }
@@ -182,15 +183,15 @@ catch(error){
         try{
 
         let listofVersions = response_json.data.publicVersions;
-        let listtoreturn:any[]=[];
+        let listtoreturn:version_extracted[]=[];
         let i=0;
 
 
         for(const version of listofVersions){
 
             
-            let vresion_name=version.name;        
-            let versobject=[vresion_name,null,null];
+            let version_name=version.name;        
+            let versobject:version_extracted=[version_name,null,null];
             
             listtoreturn.push(versobject);
 
@@ -204,7 +205,7 @@ catch(error){
         }
         catch(error){
             logger.error('Error extracting versions from JSON when processing Type2 product:', { error });
-            return null;
+            return version_extracted_ret;
         }
     }
 
@@ -216,7 +217,7 @@ else if(manufacturer === 'FORTRA'){
     return response_json;
 }
 
-return null;
+return version_extracted_ret;
 
 
 

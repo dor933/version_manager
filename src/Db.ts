@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { notify_on_end_of_support, notify_on_end_of_support_changes, notify_new_version, extract_versions_from_json } from './Functions';
 import { parseDate } from './Functions';
-import { DataStructure, VersionData} from './types';
+import { DataStructure, VersionData, version_extracted} from './types';
 const path = require('path');
 const Data=require('../Data.json') as DataStructure;
 import { logger } from './index';
@@ -45,9 +45,9 @@ class Database {
                     'PRIMARY KEY (ProductName, VendorName)',
                     'FOREIGN KEY (VendorName) REFERENCES Vendor(VendorName)'
                 ]);
-                await this.insertData('Product', [ 'ProductName', 'VendorName', 'JSON_URL'], [ product.ProductName, vendor.VendorName, product.JSON_URL]);
+                await this.insertData('Product', [ 'ProductName', 'VendorName', 'JSON_URL'], [ product.ProductName, vendor.VendorName, product.JSON_URL!]);
 
-                let listofVersions:any = await axios.get(product.JSON_URL)
+                let listofVersions:version_extracted[] = await axios.get(product.JSON_URL!)
         
                 listofVersions = extract_versions_from_json(listofVersions, vendor.VendorName, product.ProductName);
 
@@ -56,8 +56,8 @@ class Database {
                     
                    
 
-                    let ReleaseDate_DateTime = parseDate(version[1]);
-                    let EndOfSupportDate_DateTime = parseDate(version[2]) 
+                    let ReleaseDate_DateTime = parseDate(version[1]!);
+                    let EndOfSupportDate_DateTime = parseDate(version[2]!) 
 
 
                     const Version:VersionData= {
@@ -117,6 +117,8 @@ class Database {
                         VendorName TEXT,
                         ReleaseDate DATE,
                         EndOfSupportDate DATE,
+                        LevelOfSupport TEXT,
+                        ExtendedEndOfSupportDate DATE,
                         FOREIGN KEY (ProductName) REFERENCES Product(ProductName),
                         FOREIGN KEY (VendorName) REFERENCES Vendor(VendorName),
                         PRIMARY KEY (VersionName, ProductName, VendorName)
