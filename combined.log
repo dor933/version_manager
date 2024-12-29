@@ -800,3 +800,98 @@
 {"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2024-12-24T07:32:57.770Z"}
 {"level":"info","message":"Stopped cron job","timestamp":"2024-12-24T07:32:57.772Z"}
 {"level":"info","message":"Closed database connections","timestamp":"2024-12-24T07:32:57.775Z"}
+{"level":"error","message":"Unhandled Rejection:","reason":{},"timestamp":"2024-12-26T12:39:38.704Z"}
+{"level":"info","message":"Received unhandled rejection. Starting graceful shutdown...","timestamp":"2024-12-26T12:39:38.711Z"}
+{"level":"info","message":"Closed database connections","timestamp":"2024-12-26T12:39:38.713Z"}
+{"level":"error","message":"Unhandled Rejection:","reason":{},"timestamp":"2024-12-26T12:40:28.785Z"}
+{"level":"info","message":"Received unhandled rejection. Starting graceful shutdown...","timestamp":"2024-12-26T12:40:28.787Z"}
+{"level":"error","message":"Unhandled Rejection:","reason":{},"timestamp":"2024-12-26T12:41:25.362Z"}
+{"level":"info","message":"Received unhandled rejection. Starting graceful shutdown...","timestamp":"2024-12-26T12:41:25.365Z"}
+{"level":"error","message":"Unhandled Rejection:","reason":{},"timestamp":"2024-12-26T12:42:13.267Z"}
+{"level":"info","message":"Received unhandled rejection. Starting graceful shutdown...","timestamp":"2024-12-26T12:42:13.271Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2024-12-26T12:44:28.613Z"}
+{"level":"info","message":"Closed database connections","timestamp":"2024-12-26T12:44:28.615Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2024-12-26T12:54:01.986Z"}
+{"level":"info","message":"Closed database connections","timestamp":"2024-12-26T12:54:01.988Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2024-12-26T12:55:26.209Z"}
+{"level":"info","message":"Closed database connections","timestamp":"2024-12-26T12:55:26.211Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2024-12-26T12:57:10.017Z"}
+{"level":"info","message":"Closed database connections","timestamp":"2024-12-26T12:57:10.019Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2024-12-26T12:57:39.970Z"}
+{"level":"info","message":"Closed database connections","timestamp":"2024-12-26T12:57:39.973Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2024-12-26T12:59:36.931Z"}
+{"level":"info","message":"Closed database connections","timestamp":"2024-12-26T12:59:36.937Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2024-12-26T13:00:33.743Z"}
+{"level":"info","message":"Closed database connections","timestamp":"2024-12-26T13:00:33.747Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2024-12-26T13:07:42.913Z"}
+{"level":"info","message":"Closed database connections","timestamp":"2024-12-26T13:07:42.917Z"}
+{"level":"info","message":"Starting version manager service with 1 minute interval","timestamp":"2024-12-26T13:40:30.496Z"}
+{"level":"info","message":"Starting scheduled version check","timestamp":"2024-12-26T13:41:00.759Z"}
+{"error":"listoffortraversions is not iterable","level":"error","message":"Error during version check:","timestamp":"2024-12-26T13:41:02.208Z"}
+{"error":"listoffortraversions is not iterable","level":"error","message":"Error during version check:","timestamp":"2024-12-26T13:41:02.780Z"}
+{"error":"listoffortraversions is not iterable","level":"error","message":"Error during version check:","timestamp":"2024-12-26T13:41:03.253Z"}
+{"error":"listoffortraversions is not iterable","level":"error","message":"Error during version check:","timestamp":"2024-12-26T13:41:03.766Z"}
+{"level":"info","message":"Received Error in Version Manager. Starting graceful shutdown...","timestamp":"2024-12-26T13:41:03.926Z"}
+{"level":"info","message":"Stopped cron job","timestamp":"2024-12-26T13:41:03.927Z"}
+{"level":"info","message":"Starting version manager service with 1 minute interval","timestamp":"2024-12-26T13:44:53.127Z"}
+{"level":"info","message":"Starting scheduled version check","timestamp":"2024-12-26T13:45:00.184Z"}
+{"error":"listoffortraversions is not iterable","level":"error","message":"Error during version check:","timestamp":"2024-12-26T13:45:01.497Z"}
+{"error":"listoffortraversions is not iterable","level":"error","message":"Error during version check:","timestamp":"2024-12-26T13:45:02.031Z"}
+{"error":"listoffortraversions is not iterable","level":"error","message":"Error during version check:","timestamp":"2024-12-26T13:45:02.532Z"}
+{"error":"listoffortraversions is not iterable","level":"error","message":"Error during version check:","timestamp":"2024-12-26T13:45:03.073Z"}
+{"level":"info","message":"Received Error in Version Manager. Starting graceful shutdown...","timestamp":"2024-12-26T13:45:03.233Z"}
+{"level":"info","message":"Stopped cron job","timestamp":"2024-12-26T13:45:03.234Z"}
+{"level":"info","message":"Starting version manager service with 1 minute interval","timestamp":"2024-12-26T13:47:24.594Z"}
+{"level":"info","message":"Starting scheduled version check","timestamp":"2024-12-26T13:48:00.888Z"}
+{"error":"listoffortraversions is not iterable","level":"error","message":"Error during version check:","timestamp":"2024-12-26T13:48:02.309Z"}
+{"error":"listoffortraversions is not iterable","level":"error","message":"Error during version check:","timestamp":"2024-12-26T13:48:03.623Z"}
+{"error":"listoffortraversions is not iterable","level":"error","message":"Error during version check:","timestamp":"2024-12-26T13:48:04.111Z"}
+{"error":"listoffortraversions is not iterable","level":"error","message":"Error during version check:","timestamp":"2024-12-26T13:48:04.592Z"}
+{"level":"info","message":"Received Error in Version Manager. Starting graceful shutdown...","timestamp":"2024-12-26T13:48:04.744Z"}
+{"level":"info","message":"Stopped cron job","timestamp":"2024-12-26T13:48:04.744Z"}
+{"level":"info","message":"Starting version manager service with 1 minute interval","timestamp":"2024-12-26T13:59:25.566Z"}
+{"level":"info","message":"Starting scheduled version check","timestamp":"2024-12-26T14:00:00.816Z"}
+{"error":"listoffortraversions is not iterable","level":"error","message":"Error during version check:","timestamp":"2024-12-26T14:00:28.162Z"}
+{"error":"listoffortraversions is not iterable","level":"error","message":"Error during version check:","timestamp":"2024-12-26T14:00:41.226Z"}
+{"error":"listoffortraversions is not iterable","level":"error","message":"Error during version check:","timestamp":"2024-12-26T14:00:53.601Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2024-12-26T14:00:55.177Z"}
+{"level":"info","message":"Stopped cron job","timestamp":"2024-12-26T14:00:55.177Z"}
+{"level":"info","message":"Closed database connections","timestamp":"2024-12-26T14:00:55.178Z"}
+{"level":"info","message":"Starting version manager service with 1 minute interval","timestamp":"2024-12-26T14:04:56.599Z"}
+{"level":"info","message":"Starting scheduled version check","timestamp":"2024-12-26T14:05:00.650Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2024-12-26T14:05:02.773Z"}
+{"level":"info","message":"Stopped cron job","timestamp":"2024-12-26T14:05:02.774Z"}
+{"level":"info","message":"Starting version manager service with 1 minute interval","timestamp":"2024-12-26T14:11:22.559Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2024-12-26T14:11:25.689Z"}
+{"level":"info","message":"Stopped cron job","timestamp":"2024-12-26T14:11:25.692Z"}
+{"level":"info","message":"Closed database connections","timestamp":"2024-12-26T14:11:25.694Z"}
+{"level":"info","message":"Starting version manager service with 1 minute interval","timestamp":"2024-12-26T14:14:18.388Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2024-12-26T14:14:47.706Z"}
+{"level":"info","message":"Stopped cron job","timestamp":"2024-12-26T14:14:47.708Z"}
+{"level":"info","message":"Starting version manager service with 1 minute interval","timestamp":"2024-12-26T14:17:05.197Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2024-12-26T14:17:10.497Z"}
+{"level":"info","message":"Stopped cron job","timestamp":"2024-12-26T14:17:10.499Z"}
+{"level":"info","message":"Successfully completed version check","timestamp":"2024-12-26T14:18:19.701Z"}
+{"level":"info","message":"Starting version manager service with 1 minute interval","timestamp":"2024-12-26T14:18:19.710Z"}
+{"level":"info","message":"Starting scheduled version check","timestamp":"2024-12-26T14:19:00.013Z"}
+{"level":"info","message":"Successfully completed version check","timestamp":"2024-12-26T14:19:13.646Z"}
+{"level":"info","message":"Starting scheduled version check","timestamp":"2024-12-26T14:20:00.413Z"}
+{"level":"info","message":"Successfully completed version check","timestamp":"2024-12-26T14:20:13.211Z"}
+{"level":"info","message":"Starting scheduled version check","timestamp":"2024-12-26T14:21:00.867Z"}
+{"level":"info","message":"Successfully completed version check","timestamp":"2024-12-26T14:21:17.340Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2024-12-26T14:21:22.613Z"}
+{"level":"info","message":"Stopped cron job","timestamp":"2024-12-26T14:21:22.614Z"}
+{"level":"info","message":"Successfully completed version check","timestamp":"2024-12-26T14:27:18.954Z"}
+{"level":"info","message":"Starting version manager service with 1 minute interval","timestamp":"2024-12-26T14:27:18.966Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2024-12-26T14:27:41.431Z"}
+{"level":"info","message":"Stopped cron job","timestamp":"2024-12-26T14:27:41.433Z"}
+{"level":"info","message":"Successfully completed version check","timestamp":"2024-12-26T14:28:32.361Z"}
+{"level":"info","message":"Starting version manager service with 1 minute interval","timestamp":"2024-12-26T14:28:32.369Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2024-12-26T14:28:55.335Z"}
+{"level":"info","message":"Stopped cron job","timestamp":"2024-12-26T14:28:55.338Z"}
+{"level":"info","message":"Successfully completed version check","timestamp":"2024-12-26T14:30:27.435Z"}
+{"level":"info","message":"Starting version manager service with 1440 minute interval","timestamp":"2024-12-26T14:30:27.445Z"}
+{"level":"info","message":"Starting scheduled version check","timestamp":"2024-12-26T15:00:00.642Z"}
+{"level":"info","message":"Successfully completed version check","timestamp":"2024-12-26T15:00:21.732Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2024-12-26T15:59:52.929Z"}
+{"level":"info","message":"Stopped cron job","timestamp":"2024-12-26T15:59:52.938Z"}

@@ -45,3 +45,22 @@
 {"level":"error","message":"Unhandled Rejection:","reason":{},"timestamp":"2024-12-23T13:56:54.321Z"}
 {"level":"error","message":"Unhandled Rejection:","reason":{},"timestamp":"2024-12-23T13:58:56.634Z"}
 {"level":"error","message":"Unhandled Rejection:","reason":{},"timestamp":"2024-12-23T14:05:13.446Z"}
+{"level":"error","message":"Unhandled Rejection:","reason":{},"timestamp":"2024-12-26T12:39:38.704Z"}
+{"level":"error","message":"Unhandled Rejection:","reason":{},"timestamp":"2024-12-26T12:40:28.785Z"}
+{"level":"error","message":"Unhandled Rejection:","reason":{},"timestamp":"2024-12-26T12:41:25.362Z"}
+{"level":"error","message":"Unhandled Rejection:","reason":{},"timestamp":"2024-12-26T12:42:13.267Z"}
+{"error":"listoffortraversions is not iterable","level":"error","message":"Error during version check:","timestamp":"2024-12-26T13:41:02.208Z"}
+{"error":"listoffortraversions is not iterable","level":"error","message":"Error during version check:","timestamp":"2024-12-26T13:41:02.780Z"}
+{"error":"listoffortraversions is not iterable","level":"error","message":"Error during version check:","timestamp":"2024-12-26T13:41:03.253Z"}
+{"error":"listoffortraversions is not iterable","level":"error","message":"Error during version check:","timestamp":"2024-12-26T13:41:03.766Z"}
+{"error":"listoffortraversions is not iterable","level":"error","message":"Error during version check:","timestamp":"2024-12-26T13:45:01.497Z"}
+{"error":"listoffortraversions is not iterable","level":"error","message":"Error during version check:","timestamp":"2024-12-26T13:45:02.031Z"}
+{"error":"listoffortraversions is not iterable","level":"error","message":"Error during version check:","timestamp":"2024-12-26T13:45:02.532Z"}
+{"error":"listoffortraversions is not iterable","level":"error","message":"Error during version check:","timestamp":"2024-12-26T13:45:03.073Z"}
+{"error":"listoffortraversions is not iterable","level":"error","message":"Error during version check:","timestamp":"2024-12-26T13:48:02.309Z"}
+{"error":"listoffortraversions is not iterable","level":"error","message":"Error during version check:","timestamp":"2024-12-26T13:48:03.623Z"}
+{"error":"listoffortraversions is not iterable","level":"error","message":"Error during version check:","timestamp":"2024-12-26T13:48:04.111Z"}
+{"error":"listoffortraversions is not iterable","level":"error","message":"Error during version check:","timestamp":"2024-12-26T13:48:04.592Z"}
+{"error":"listoffortraversions is not iterable","level":"error","message":"Error during version check:","timestamp":"2024-12-26T14:00:28.162Z"}
+{"error":"listoffortraversions is not iterable","level":"error","message":"Error during version check:","timestamp":"2024-12-26T14:00:41.226Z"}
+{"error":"listoffortraversions is not iterable","level":"error","message":"Error during version check:","timestamp":"2024-12-26T14:00:53.601Z"}

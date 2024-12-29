@@ -26,11 +26,12 @@ export interface VersionData {
     EndOfSupportDate?: Date;
     LevelOfSupport?:string;
     Extended_Support_End_Date?:Date
-  
+    EOSL_Start_Date?:Date
+
 }
 
 
-type version_extracted= [version_name:string, release_date: string | null, end_of_support_date:string | null, level_of_support?: string, extended_support_end_date? : string]
+type version_extracted= [version_name:string, release_date: string | null, end_of_support_date:string | null, level_of_support?: string, extended_support_end_date? : string,eosl_start_date?:string]
 
 
 

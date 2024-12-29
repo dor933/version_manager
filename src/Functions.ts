@@ -6,6 +6,9 @@ import { createEmailTemplate } from './emailTemplate';
 import { Type1Products, Type2Products, version_extracted } from './types';
 import { logger,notificationEmails,isinit } from './index';
 import { Version } from './Classes';
+import axios from 'axios';
+import * as cheerio from 'cheerio';
+import fs from 'fs';
 
 function parseDate(dateStr: string): Date | null {
     if (!dateStr) return null;
@@ -128,6 +131,81 @@ async function notify_on_end_of_support(versionData: VersionData , daysUntilEOS:
 catch(error){
     logger.error('Error sending email:', { error });
 }
+
+}
+
+async function extract_fortra_versions_to_json(json_url:string):Promise<any> {
+
+    let listofVersions:any= await axios.get(json_url)
+    console.log('try to extract fortra versions');
+    console.log(listofVersions);
+    listofVersions= listofVersions.data.content;
+    //extract from the html the <td> tags with cheerio
+
+   
+    try{
+        const $= cheerio.load(listofVersions);
+        let listoftd= $('td');
+        console.log('listoftd',listoftd);
+        //write the listoftd to a file
+        fs.writeFileSync('listoftd.txt', listoftd.toString());
+        
+    
+
+
+    let listofVersions_ret:any={
+
+        Goanywhere_MFT:[] as version_extracted[],
+        Goanywhere_Gateway:[] as version_extracted[],
+        Goanywhere_Agent:[] as version_extracted[],
+    }
+
+
+    for(let i=0; i<listoftd.length; i+=7){
+
+
+        switch(cheerio.load(listofVersions)(listoftd[i]).text().toLowerCase()){
+            case 'mft':
+                listofVersions_ret.Goanywhere_MFT.push({
+                    version_name: cheerio.load(listofVersions)(listoftd[i+1]).text(),
+                    release_date: cheerio.load(listofVersions)(listoftd[i+3]).text(),
+                    end_of_support_date: cheerio.load(listofVersions)(listoftd[i+6]).text(),
+                    level_of_support: cheerio.load(listofVersions)(listoftd[i+2]).text(),
+                    extended_support_end_date: cheerio.load(listofVersions)(listoftd[i+5]).text(),
+                    eosl_start_date: cheerio.load(listofVersions)(listoftd[i+4]).text(),
+             
+                });
+                break;
+            case 'gateway':
+                listofVersions_ret.Goanywhere_Gateway.push({
+                    version_name: cheerio.load(listofVersions)(listoftd[i+1]).text(),
+                    release_date: cheerio.load(listofVersions)(listoftd[i+3]).text(),
+                    end_of_support_date: cheerio.load(listofVersions)(listoftd[i+6]).text(),
+                    level_of_support: cheerio.load(listofVersions)(listoftd[i+2]).text(),
+                    extended_support_end_date: cheerio.load(listofVersions)(listoftd[i+5]).text(),
+                    eosl_start_date: cheerio.load(listofVersions)(listoftd[i+4]).text(),
+                });
+                break;
+            case 'agents':
+                listofVersions_ret.Goanywhere_Agent.push({
+                    version_name: cheerio.load(listofVersions)(listoftd[i+1]).text(),
+                    release_date: cheerio.load(listofVersions)(listoftd[i+3]).text(),
+                    end_of_support_date: cheerio.load(listofVersions)(listoftd[i+6]).text(),
+                    level_of_support: cheerio.load(listofVersions)(listoftd[i+2]).text(),
+                    extended_support_end_date: cheerio.load(listofVersions)(listoftd[i+5]).text(),
+                    eosl_start_date: cheerio.load(listofVersions)(listoftd[i+4]).text(),
+
+                });
+                break;
+        }
+    }
+    console.log('listofVersions_ret',listofVersions_ret);
+    return listofVersions_ret;
+}
+    catch(error){
+        console.log('error',error);
+        return []
+    }
 
 }
 
@@ -319,4 +397,4 @@ async function sendEmail({ subject, content, vendor_name, to }: { subject: strin
     }
 }
 
-export { notify_on_end_of_support, notify_new_version, sendEmail, parseDate, notify_on_end_of_support_changes, extract_versions_from_json };
+export { notify_on_end_of_support, notify_new_version, sendEmail, parseDate, notify_on_end_of_support_changes, extract_versions_from_json,extract_fortra_versions_to_json };
