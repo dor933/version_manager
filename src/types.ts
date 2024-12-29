@@ -2,7 +2,7 @@ export interface ProductData {
     ProductName: string;
     VendorId: number;
     Versions: VersionData[];
-    JSON_URL: string;
+    JSON_URL?: string;
 }
 
 export interface VendorData {
@@ -11,6 +11,7 @@ export interface VendorData {
     contactInfo: string;
     WebsiteUrl: string;
     Products: ProductData[];
+    JSON_URL?:string
 }
 
 export interface DataStructure {
@@ -23,8 +24,14 @@ export interface VersionData {
     VendorName: string;
     ReleaseDate?: Date
     EndOfSupportDate?: Date;
-  
+    LevelOfSupport?:string;
+    Extended_Support_End_Date?:Date
+    EOSL_Start_Date?:Date
+
 }
+
+
+type version_extracted= [version_name:string, release_date: string | null, end_of_support_date:string | null, level_of_support?: string, extended_support_end_date? : string,eosl_start_date?:string]
 
 
 
@@ -51,4 +58,4 @@ type Type2Products =
     'Metadefender_Software_Supply_Chain' |
     'Metadefender_Central_Management';
 
-export type { Type1Products, Type2Products }
+export type { Type1Products, Type2Products, version_extracted }

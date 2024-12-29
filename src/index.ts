@@ -108,6 +108,7 @@ function startCronJob() {
                     await sendEmail({
                         subject: `Error in Version Manager`,
                         content: emailBody,
+                        vendor_name:'NA'
                     });
                 }
             }
@@ -169,7 +170,5 @@ process.on('unhandledRejection', (reason) => {
 })();
 
 export { logger, notificationEmails, isinit };
-
-
 
 

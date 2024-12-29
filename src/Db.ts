@@ -1,7 +1,7 @@
 import axios from 'axios';
-import { notify_on_end_of_support, notify_on_end_of_support_changes, notify_new_version, extract_versions_from_json } from './Functions';
+import { notify_on_end_of_support, notify_on_end_of_support_changes, notify_new_version, extract_versions_from_json,extract_fortra_versions_to_json } from './Functions';
 import { parseDate } from './Functions';
-import { DataStructure, VersionData} from './types';
+import { DataStructure, VersionData, version_extracted} from './types';
 const path = require('path');
 const Data=require('../Data.json') as DataStructure;
 import { logger } from './index';
@@ -9,6 +9,34 @@ import { logger } from './index';
 
 
 
+
+
+async function extract_fortra_versions(productname:string):Promise<version_extracted[]>{
+
+    let listoffortraversions= await extract_fortra_versions_to_json('https://api.portal.fortra.com/kbarticles/goanywhere-mft-end-of-support-life-policy-and-supported-versions-OWMyY2VkZTktZGFmMS1lZTExLTkwNGMtMDAyMjQ4MGFlMjg0?productSlug=goanywhere-mft');
+    
+    
+    let fortra_version_extracted:version_extracted[]=[]
+    let listnew= listoffortraversions[productname];
+   
+   console.log('listoffortraversions in product',listnew);
+
+    for(const version of listnew){
+            fortra_version_extracted.push([
+                version.version_name,
+                version.release_date,
+                version.end_of_support_date,
+                version.level_of_support,
+                version.extended_support_end_date,
+                version.eosl_start_date
+            ])
+        
+      }
+
+      return fortra_version_extracted;
+
+    }
+    
 
 
 
@@ -27,9 +55,17 @@ class Database {
 
     async HandleData(isinit?:boolean) : Promise<boolean | any> {
 
+        let listoffortraversions:version_extracted[]=[]
         try{
 
+
         for (const vendor of Data.Vendors) {
+
+            if(vendor.VendorName==='Fortra'){
+                listoffortraversions=await extract_fortra_versions_to_json(vendor.JSON_URL!);
+
+            }
+
             await this.createTable( 'Vendor', ['VendorName TEXT PRIMARY KEY', 'contactInfo TEXT', 'WebsiteUrl TEXT']);
           await this.insertData('Vendor', ['VendorName', 'contactInfo', 'WebsiteUrl'], [ vendor.VendorName, vendor.contactInfo, vendor.WebsiteUrl]);
 
@@ -45,19 +81,32 @@ class Database {
                     'PRIMARY KEY (ProductName, VendorName)',
                     'FOREIGN KEY (VendorName) REFERENCES Vendor(VendorName)'
                 ]);
-                await this.insertData('Product', [ 'ProductName', 'VendorName', 'JSON_URL'], [ product.ProductName, vendor.VendorName, product.JSON_URL]);
+                await this.insertData('Product', [ 'ProductName', 'VendorName', 'JSON_URL'], [ product.ProductName, vendor.VendorName, product.JSON_URL!]);
 
-                let listofVersions:any = await axios.get(product.JSON_URL)
+                let listofversions:version_extracted[]=[]
+
+                if(vendor.VendorName==='Fortra'){
+                    listofversions=await extract_fortra_versions(product.ProductName);
+                    console.log('list of versions fortra', listofversions);
+                 
+                }
+
+                else{
+                    listofversions = await axios.get(product.JSON_URL!)
+                    listofversions = extract_versions_from_json(listofversions, vendor.VendorName, product.ProductName)
+                }
         
-                listofVersions = extract_versions_from_json(listofVersions, vendor.VendorName, product.ProductName);
 
 
-                for(const version of listofVersions){
+                for(const version of listofversions){
                     
                    
 
-                    let ReleaseDate_DateTime = parseDate(version[1]);
-                    let EndOfSupportDate_DateTime = parseDate(version[2]) 
+                    let ReleaseDate_DateTime = parseDate(version[1]!);
+                    let EndOfSupportDate_DateTime = parseDate(version[2]!) 
+                    let LevelOfSupport= version[3]
+                    let ExtendedEndOfSupportDate= parseDate(version[4]!);
+                    let EOSL_Start_Date= parseDate(version[5]!);
 
 
                     const Version:VersionData= {
@@ -66,19 +115,25 @@ class Database {
                         VendorName: vendor.VendorName,
                         ReleaseDate: ReleaseDate_DateTime ? ReleaseDate_DateTime : undefined,
                         EndOfSupportDate: EndOfSupportDate_DateTime ? EndOfSupportDate_DateTime : undefined ,
+                        LevelOfSupport: LevelOfSupport? LevelOfSupport:undefined,
+                        Extended_Support_End_Date: ExtendedEndOfSupportDate? ExtendedEndOfSupportDate:undefined,
+                        EOSL_Start_Date: EOSL_Start_Date? EOSL_Start_Date:undefined
                     }
 
 
 
                     await this.createTable('Version');              
                     await this.insertData('Version', 
-                        [ 'VersionName', 'ProductName', 'VendorName', 'ReleaseDate', 'EndOfSupportDate'], 
+                        [ 'VersionName', 'ProductName', 'VendorName', 'ReleaseDate', 'EndOfSupportDate', 'LevelOfSupport', 'Extended_Support_End_Date','EOSL_Start_Date'], 
                         [
                             Version.VersionName, 
                             Version.ProductName!,
                             Version.VendorName!,
                             Version.ReleaseDate ? Version.ReleaseDate.toISOString() : 'NULL', 
                             Version.EndOfSupportDate ? Version.EndOfSupportDate.toISOString() : 'NULL',
+                            Version.LevelOfSupport? Version.LevelOfSupport : 'NULL',
+                            Version.Extended_Support_End_Date? Version.Extended_Support_End_Date.toISOString() : 'NULL',
+                            Version.EOSL_Start_Date? Version.EOSL_Start_Date.toISOString() : 'NULL'
                         ] , 
                         Version,
                         
@@ -87,9 +142,14 @@ class Database {
 
 
                    if (EndOfSupportDate_DateTime) {
+
+                     let daysUntilExtendedEOS
                         const daysUntilEOS = Math.ceil((EndOfSupportDate_DateTime.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-                        if(daysUntilEOS <= 30 && daysUntilEOS >= 0){
-                         notify_on_end_of_support(Version, daysUntilEOS);
+                        if(ExtendedEndOfSupportDate){
+                             daysUntilExtendedEOS= Math.ceil((ExtendedEndOfSupportDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+                        }
+                        if((daysUntilEOS <= 30 && daysUntilEOS >= 0) || daysUntilExtendedEOS && daysUntilExtendedEOS <14){
+                         notify_on_end_of_support(Version, daysUntilEOS, daysUntilExtendedEOS && daysUntilExtendedEOS );
                         }
                     }
                 }
@@ -117,6 +177,9 @@ class Database {
                         VendorName TEXT,
                         ReleaseDate DATE,
                         EndOfSupportDate DATE,
+                        LevelOfSupport TEXT,
+                        Extended_Support_End_Date DATE,
+                        EOSL_Start_Date DATE,
                         FOREIGN KEY (ProductName) REFERENCES Product(ProductName),
                         FOREIGN KEY (VendorName) REFERENCES Vendor(VendorName),
                         PRIMARY KEY (VersionName, ProductName, VendorName)

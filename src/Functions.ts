@@ -3,8 +3,12 @@ dotenv.config();
 import nodemailer from 'nodemailer';
 import { VersionData } from './types';
 import { createEmailTemplate } from './emailTemplate';
-import { Type1Products, Type2Products } from './types';
+import { Type1Products, Type2Products, version_extracted } from './types';
 import { logger,notificationEmails,isinit } from './index';
+import { Version } from './Classes';
+import axios from 'axios';
+import * as cheerio from 'cheerio';
+import fs from 'fs';
 
 function parseDate(dateStr: string): Date | null {
     if (!dateStr) return null;
@@ -51,13 +55,33 @@ function parseDate(dateStr: string): Date | null {
     return null;
 }
 
-async function notify_on_end_of_support(versionData: VersionData    , daysUntilEOS: number) {
+async function notify_on_end_of_support(versionData: VersionData , daysUntilEOS: number, daysUntilExtendedEOS?:number) {
     const product = versionData.ProductName;
     const version = versionData.VersionName;
     
     // Calculate days until end of support
 
     let emailBody = {}
+
+    if(daysUntilExtendedEOS){
+
+        
+        emailBody = {
+            name:'Dor',
+            subject: `End of Extended Support Alert: ${product} ${version}`,
+            row1: `Hey Dor`,
+            row2: `The end of extended support date for ${product} ${version} is approaching.`,
+            row3: `End of Support Date:`,
+            row4: `The end of extended support date for ${product} ${version} is:`,
+            row5: `${versionData.Extended_Support_End_Date?.toDateString()} ,`,
+            row6: `Number of days remaining:`,
+            row7: `${daysUntilEOS}`
+
+        }
+
+    }
+
+    else{
     
     if (daysUntilEOS <= 7) { // Notify when 30 days or less remaining
 
@@ -92,6 +116,7 @@ async function notify_on_end_of_support(versionData: VersionData    , daysUntilE
         }
   
     }
+}
     
     console.log('emailBody',emailBody);
 
@@ -99,12 +124,88 @@ async function notify_on_end_of_support(versionData: VersionData    , daysUntilE
 
     await sendEmail({
         subject: `End of Support Alert: ${product} ${version}`,
-        content: emailBody
+        content: emailBody,
+        vendor_name: versionData.VendorName
     });
 }
 catch(error){
     logger.error('Error sending email:', { error });
 }
+
+}
+
+async function extract_fortra_versions_to_json(json_url:string):Promise<any> {
+
+    let listofVersions:any= await axios.get(json_url)
+    console.log('try to extract fortra versions');
+    console.log(listofVersions);
+    listofVersions= listofVersions.data.content;
+    //extract from the html the <td> tags with cheerio
+
+   
+    try{
+        const $= cheerio.load(listofVersions);
+        let listoftd= $('td');
+        console.log('listoftd',listoftd);
+        //write the listoftd to a file
+        fs.writeFileSync('listoftd.txt', listoftd.toString());
+        
+    
+
+
+    let listofVersions_ret:any={
+
+        Goanywhere_MFT:[] as version_extracted[],
+        Goanywhere_Gateway:[] as version_extracted[],
+        Goanywhere_Agent:[] as version_extracted[],
+    }
+
+
+    for(let i=0; i<listoftd.length; i+=7){
+
+
+        switch(cheerio.load(listofVersions)(listoftd[i]).text().toLowerCase()){
+            case 'mft':
+                listofVersions_ret.Goanywhere_MFT.push({
+                    version_name: cheerio.load(listofVersions)(listoftd[i+1]).text(),
+                    release_date: cheerio.load(listofVersions)(listoftd[i+3]).text(),
+                    end_of_support_date: cheerio.load(listofVersions)(listoftd[i+6]).text(),
+                    level_of_support: cheerio.load(listofVersions)(listoftd[i+2]).text(),
+                    extended_support_end_date: cheerio.load(listofVersions)(listoftd[i+5]).text(),
+                    eosl_start_date: cheerio.load(listofVersions)(listoftd[i+4]).text(),
+             
+                });
+                break;
+            case 'gateway':
+                listofVersions_ret.Goanywhere_Gateway.push({
+                    version_name: cheerio.load(listofVersions)(listoftd[i+1]).text(),
+                    release_date: cheerio.load(listofVersions)(listoftd[i+3]).text(),
+                    end_of_support_date: cheerio.load(listofVersions)(listoftd[i+6]).text(),
+                    level_of_support: cheerio.load(listofVersions)(listoftd[i+2]).text(),
+                    extended_support_end_date: cheerio.load(listofVersions)(listoftd[i+5]).text(),
+                    eosl_start_date: cheerio.load(listofVersions)(listoftd[i+4]).text(),
+                });
+                break;
+            case 'agents':
+                listofVersions_ret.Goanywhere_Agent.push({
+                    version_name: cheerio.load(listofVersions)(listoftd[i+1]).text(),
+                    release_date: cheerio.load(listofVersions)(listoftd[i+3]).text(),
+                    end_of_support_date: cheerio.load(listofVersions)(listoftd[i+6]).text(),
+                    level_of_support: cheerio.load(listofVersions)(listoftd[i+2]).text(),
+                    extended_support_end_date: cheerio.load(listofVersions)(listoftd[i+5]).text(),
+                    eosl_start_date: cheerio.load(listofVersions)(listoftd[i+4]).text(),
+
+                });
+                break;
+        }
+    }
+    console.log('listofVersions_ret',listofVersions_ret);
+    return listofVersions_ret;
+}
+    catch(error){
+        console.log('error',error);
+        return []
+    }
 
 }
 
@@ -133,7 +234,8 @@ async function notify_on_end_of_support_changes(product: string, vendor: string,
 
         await sendEmail({
             subject: `End of Support Date Change: ${product} ${version}`,
-            content: emailBody
+            content: emailBody,
+            vendor_name: vendor
         });
     }
     catch(error){
@@ -144,9 +246,10 @@ async function notify_on_end_of_support_changes(product: string, vendor: string,
     
 }
 
-function extract_versions_from_json(response_json: any, manufacturer: string, productName: string): any {
+function extract_versions_from_json(response_json: any, manufacturer: string, productName: string): version_extracted[]  {
 
 
+    let version_extracted_ret: version_extracted[] = []
 
     if(manufacturer === 'OPSWAT'){
 
@@ -161,19 +264,19 @@ function extract_versions_from_json(response_json: any, manufacturer: string, pr
         
         if(version.data.contents!== undefined){
 
-            listofVersions = version.data.contents;
+            version_extracted_ret = version.data.contents;
 
 
         }
     }
 
-    listofVersions = listofVersions.filter((version:any)=>!version[0].includes('Release number')  && !version[0].includes('Release Number'));
+    version_extracted_ret = version_extracted_ret.filter((version:any)=>!version[0].includes('Release number')  && !version[0].includes('Release Number'));
 
-    return listofVersions;
+    return version_extracted_ret;
 }
 catch(error){
     logger.error('Error extracting versions from JSON when processing Type1 product:', { error });
-    return null;
+    return version_extracted_ret
 }
                                  
 }
@@ -182,15 +285,15 @@ catch(error){
         try{
 
         let listofVersions = response_json.data.publicVersions;
-        let listtoreturn:any[]=[];
+        let listtoreturn:version_extracted[]=[];
         let i=0;
 
 
         for(const version of listofVersions){
 
             
-            let vresion_name=version.name;        
-            let versobject=[vresion_name,null,null];
+            let version_name=version.name;        
+            let versobject:version_extracted=[version_name,null,null];
             
             listtoreturn.push(versobject);
 
@@ -204,7 +307,7 @@ catch(error){
         }
         catch(error){
             logger.error('Error extracting versions from JSON when processing Type2 product:', { error });
-            return null;
+            return version_extracted_ret;
         }
     }
 
@@ -216,7 +319,7 @@ else if(manufacturer === 'FORTRA'){
     return response_json;
 }
 
-return null;
+return version_extracted_ret;
 
 
 
@@ -248,7 +351,8 @@ async function notify_new_version(newVersion: VersionData) {
 
         await sendEmail({
             subject: `Version Changes Detected: ${newVersion.ProductName}`,
-            content: emailBody
+            content: emailBody,
+            vendor_name: newVersion.VendorName
         });
     }
     catch(error){
@@ -257,11 +361,13 @@ async function notify_new_version(newVersion: VersionData) {
     
 }
 
-async function sendEmail({ subject, content }: { subject: string, content: any, to?: string }) {
+async function sendEmail({ subject, content, vendor_name, to }: { subject: string, content: any, vendor_name:string, to?: string}) {
 
     if(isinit || notificationEmails===''){
         return
     }
+    
+    
 
     const transporter = nodemailer.createTransport({
         host: "mail.bulwarx.local", // Exchange server address
@@ -279,7 +385,7 @@ async function sendEmail({ subject, content }: { subject: string, content: any, 
             from: process.env.USER_EMAIL,
             to: notificationEmails,
             subject: subject,
-            html: createEmailTemplate(content)
+            html: createEmailTemplate(content, vendor_name)
             
         });
 
@@ -291,4 +397,4 @@ async function sendEmail({ subject, content }: { subject: string, content: any, 
     }
 }
 
-export { notify_on_end_of_support, notify_new_version, sendEmail, parseDate, notify_on_end_of_support_changes, extract_versions_from_json };
+export { notify_on_end_of_support, notify_new_version, sendEmail, parseDate, notify_on_end_of_support_changes, extract_versions_from_json,extract_fortra_versions_to_json };
