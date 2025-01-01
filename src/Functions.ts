@@ -51,7 +51,6 @@ function parseDate(dateStr: string): Date | null {
         ));
     }
 
-    console.log(`Unable to parse date: ${dateStr}` , ',Product may not have a release or end of support date');
     return null;
 }
 
@@ -118,7 +117,6 @@ async function notify_on_end_of_support(versionData: VersionData , daysUntilEOS:
     }
 }
     
-    console.log('emailBody',emailBody);
 
     try{
 
@@ -137,8 +135,6 @@ catch(error){
 async function extract_fortra_versions_to_json(json_url:string):Promise<any> {
 
     let listofVersions:any= await axios.get(json_url)
-    console.log('try to extract fortra versions');
-    console.log(listofVersions);
     listofVersions= listofVersions.data.content;
     //extract from the html the <td> tags with cheerio
 
@@ -146,7 +142,6 @@ async function extract_fortra_versions_to_json(json_url:string):Promise<any> {
     try{
         const $= cheerio.load(listofVersions);
         let listoftd= $('td');
-        console.log('listoftd',listoftd);
         //write the listoftd to a file
         fs.writeFileSync('listoftd.txt', listoftd.toString());
         
@@ -199,11 +194,10 @@ async function extract_fortra_versions_to_json(json_url:string):Promise<any> {
                 break;
         }
     }
-    console.log('listofVersions_ret',listofVersions_ret);
     return listofVersions_ret;
 }
     catch(error){
-        console.log('error',error);
+        console.error('error',error);
         return []
     }
 
@@ -228,7 +222,6 @@ async function notify_on_end_of_support_changes(product: string, vendor: string,
 
   
 
-        console.log('emailBody',emailBody);
 
         try{
 
@@ -361,9 +354,9 @@ async function notify_new_version(newVersion: VersionData) {
     
 }
 
-async function sendEmail({ subject, content, vendor_name, to }: { subject: string, content: any, vendor_name:string, to?: string}) {
+async function sendEmail({ subject, content, vendor_name }: { subject: string, content: any, vendor_name:string, to?: string}) {
 
-    if(isinit || notificationEmails===''){
+    if(notificationEmails===undefined || notificationEmails===''){
         return
     }
     

@@ -19,7 +19,6 @@ async function extract_fortra_versions(productname:string):Promise<version_extra
     let fortra_version_extracted:version_extracted[]=[]
     let listnew= listoffortraversions[productname];
    
-   console.log('listoffortraversions in product',listnew);
 
     for(const version of listnew){
             fortra_version_extracted.push([
@@ -87,7 +86,6 @@ class Database {
 
                 if(vendor.VendorName==='Fortra'){
                     listofversions=await extract_fortra_versions(product.ProductName);
-                    console.log('list of versions fortra', listofversions);
                  
                 }
 
@@ -235,7 +233,6 @@ class Database {
                                 resolve(false);
                             }
                             else if(rows[0]?.EndOfSupportDate !== values[4]){
-                                console.log('Record already exists but EndOfSupportDate is different');
                                 this.UpdateRecord(table, ['EndOfSupportDate'], [values[4]], 'VersionName', rows[0].VersionName);
                                 notify_on_end_of_support_changes(rows[0].ProductName, rows[0].VendorName, rows[0].VersionName, EndOfSupportDate_DateTime? EndOfSupportDate_DateTime : undefined, EndOfSupportDate_DateTime_new? EndOfSupportDate_DateTime_new : undefined);   
                                 resolve(false);
@@ -257,10 +254,9 @@ class Database {
                         // If no rows found, execute insert query
                         this.db.run(`INSERT INTO ${table} (${columnsString}) VALUES (${valuesString})`, (err: Error) => {
                             if (err) {
-                                console.log('Error inserting data', err.message);
+                                console.error('Error inserting data', err.message);
                                 reject(err);
                             } else {
-                                console.log('Data inserted successfully');
                                 if(table === 'Version'){
                               
                                     notify_new_version(versionData!);
@@ -293,7 +289,6 @@ class Database {
             if (err) {
                 console.error('Error updating data', err.message + ' ' + values[0] + ' ' + values[1]);
             } else {
-                console.log('EndOfSupportDate updated successfully');
             }
         });
         return true;

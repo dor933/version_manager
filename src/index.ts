@@ -7,6 +7,7 @@ import { hideBin } from 'yargs/helpers';
 let errorCount=0;
 let notificationEmails:any= process.env.NOTIFICATION_EMAILS;
 let croninterval:any= process.env.CRON_INTERVAL;
+let unit=process.env.UNIT;
 let isinit=true;
 
 
@@ -25,6 +26,12 @@ const argv = await yargs(hideBin(process.argv))
         description: 'Cron job interval in minutes',
         default: process.env.CRON_INTERVAL || 60
     })
+    .option('unit', {
+        alias: 'u',
+        type: 'string',
+        description: 'Interval time unit',
+        default: process.env.UNIT || 'minutes'
+    })
     .argv;
 
 
@@ -33,6 +40,7 @@ const argv = await yargs(hideBin(process.argv))
 
 notificationEmails = argv.emails!==''? argv.emails : argv.email!==''? argv.email : process.env.NOTIFICATION_EMAILS;
 croninterval= argv.interval? argv.interval: parseInt(process.env.CRON_INTERVAL!)
+unit= argv.unit!==''? argv.unit : process.env.NOTIFICATION_EMAILS;
 
 console.log('Notification Emails are now:', notificationEmails)
 console.log('Interval is:', croninterval)
@@ -69,11 +77,35 @@ let cronJob: nodecron.ScheduledTask;
 
 // Start the cron job
 function startCronJob() {
-    logger.info(`Starting version manager service with ${croninterval} minute interval`);
+    logger.info(`Starting version manager service with ${croninterval} ${unit} interval`);
     isinit=false;
     console.log('notificationEmails',notificationEmails);
+
+    let cronExpression: string;
+
+    switch(unit!.toLowerCase()) {
+        case 'minutes':
+            cronExpression = `*/${croninterval} * * * *`;
+            break;
+        case 'hours':
+            // If interval is 1, run every hour at minute 0
+            // If interval is 2, run every 2 hours at minute 0, etc.
+            cronExpression = `0 */${croninterval} * * *`;
+            break;
+        case 'days':
+            // For days, we run at specific time (00:00) every N days
+            cronExpression = `0 0 */${croninterval} * *`;
+            break;
+        default:
+            // Default to minutes if unit is not recognized
+            logger.warn(`Unrecognized unit: ${unit}, defaulting to minutes`);
+            cronExpression = `*/${croninterval} * * * *`;
+    }
+
+    logger.info(`Cron expression: ${cronExpression}`);
+
     
-    cronJob = nodecron.schedule(`*/${croninterval} * * * *`, async () => {
+    cronJob = nodecron.schedule(cronExpression, async () => {
         logger.info('Starting scheduled version check');
         
         try {
@@ -165,7 +197,9 @@ process.on('unhandledRejection', (reason) => {
 
 // Start the application
 (async () => {
-    // await db.HandleData();
+    console.log('Initiate version manager...')
+    await db.HandleData();
+    console.log('Initiation finished successfully')
     getEmails();
 })();
 

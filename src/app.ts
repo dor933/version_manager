@@ -1,61 +1,66 @@
-import * as path from 'path';
-const Service = require('node-windows').Service;
+import path from 'path';
+import yargs, { argv } from 'yargs';
+import { hideBin } from 'yargs/helpers';
+import {Service} from 'node-windows';
+// Parse command line arguments
 
-// Create a new service object
-const svc = new Service({
-    name: 'VersionsManagerService',
-    description: 'OPSWAT Versions Manager Service',
-    script: path.join(__dirname, 'index.js'),
-    nodeOptions: [],
-    workingDirectory: __dirname,
-    allowServiceLogon: true,
-    // Restart service if it crashes
-    maxRestarts: 3,
-    // Wait time between restarts
-    restartDelay: 3000
-});
 
-// Listen for service events
-svc.on('install', () => {
-    console.log('Service installed successfully');
-    svc.start();
+async function getEmails(){
 
-});
 
-svc.on('start', () => {
-    console.log('Service started successfully');
-});
+const argv = await yargs(hideBin(process.argv))
+    .option('emails', {
+        alias: 'e',
+        type: 'string',
+        description: 'Email addresses for notifications'
+    })
+    .option('interval', {
+        alias: 'i',
+        type: 'number',
+        description: 'Cron interval in minutes'
+    })
+    .parseAsync();
 
-svc.on('stop', () => {
-    console.log('Service stopped');
-});
+    let emails= argv.emails;
+    let interval= argv.interval;
 
-svc.on('error', (error: Error) => {
-    console.error('Service error:', error);
-});
+    startservice(emails!,interval!)
 
-svc.on('uninstall', () => {
-    console.log('Service uninstalled successfully');
-});
+    
 
-// Handle command line arguments
-const args = process.argv.slice(2);
-const validCommands = ['install', 'uninstall', 'start', 'stop', 'restart'];
-
-if (args.length === 0) {
-    console.log(`Please specify a command: ${validCommands.join(', ')}`);
-    process.exit(1);
 }
 
-const command = args[0].toLowerCase();
+async function startservice(emails:string, interval:number){
 
-if (!validCommands.includes(command)) {
-    console.log(`Invalid command. Use one of: ${validCommands.join(', ')}`);
-    process.exit(1);
-}
+const isServiceCommand = process.argv.length > 2 && ['install', 'uninstall', 'start', 'stop'].includes(process.argv[2]);
 
-try {
-    switch (command) {
+if (isServiceCommand) {
+    // Service installation logic
+    const svc = new Service({
+        name: 'VersionsManagerService',
+        description: 'OPSWAT Versions Manager Service',
+        script: path.join(process.cwd(), 'index.js'),
+        execPath: process.execPath,
+        maxRestarts: 3,
+          env: [
+            {
+                name: "NODE_ENV",
+                value: "production"
+            },
+            {
+                name: "NOTIFICATION_EMAILS",
+                value: emails || process.env.NOTIFICATION_EMAILS || ''
+            },
+            {
+                name: "CRON_INTERVAL",
+                value: (interval || process.env.CRON_INTERVAL || '60').toString()
+            }
+        ],
+
+    });
+
+    // Handle service commands
+    switch (process.argv[2]) {
         case 'install':
             svc.install();
             break;
@@ -68,11 +73,29 @@ try {
         case 'stop':
             svc.stop();
             break;
-        case 'restart':
-            svc.restart();
-            break;
     }
-} catch (error) {
-    console.error('Error executing command:', error);
-    process.exit(1);
+
+    svc.on('install', () => {
+        console.log('Service installed successfully');
+        console.log('Environment variables set:');
+        console.log('NOTIFICATION_EMAILS:', emails || process.env.NOTIFICATION_EMAILS || 'not set');
+        console.log('CRON_INTERVAL:', interval || process.env.CRON_INTERVAL || '60');
+        svc.start();
+    });
+
+    svc.on('error', (err)=> {
+
+        console.error('Service err:',err)
+    })
+
+    // ... rest of the service event handlers ...
+} else {
+    // Normal application execution
+    require('./index.js')
 } 
+}
+
+(async () => {
+    
+    getEmails();
+})();
