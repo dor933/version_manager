@@ -37,6 +37,10 @@ const argv = await yargs(hideBin(process.argv))
 
 
 
+    
+
+
+
 
 notificationEmails = argv.emails!==''? argv.emails : argv.email!==''? argv.email : process.env.NOTIFICATION_EMAILS;
 croninterval= argv.interval? argv.interval: parseInt(process.env.CRON_INTERVAL!)
@@ -201,7 +205,12 @@ process.on('unhandledRejection', (reason) => {
     await db.HandleData();
     console.log('Initiation finished successfully')
     getEmails();
+
 })();
+
+async function addKnownIssue(issue:any){
+await db.insertData('Known_Issues',['VersionName','ProductName','VendorName','IssueName','IssueDescription','IssueDate','IssueStatus','IssueSeverity','IssueResolution'],[issue.VersionName,issue.ProductName,issue.VendorName,issue.IssueName,issue.IssueDescription,issue.IssueDate,issue.IssueStatus,issue.IssueSeverity,issue.IssueResolution]);
+}
 
 export { logger, notificationEmails, isinit };
 

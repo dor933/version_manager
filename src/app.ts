@@ -2,6 +2,7 @@ import path from 'path';
 import yargs, { argv } from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import {Service} from 'node-windows';
+import * as fs from 'fs';
 // Parse command line arguments
 
 
@@ -39,7 +40,7 @@ if (isServiceCommand) {
     const svc = new Service({
         name: 'VersionsManagerService',
         description: 'OPSWAT Versions Manager Service',
-        script: path.join(process.cwd(), 'index.js'),
+        script: path.join(__dirname, '../dist/index.js'),
         execPath: process.execPath,
         maxRestarts: 3,
           env: [
@@ -83,10 +84,18 @@ if (isServiceCommand) {
         svc.start();
     });
 
-    svc.on('error', (err)=> {
-
-        console.error('Service err:',err)
-    })
+    svc.on('error', (err) => {
+        // Log to console
+        console.error('Service error:', err);
+        
+        // Create error log entry
+        const timestamp = new Date().toISOString();
+        const logEntry = `${timestamp} - ERROR: ${err instanceof Error ? err.message : err}\n`;
+        const errorLogPath = path.join(__dirname, '../error.log');
+        
+        // Append error to log file
+        fs.appendFileSync(errorLogPath, logEntry, 'utf8');
+    });
 
     // ... rest of the service event handlers ...
 } else {

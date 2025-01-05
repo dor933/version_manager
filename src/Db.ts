@@ -185,6 +185,7 @@ class Database {
                 } else {
                     const columnsString = columns!.join(',');
                     sql = `CREATE TABLE IF NOT EXISTS ${table} (${columnsString})`;
+                    console.log(sql);
                 }
                 this.db.run(sql, (err: Error) => {
                     if (err) {

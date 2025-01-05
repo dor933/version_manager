@@ -64,3 +64,5 @@
 {"error":"listoffortraversions is not iterable","level":"error","message":"Error during version check:","timestamp":"2024-12-26T14:00:28.162Z"}
 {"error":"listoffortraversions is not iterable","level":"error","message":"Error during version check:","timestamp":"2024-12-26T14:00:41.226Z"}
 {"error":"listoffortraversions is not iterable","level":"error","message":"Error during version check:","timestamp":"2024-12-26T14:00:53.601Z"}
+{"level":"error","message":"Unhandled Rejection:","reason":{"__augmented":true,"code":"SQLITE_ERROR","errno":1},"timestamp":"2025-01-05T12:26:21.263Z"}
+{"level":"error","message":"Unhandled Rejection:","reason":{"__augmented":true,"code":"SQLITE_ERROR","errno":1},"timestamp":"2025-01-05T12:27:12.563Z"}
