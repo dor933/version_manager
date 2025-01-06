@@ -19,6 +19,8 @@ import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
+import SearchIcon from '@mui/icons-material/Search';
+import Filter from './Filter';
 
 
 
@@ -147,6 +149,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
         anchor="left"
         open={open}
       >
+        
         <DrawerHeader>
           <IconButton onClick={handleDrawerClose}>
             {theme.direction === 'ltr' ? <ChevronLeftIcon sx={{ color: '#FFFFFF' }} /> : <ChevronRightIcon sx={{ color: '#FFFFFF' }} />}
@@ -182,7 +185,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
       <DrawerHeader />
 
       <Main open={open}>
-      <Grid container>
+      <Grid container style={{gap:'30px'}}>
         <Grid container item xs={12} style={{display:'flex', justifyContent:'flex-start', alignItems:'center', flexDirection:'row'}}>
           <Grid container item xs={4} style={{display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'row',}}>
     
@@ -221,6 +224,38 @@ const DrawerHeader = styled('div')(({ theme }) => ({
                  </Typography>
               </Box>
              </Grid>
+
+          </Grid>
+        </Grid>
+        <Grid container item xs={12} style={{display:'flex', justifyContent:'flex-start', alignItems:'center', flexDirection:'row'}}>
+          <Grid container item xs={3} style={{display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'row',}}>
+    
+            <Grid item xs={5} style={{display:'flex', justifyContent:'center', alignItems:'flex-end', flexDirection:'column', margin:0}}>
+             
+             <Box sx={{display:'flex', backgroundColor:'#FFF', borderRadius:'4px', paddingLeft:'13px', paddingRight:'13px', paddingTop:'14px', paddingBottom:'14px', gap:'10px', alignItems:'center'}}>
+                <Typography  sx={{ color: '#C4C4C4', fontSize:'14px', fontWeight:'500', lineHeight:'16px', letterSpacing:'0.2px', textAlign:'center', fontFamily:'Kumbh Sans' }}>
+                    Add Filter
+                </Typography>
+                <svg width="9" height="7" viewBox="0 0 9 7" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M4.243 6.32851L0 2.08551L1.415 0.671509L4.243 3.50051L7.071 0.671509L8.486 2.08551L4.243 6.32851Z" fill="#C4C4C4"/>
+</svg>
+             </Box>
+
+            </Grid>
+            <Grid item xs={5} style={{display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'column',margin:0,}}>
+             
+        
+            </Grid>
+          </Grid>
+          <Grid item xs={8} style={{display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'row', marginLeft:'-50px'}}>
+           
+   
+   
+
+      <Filter/>
+
+
+         
 
           </Grid>
         </Grid>
