@@ -83,7 +83,7 @@ const customTheme = (outerTheme: Theme) =>
   export default function Filter() {
     return (
       <ThemeProvider theme={customTheme(useTheme())}>
-        <TextField label="Search by version,product, or vendor name" variant="filled" sx={{width:'100%',height:'100%', border:'none', backgroundColor:'transparent'}} />
+        <TextField label="Search by version,product, or vendor name" variant="filled" sx={{width:'80%',height:'100%', border:'none', backgroundColor:'transparent'}} />
       </ThemeProvider>
     );
   }
