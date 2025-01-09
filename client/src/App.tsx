@@ -1,12 +1,13 @@
 import React from 'react';
 import './App.css';
 import Home from './Home';
+import { AuthProvider } from './UseContext/MainAuth';
 
 function App() {
   return (
-    <div>
+    <AuthProvider>
       <Home />
-    </div>
+    </AuthProvider>
   );
 }
 

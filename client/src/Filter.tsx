@@ -3,6 +3,8 @@ import TextField from '@mui/material/TextField';
 import { outlinedInputClasses } from '@mui/material/OutlinedInput';
 import Box from '@mui/material/Box';
 import { createTheme, ThemeProvider, Theme, useTheme } from '@mui/material/styles';
+import { useAuth } from './UseContext/MainAuth';
+import e from 'express';
 
 const customTheme = (outerTheme: Theme) =>
   createTheme({
@@ -80,10 +82,22 @@ const customTheme = (outerTheme: Theme) =>
     },
   });
 
-  export default function Filter() {
+  interface FilterProps { 
+    filtervalue: string;
+    setFiltervalue: (value: string) => void;
+  }
+
+  export default function Filter({filtervalue, setFiltervalue}: FilterProps) {
+
+
+
+    const onchangefilter = (e: any) => {
+      console.log('e', e.target.value);
+      setFiltervalue(e.target.value);
+    }
     return (
       <ThemeProvider theme={customTheme(useTheme())}>
-        <TextField label="Search by version,product, or vendor name" variant="filled" sx={{width:'80%',height:'100%', border:'none', backgroundColor:'transparent'}} />
+        <TextField label="Search by version,product, or vendor name" variant="filled" sx={{width:'80%',height:'100%', border:'none', backgroundColor:'transparent'}} value={filtervalue} onChange={(e)=> onchangefilter(e)} />
       </ThemeProvider>
     );
   }

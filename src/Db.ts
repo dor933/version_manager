@@ -300,6 +300,15 @@ class Database {
         console.error('Error updating data', err.message);
     }
    }
+
+   async getVersions(){
+    return new Promise((resolve, reject) => {
+        this.db.all(`SELECT * FROM Version`, (err: Error, rows: any) => {
+            resolve(rows);
+        });
+    });
+    
+   }
     
 
     public async close(): Promise<void> {

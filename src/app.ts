@@ -84,7 +84,7 @@ if (isServiceCommand) {
         svc.start();
     });
 
-    svc.on('error', (err) => {
+    svc.on('error', (err:any) => {
         // Log to console
         console.error('Service error:', err);
         

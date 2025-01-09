@@ -6,14 +6,59 @@ import Grid from '@mui/material/Grid';
 import Filter from './Filter';
 import DrawerComponent from './Drawer';
 import Table from './Table';
-
+import { useAuth } from './UseContext/MainAuth';
+import { useEffect } from 'react';
+import axios from 'axios';
+import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import CustomizedSelects from './CustomizeSelect';
+import { ThemeProvider } from '@mui/material/styles';
 
 export default function Home() {
 
+  
+  
+  const { versions, setVersions } = useAuth();
 
 const drawerWidth = 240;
 const theme = useTheme();
 const [open, setOpen] = React.useState(false);
+const [vendor, setVendor] = React.useState('');
+const [distinctVendors, setDistinctVendors] = React.useState<string[]>([]);
+const [chosenversion, setChosenversion] = React.useState<any>(null);
+const [filtervalue, setFiltervalue] = React.useState<string>('');
+
+useEffect(() => {
+    axios.get('http://localhost:3001/api/versions',{
+    })
+    .then(response => response.data)
+    .then(data => {setVersions(data)
+  })
+    .catch(error => console.error('Error fetching versions:', error));
+
+    console.log('fetching versions', versions);
+  
+
+    //create distinct vendors
+  
+    
+    
+}, []);
+
+
+
+
+
+useEffect(() => {
+  if (versions) {
+    const distinctVendors = [...new Set(versions.map((version: any) => version.VendorName))];
+    console.log('distinct vendors', distinctVendors);
+    setDistinctVendors(distinctVendors);
+  }
+}, [versions]);
+
+
+
+
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
   open?: boolean;
@@ -64,7 +109,7 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
              
             <Box sx={{display:'flex', backgroundColor:'#FFF', borderRadius:'4px', paddingLeft:'13px', paddingRight:'13px', paddingTop:'14px', paddingBottom:'14px'}}>
                 <Typography  sx={{ color: '#2671B1', fontFamily:'Kumbh Sans' }}>
-                    See Versions
+                    Sync Versions
                 </Typography>
              </Box>
             </Grid>
@@ -89,59 +134,50 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
 
           </Grid>
         </Grid>
-        <Grid container item xs={12} style={{display:'flex', justifyContent:'flex-start', alignItems:'center', flexDirection:'row'}}>
-          <Grid container item xs={3} style={{display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'row',}}>
-    
-            <Grid item xs={5} style={{display:'flex', justifyContent:'center', alignItems:'flex-end', flexDirection:'column', margin:0}}>
-             
-             <Box sx={{display:'flex', backgroundColor:'#FFF', borderRadius:'4px', paddingLeft:'13px', paddingRight:'13px', paddingTop:'14px', paddingBottom:'14px', gap:'10px', alignItems:'center'}}>
-                <Typography  sx={{ color: '#C4C4C4', fontSize:'14px', fontWeight:'500', lineHeight:'16px', letterSpacing:'0.2px', textAlign:'center', fontFamily:'Kumbh Sans' }}>
-                    Add Filter
-                </Typography>
-                <svg width="9" height="7" viewBox="0 0 9 7" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M4.243 6.32851L0 2.08551L1.415 0.671509L4.243 3.50051L7.071 0.671509L8.486 2.08551L4.243 6.32851Z" fill="#C4C4C4"/>
-</svg>
-             </Box>
-
-            </Grid>
-            <Grid item xs={5} style={{display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'column',margin:0,}}>
-             
-        
-            </Grid>
-          </Grid>
-          <Grid item xs={7} style={{display:'flex', justifyContent:'flex-start', alignItems:'center', flexDirection:'row',marginLeft:'-80px'}}>
-           
-   
-   
-
-      <Filter/>
-
-
-         
-
-          </Grid>
-
-        </Grid>
+      
         <Grid container xs={12} style={{display:'flex', justifyContent:'flex-start', alignItems:'center', flexDirection:'row', paddingLeft:'80px'}}>
-          <Grid item xs={8} style={{display:'flex', justifyContent:'flex-start', alignItems:'center', flexDirection:'row'}}>
+          <Grid container item xs={9} style={{display:'flex', justifyContent:'flex-start', alignItems:'center', flexDirection:'row'}}>
 
-            <Table/>
+            <Table versions={versions? versions: []} setChosenversion={setChosenversion} filtervalue={filtervalue} distinctVendors={distinctVendors} setDistinctVendors={setDistinctVendors} vendor={vendor} setVendor={setVendor}/>
           </Grid>
-          <Grid item xs={4} style={{display:'flex', alignSelf:'flex-start', flexDirection:'column',alignItems:'center', justifyContent:'center',gap:'10px'}}>
+          <Grid item xs={3} style={{display:'flex', alignSelf:'flex-start', flexDirection:'column',alignItems:'center', justifyContent:'center',gap:'10px'}}>
 
             <Typography style={{color:"#424242", fontSize:'14px', fontWeight:'500', lineHeight:'16px', letterSpacing:'0.2px', textAlign:'center', fontFamily:'Kumbh Sans'}}>
-              Vendor Name
+              {chosenversion?.VendorName || 'Vendor Name'}
             </Typography>
-            <Box sx={{display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'250px', paddingLeft:'25px', paddingRight:'25px', paddingTop:'25px', paddingBottom:'25px', backgroundColor:'#F5F5F5', width:'250px', height:'250px'}}>
-
-               <img src='https://static.fortra.com/hs-logo.png' style={{width:'230px', height:'80px'}}/>
-
+            { 
+            vendor===''?
+            <Box sx={{display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'250px', paddingLeft:'25px', paddingRight:'25px', paddingTop:'25px', paddingBottom:'25px', backgroundColor:'#F5F5F5', width:'200px', height:'200px', marginLeft:'-30px',zIndex:'0'}}>
+            <Box sx={{display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'100px', paddingLeft:'25px', paddingRight:'25px', paddingTop:'25px', paddingBottom:'25px', backgroundColor:'#FFFFFF', width:'80px', height:'80px'}}>
+            
+              
+               <img src='https://static.fortra.com/hs-logo.png' style={{width:'90px', height:'25px'}}/>
+            
             </Box>
+            <Box sx={{display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'100px', paddingLeft:'25px', paddingRight:'25px', paddingTop:'25px', paddingBottom:'25px', backgroundColor:'#FFFFFF', width:'80px', height:'80px', marginLeft:'-30px',zIndex:'1'}}>
+            
+              
+            <img src='https://cybersecurity-excellence-awards.com/wp-content/uploads/2022/01/507133.png' style={{width:'90px', height:'15px'}}/>
+            
+            </Box>
+            </Box>:
+            
+            vendor==='Fortra' ?
+                        <Box sx={{display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'250px', paddingLeft:'25px', paddingRight:'25px', paddingTop:'25px', paddingBottom:'25px', backgroundColor:'#F5F5F5', width:'200px', height:'200px'}}>
+                          <img src='https://static.fortra.com/hs-logo.png' style={{width:'120px', height:'40px'}}/>
+
+  </Box> : vendor==='OPSWAT' ?
+                        <Box sx={{display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'250px', paddingLeft:'25px', paddingRight:'25px', paddingTop:'25px', paddingBottom:'25px', backgroundColor:'#F5F5F5', width:'200px', height:'200px'}}>
+                          <img src='https://cybersecurity-excellence-awards.com/wp-content/uploads/2022/01/507133.png' style={{width:'150px', height:'30px'}}/>
+
+</Box> : 
+null
+}
             <Typography style={{color:"#424242", fontSize:'16px', fontWeight:'700', lineHeight:'16px', letterSpacing:'0.2px', textAlign:'center', fontFamily:'Kumbh Sans'}}>
-             Product Name
+             {chosenversion?.ProductName || 'Product Name'}
             </Typography>
             <Typography style={{color:"#424242", fontSize:'14px', fontWeight:'500', lineHeight:'16px', letterSpacing:'0.2px', textAlign:'center', fontFamily:'Kumbh Sans'}}>
-             Version Name
+             {chosenversion?.VersionName || 'Version Name'}
             </Typography>
 
             <Grid container xs={8} style={{display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'row'}}>
@@ -166,6 +202,59 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
 <path d="M17 9L13.87 11.5C12.84 12.32 11.15 12.32 10.12 11.5L7 9" stroke="#A7A7A7" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
               </Grid>
+
+            </Grid>
+
+            <Grid container xs={8} style={{display:'flex', justifyContent:'center', alignItems:'flex-start', flexDirection:'column', marginTop:'40px',paddingLeft:'10px', gap:'10px'}}>
+              <Typography style={{color:"#424242", fontSize:'14px', fontWeight:'500', lineHeight:'16px', letterSpacing:'0.2px', textAlign:'center', fontFamily:'Kumbh Sans'}}>
+                About
+              </Typography>
+              <Typography style={{color:"#A7A7A7", fontSize:'14px', fontWeight:'500', lineHeight:'16px', letterSpacing:'0.2px', fontFamily:'Kumbh Sans'}}>  
+                  version Details
+                </Typography>
+            </Grid>
+            <Grid container xs={8} style={{display:'flex', justifyContent:'flex-start', alignItems:'center', flexDirection:'row', marginTop:'40px',paddingLeft:'10px',gap:'10px', 
+              
+            }}>
+
+              <Grid item xs={4} style={{display:'flex', justifyContent:'flex-start', alignItems:'flex-start', flexDirection:'column', gap:'10px'}}>
+                <Typography style={{color:"#424242", fontSize:'14px', fontWeight:'500', lineHeight:'16px', letterSpacing:'0.2px', fontFamily:'Kumbh Sans'}}>
+                  Version
+                </Typography>
+                <Typography style={{color:"#A7A7A7", fontSize:'14px', fontWeight:'500', lineHeight:'16px', letterSpacing:'0.2px', fontFamily:'Kumbh Sans'}}>  
+                  {chosenversion?.VersionName || 'Version Name'}
+                </Typography>
+              </Grid>
+              <Grid item xs={4} style={{display:'flex', justifyContent:'flex-start', alignItems:'flex-start', flexDirection:'column', gap:'10px'}}>
+                <Typography style={{color:"#424242", fontSize:'14px', fontWeight:'500', lineHeight:'16px', letterSpacing:'0.2px', fontFamily:'Kumbh Sans'}}>
+                  Version
+                </Typography>
+                <Typography style={{color:"#A7A7A7", fontSize:'14px', fontWeight:'500', lineHeight:'16px', letterSpacing:'0.2px', fontFamily:'Kumbh Sans'}}>  
+                  {chosenversion?.ProductName || 'Product Name'}
+                </Typography>
+              </Grid>
+
+
+            </Grid>
+            <Grid container xs={8} style={{display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'row', marginTop:'40px',paddingLeft:'10px'}}>
+              <Typography style={{color:"#1A1A1A", fontSize:'14px', fontWeight:'700', lineHeight:'16px', letterSpacing:'0.2px', textAlign:'center', fontFamily:'Kumbh Sans'}}>
+                More Availble Vendors
+              </Typography>
+            </Grid>
+
+            <Grid container xs={8} style={{display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'row', marginTop:'40px',paddingLeft:'10px'}}>
+              
+            <Box sx={{display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'50px', paddingLeft:'25px', paddingRight:'25px',zIndex:'-2', paddingTop:'25px', paddingBottom:'25px', backgroundColor:'#F5F5F5', width:'50px', height:'50px'}}>
+
+<img src='https://static.fortra.com/hs-logo.png' style={{width:'80px', height:'20px'}}/>
+  
+</Box>
+<Box sx={{display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'50px', paddingLeft:'25px', paddingRight:'25px', paddingTop:'25px', paddingBottom:'25px', backgroundColor:'#F5F5F5', width:'50px', height:'50px',marginLeft:'-30px',zIndex:'0'}}>
+
+<img src='https://cybersecurity-excellence-awards.com/wp-content/uploads/2022/01/507133.png' style={{width:'85px', height:'15px'}}/>
+  
+</Box>
+
 
             </Grid>
           </Grid>

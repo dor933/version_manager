@@ -4,6 +4,7 @@ import { sendEmail } from './Functions';
 import winston from 'winston';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
+import { startServer } from './server/server';
 let errorCount=0;
 let notificationEmails:any= process.env.NOTIFICATION_EMAILS;
 let croninterval:any= process.env.CRON_INTERVAL;
@@ -205,13 +206,13 @@ process.on('unhandledRejection', (reason) => {
     await db.HandleData();
     console.log('Initiation finished successfully')
     getEmails();
-
+    startServer();
 })();
 
 async function addKnownIssue(issue:any){
 await db.insertData('Known_Issues',['VersionName','ProductName','VendorName','IssueName','IssueDescription','IssueDate','IssueStatus','IssueSeverity','IssueResolution'],[issue.VersionName,issue.ProductName,issue.VendorName,issue.IssueName,issue.IssueDescription,issue.IssueDate,issue.IssueStatus,issue.IssueSeverity,issue.IssueResolution]);
 }
 
-export { logger, notificationEmails, isinit };
+export { logger, notificationEmails, isinit, db };
 
 

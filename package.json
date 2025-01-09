@@ -19,16 +19,21 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
-    "package": "pkg .",
+    "build:client": "cd client && npm run build",
     "start:server": "node dist/index.js",
-    "start": "npm run build && npm run start:server"
+    "start:client": "cd client && npm start",
+    "start": "concurrently \"npm run start:server\" \"npm run start:client\"",
+    "dev": "npm run build && npm run start",
+    "package": "pkg ."
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/express": "^5.0.0",
     "@types/node": "^22.10.1",
     "@types/node-cron": "^3.0.11",
+    "@types/node-windows": "^0.1.6",
     "@types/nodemailer": "^6.4.17",
     "@types/yargs": "^17.0.33",
     "typescript": "^5.7.2"
@@ -38,6 +43,7 @@
     "cheerio": "^1.0.0",
     "concurrently": "^9.1.0",
     "dotenv": "^16.4.7",
+    "express": "^4.21.2",
     "node-cron": "^3.0.3",
     "node-windows": "^1.0.0-beta.8",
     "nodemailer": "^6.9.16",

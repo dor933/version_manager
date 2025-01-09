@@ -7,9 +7,13 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
+import { useEffect } from 'react';
+import Grid from '@mui/material/Grid';
+import Filter from './Filter';
+import CustomizedSelects from './CustomizeSelect';
 
 interface Column {
-  id: 'version_name' | 'product_name' | 'vendor_name' | 'version_release_date' | 'version_end_of_life_date' | 'version_partial_end_of_life_date';
+  id: 'VersionName' | 'ProductName' | 'VendorName' | 'ReleaseDate' | 'EndOfSupportDate' | 'Extended_Support_End_Date' | 'LevelOfSupport';
   label: string;
   minWidth?: number;
   align?: 'right';
@@ -17,31 +21,38 @@ interface Column {
 }
 
 const columns: readonly Column[] = [
-    { id: 'version_name', label: 'Version Name', minWidth: 140 },
-  { id: 'product_name', label: 'Product Name', minWidth: 100 },
+  { id: 'VersionName', label: 'Version Name', minWidth: 140 },
+  { id: 'ProductName', label: 'Product Name', minWidth: 100 },
   {
-    id: 'vendor_name',
+    id: 'VendorName',
     label: 'Vendor Name',
     minWidth: 140,
     align: 'right',
     format: (value: number) => value.toLocaleString('en-US'),
   },
   {
-    id: 'version_release_date',
+    id: 'ReleaseDate',
     label: 'Version Release Date',
     minWidth: 140,
     align: 'right',
     format: (value: number) => value.toLocaleString('en-US'),
   },
   {
-    id: 'version_end_of_life_date',
+    id:'LevelOfSupport',
+    label:'Level Of Support',
+    minWidth:140,
+    align:'right',
+    format: (value: number) => value.toLocaleString('en-US'),
+  },
+  {
+    id: 'EndOfSupportDate',
         label: 'Version EOL',
     minWidth: 140,
     align: 'right',
     format: (value: number) => value.toFixed(2),
   },
   {
-    id: 'version_partial_end_of_life_date',
+    id: 'Extended_Support_End_Date',
         label: 'Version Partial EOL',
     minWidth: 140,
     align: 'right',
@@ -52,48 +63,44 @@ const columns: readonly Column[] = [
 ];
 
 interface Data {
-  version_name: string;
-  product_name: string;
-  vendor_name: string;
-  version_release_date: string;
-  version_end_of_life_date: string;
-  version_partial_end_of_life_date?: string;
+    VersionName: string;
+  ProductName: string;
+  VendorName: string;
+  ReleaseDate: string;
+  EndOfSupportDate: string;
+  Extended_Support_End_Date?: string;
 }
 
-function createData(
-  version_name: string,
-  product_name: string,
-  vendor_name: string,
-  version_release_date: string,
-  version_end_of_life_date: string,
-  version_partial_end_of_life_date?: string,
-): Data {
-  return { version_name, product_name, vendor_name, version_release_date, version_end_of_life_date, version_partial_end_of_life_date };
-}
-
-const rows = [
-  createData('1.0.0', 'Fortra', 'Fortra', '2024-01-01', '2025-01-01', '2024-06-01'),
-  createData('2.0.0', 'Fortra', 'Fortra', '2024-01-01', '2025-01-01', '2024-06-01'),
-  createData('3.0.0', 'Fortra', 'Fortra', '2024-01-01', '2025-01-01', '2024-06-01'),
-  createData('4.0.0', 'Fortra', 'Fortra', '2024-01-01', '2025-01-01', '2024-06-01'),
-  createData('5.0.0', 'Fortra', 'Fortra', '2024-01-01', '2025-01-01', '2024-06-01'),
-  createData('6.0.0', 'Fortra', 'Fortra', '2024-01-01', '2025-01-01', '2024-06-01'),
-  createData('7.0.0', 'Fortra', 'Fortra', '2024-01-01', '2025-01-01', '2024-06-01'),
-  createData('8.0.0', 'Fortra', 'Fortra', '2024-01-01', '2025-01-01', '2024-06-01'),
-  createData('9.0.0', 'Fortra', 'Fortra', '2024-01-01', '2025-01-01', '2024-06-01'),
-  createData('10.0.0', 'Fortra', 'Fortra', '2024-01-01', '2025-01-01', '2024-06-01'),
-  createData('11.0.0', 'Fortra', 'Fortra', '2024-01-01', '2025-01-01', '2024-06-01'),
-  createData('12.0.0', 'Fortra', 'Fortra', '2024-01-01', '2025-01-01', '2024-06-01'),
-  createData('13.0.0', 'Fortra', 'Fortra', '2024-01-01', '2025-01-01', '2024-06-01'),
-  createData('14.0.0', 'Fortra', 'Fortra', '2024-01-01', '2025-01-01', '2024-06-01'),
-  createData('15.0.0', 'Fortra', 'Fortra', '2024-01-01', '2025-01-01', '2024-06-01'),
 
 
-];
-
-export default function StickyHeadTable() {
+export default function StickyHeadTable({versions, setChosenversion, filtervalue, distinctVendors, setDistinctVendors , vendor, setVendor}: {versions: any[], setChosenversion: any, filtervalue: string, distinctVendors: any[], setDistinctVendors: any, vendor: any, setVendor: any}) {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [filteredVersions, setFilteredVersions] = React.useState(versions);
+  const [searchvalue, setSearchvalue] = React.useState('');
+
+  useEffect(() => {
+    console.log('filtervalue', filtervalue);
+    if (searchvalue !== '' && versions) {
+      const newfilteredversions = versions?.filter((version: any) => version.VersionName.toLowerCase().includes(searchvalue.toLowerCase()) || version.ProductName.toLowerCase().includes(searchvalue.toLowerCase()) || version.VendorName.toLowerCase().includes(searchvalue.toLowerCase()));
+      console.log('newfilteredversions', newfilteredversions);
+      setFilteredVersions(newfilteredversions);
+    } else if (versions) {
+      setFilteredVersions(versions);
+    }
+    setPage(0);
+  }, [searchvalue]);
+
+  useEffect(() => {
+    if (vendor !== '' && versions) {
+      const newfilteredversions = versions?.filter((version: any) => version.VendorName === vendor);
+      console.log('newfilteredversions', newfilteredversions);
+      setFilteredVersions(newfilteredversions);
+    } else if (versions) {
+      setFilteredVersions(versions);
+    }
+  }, [vendor]);
+
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -105,8 +112,57 @@ export default function StickyHeadTable() {
   };
 
   return (
+    <>
+    <Grid container item xs={12} style={{display:'flex', justifyContent:'flex-start', alignItems:'center', flexDirection:'row', marginBottom:'30px'}}>
+           
+   
+    <Grid item xs={5} style={{display:'flex', justifyContent:'center', alignItems:'flex-start', flexDirection:'column',}}>
+             
+             <CustomizedSelects 
+               options={distinctVendors} 
+               label="Vendor" 
+               value={vendor} 
+               setVendor={setVendor}
+             />
+             
+  
+               {/* <Box sx={{display:'flex', backgroundColor:'#FFF', borderRadius:'4px', paddingLeft:'13px', paddingRight:'13px', paddingTop:'14px', paddingBottom:'14px', gap:'10px', alignItems:'center'}}>
+                  <Typography  sx={{ color: '#C4C4C4', fontSize:'14px', fontWeight:'500', lineHeight:'16px', letterSpacing:'0.2px', textAlign:'center', fontFamily:'Kumbh Sans' }}>
+                      Choose Vendor
+                  </Typography>
+                  <svg width="9" height="7" viewBox="0 0 9 7" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M4.243 6.32851L0 2.08551L1.415 0.671509L4.243 3.50051L7.071 0.671509L8.486 2.08551L4.243 6.32851Z" fill="#C4C4C4"/>
+  </svg>
+             
+             //create a dropdown for the vendors
+             <Select
+             label='Vendor'
+             options={versions!.map((version: any) => version.VendorName)}
+             onChange={(e) => setVendor(e.target.value)}
+            
+             /> 
+             
+               </Box> */}
+  
+              </Grid>
+
+              <Grid item xs={7} style={{display:'flex', justifyContent:'flex-start', alignItems:'center', flexDirection:'row'}}>
+
+                <Filter filtervalue={searchvalue} setFiltervalue={setSearchvalue}/>
+              </Grid>
+   
+
+   
+
+
+       
+
+        </Grid>
+
+        <Grid item xs={12}>
+    
     <Paper sx={{ width: '100%', overflow: 'hidden', boxShadow: 'none' }}>
-      <TableContainer sx={{ maxHeight: 850 }}>
+      <TableContainer sx={{ maxHeight: 900, minHeight:'700px' }}>
         <Table 
           stickyHeader 
           aria-label="sticky table"
@@ -138,9 +194,9 @@ export default function StickyHeadTable() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows
+            {filteredVersions && filteredVersions
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row, index) => {
+              .map((row: any, index: any) => {
                 return (
                   <TableRow 
                     hover 
@@ -153,7 +209,9 @@ export default function StickyHeadTable() {
                       },
                       backgroundColor: index % 2 === 0 ? 'rgba(235, 246, 255, 0.50)' : '#FFFFFF',
                     }}
+                    onClick={() => { setChosenversion(row); setVendor(row.VendorName);}}
                   >
+
                     {columns.map((column) => {
                         const value = row[column.id as keyof typeof row];
                       return (
@@ -167,8 +225,15 @@ export default function StickyHeadTable() {
                           }}
                         >
                           {column.format && typeof value === 'number'
-                            ? column.format(value)
-                            : value}
+                            ? column.format(value) 
+                            : column.id==='VendorName' ? 
+                            
+                            
+                            <img src={value==='Fortra' ? 'https://static.fortra.com/hs-logo.png' : 'https://cybersecurity-excellence-awards.com/wp-content/uploads/2022/01/507133.png'} style={{width: value==='Fortra'? '60px': '90px', height:'15px'}}/> 
+                            :
+
+                            value != null ? value : 'N/A'
+                            }
                         </TableCell>
                       );
                     })}
@@ -181,7 +246,7 @@ export default function StickyHeadTable() {
       <TablePagination
         rowsPerPageOptions={[10, 25, 100]}
         component="div"
-        count={rows.length}
+        count={filteredVersions!=null ? filteredVersions.length : 0}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}
@@ -191,5 +256,7 @@ export default function StickyHeadTable() {
         }}
       />
     </Paper>
+    </Grid>
+    </>
   );
 }
