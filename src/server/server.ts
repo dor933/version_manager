@@ -22,6 +22,12 @@ app.get('/api/versions', async (req, res) => {
    res.json(versions);
 });
 
+app.get('/api/sync', async (req, res) => {
+    const sync = await db.HandleData();
+    const versions = await db.getVersions();
+    res.json({sync, versions});
+});
+
 export function startServer() {
     app.listen(port, () => {
         console.log(`Server is running on port ${port}`);

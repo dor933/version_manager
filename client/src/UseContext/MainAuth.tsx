@@ -6,31 +6,27 @@ import { createContext, useContext, useState } from 'react';
 const AuthContext = createContext<{
   versions: any[] | null;
   setVersions: React.Dispatch<React.SetStateAction<any[] | null>>;
-  filtervalue: string;
-  setFiltervalue: React.Dispatch<React.SetStateAction<string>>;
-  chosenversion: any;
-  setChosenversion: React.Dispatch<React.SetStateAction<any>>;
-  vendor: string;
-  setVendor: React.Dispatch<React.SetStateAction<string>>;
+  opendialog: boolean;
+  setOpenDialog: React.Dispatch<React.SetStateAction<boolean>>;
+
+
 }>({
   versions: null,
   setVersions: () => null,
-  filtervalue: '',
-  setFiltervalue: () => null,
-  chosenversion: null,
-  setChosenversion: () => null,
-  vendor: '',
-  setVendor: () => '',
+  opendialog: false,
+  setOpenDialog: () => null,
+
+
+
 });
 
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [versions, setVersions] = useState<any[] | null>(null);
-  const [filtervalue, setFiltervalue] = useState<string>('');
-  const [vendor, setVendor] = useState<string>('');
-    const [chosenversion, setChosenversion] = useState<any>(null);
-  return <AuthContext.Provider value={{ versions, setVersions, filtervalue, setFiltervalue, chosenversion, setChosenversion, vendor, setVendor }}>{children}</AuthContext.Provider>;
+  const [opendialog, setOpenDialog] = useState<boolean>(false);
+
+  return <AuthContext.Provider value={{ versions, setVersions, opendialog, setOpenDialog }}>{children}</AuthContext.Provider>;
 };
 
 

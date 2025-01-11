@@ -25,13 +25,13 @@ const argv = await yargs(hideBin(process.argv))
         alias: 'i',
         type: 'number',
         description: 'Cron job interval in minutes',
-        default: process.env.CRON_INTERVAL || 60
+        default: process.env.CRON_INTERVAL || 1
     })
     .option('unit', {
         alias: 'u',
         type: 'string',
         description: 'Interval time unit',
-        default: process.env.UNIT || 'minutes'
+        default: process.env.UNIT || 'months'
     })
     .argv;
 
@@ -101,10 +101,15 @@ function startCronJob() {
             // For days, we run at specific time (00:00) every N days
             cronExpression = `0 0 */${croninterval} * *`;
             break;
+        case 'months':
+            // For months, we run at specific time (00:00) every N months
+            cronExpression = `0 0 1 */${croninterval} *`;
+            break;
         default:
-            // Default to minutes if unit is not recognized
-            logger.warn(`Unrecognized unit: ${unit}, defaulting to minutes`);
-            cronExpression = `*/${croninterval} * * * *`;
+
+        //default to monthly
+        logger.warn(`Unrecognized unit: ${unit}, defaulting to monthly`);
+            cronExpression = `0 0 0 1 *`;
     }
 
     logger.info(`Cron expression: ${cronExpression}`);

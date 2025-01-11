@@ -3,29 +3,32 @@ import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
-import Filter from './Filter';
 import DrawerComponent from './Drawer';
 import Table from './Table';
 import { useAuth } from './UseContext/MainAuth';
 import { useEffect } from 'react';
+import CircularProgress from '@mui/material/CircularProgress';
 import axios from 'axios';
-import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
-import CustomizedSelects from './CustomizeSelect';
-import { ThemeProvider } from '@mui/material/styles';
+import Report from './Report';
+import CheckIcon from '@mui/icons-material/Check';
+import ErrorIcon from '@mui/icons-material/Error';
 
 export default function Home() {
 
   
   
-  const { versions, setVersions } = useAuth();
+  const { versions, setVersions, opendialog, setOpenDialog } = useAuth();
 
 const drawerWidth = 240;
-const theme = useTheme();
 const [open, setOpen] = React.useState(false);
 const [vendor, setVendor] = React.useState('');
 const [distinctVendors, setDistinctVendors] = React.useState<string[]>([]);
 const [chosenversion, setChosenversion] = React.useState<any>(null);
 const [filtervalue, setFiltervalue] = React.useState<string>('');
+const [lastSync, setLastSync] = React.useState<string>('');
+const [finishedSyncing, setFinishedSyncing] = React.useState(false);
+const [failedSyncing, setFailedSyncing] = React.useState(false);
+const [isSyncing, setIsSyncing] = React.useState(false);
 
 useEffect(() => {
     axios.get('http://localhost:3001/api/versions',{
@@ -36,6 +39,8 @@ useEffect(() => {
     .catch(error => console.error('Error fetching versions:', error));
 
     console.log('fetching versions', versions);
+    const now = new Date();
+    setLastSync(now.toLocaleString());
   
 
     //create distinct vendors
@@ -57,7 +62,31 @@ useEffect(() => {
 }, [versions]);
 
 
+const handleSync = async () => {
+  setIsSyncing(true);
+  const response = await axios.get('http://localhost:3001/api/sync');
+  console.log('response', response);
+  setVersions(response.data.versions);
+  //take now date and time
+  if(response.data.sync){
+    const now = new Date();
+    setLastSync(now.toLocaleString());
+    setFinishedSyncing(true);
+    setIsSyncing(false);
+    setTimeout(() => {
+      setFinishedSyncing(false);
+    }, 10000);
 
+  }
+  else{
+    setFailedSyncing(true);
+    setIsSyncing(false);
+
+  setTimeout(() => {
+    setFailedSyncing(false);
+  }, 10000);
+}
+}
 
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
@@ -87,34 +116,45 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
 
 
   return (
+    
     <Box sx={{ display: 'flex' }}>
+
+<Report versions={versions? versions: []}/>
 
       <DrawerComponent open={open} setOpen={setOpen}/>
 
       <Main open={open}>
-      <Grid container style={{gap:'30px'}}>
+      <Grid container style={{gap:'30px', marginTop:'20px'}}>
         <Grid container item xs={12} style={{display:'flex', justifyContent:'flex-start', alignItems:'center', flexDirection:'row'}}>
-          <Grid container item xs={4} style={{display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'row',}}>
+          <Grid container item xs={6} style={{display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'row',}}>
     
-            <Grid item xs={5} style={{display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'column'}}>
+            <Grid item xs={4} style={{display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'column'}}>
              
-             <Box sx={{display:'flex', backgroundColor:'#509CDB', borderRadius:'4px', paddingLeft:'13px', paddingRight:'13px', paddingTop:'14px', paddingBottom:'14px'}}>
+             
+             <Box sx={{display:'flex', backgroundColor:'#509CDB', borderRadius:'4px', paddingLeft:'13px', paddingRight:'13px', paddingTop:'14px', paddingBottom:'14px', cursor:'pointer'}} onClick={() => setOpenDialog(true)}>
                 <Typography  sx={{ color: '#FFF', fontSize:'14px', fontWeight:'600', lineHeight:'16px', letterSpacing:'0.2px', textAlign:'center', fontFamily:'Kumbh Sans' }}>
                     Report Issue
                 </Typography>
              </Box>
 
             </Grid>
-            <Grid item xs={5} style={{display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'column',margin:0}}>
+            <Grid item xs={4} style={{display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'column',margin:0}}>
              
-            <Box sx={{display:'flex', backgroundColor:'#FFF', borderRadius:'4px', paddingLeft:'13px', paddingRight:'13px', paddingTop:'14px', paddingBottom:'14px'}}>
+            <Box sx={{display:'flex', backgroundColor:'#FFF', borderRadius:'4px', paddingLeft:'13px', paddingRight:'13px', paddingTop:'14px', paddingBottom:'14px', cursor:'pointer'}} onClick={async()=> await handleSync()}>
                 <Typography  sx={{ color: '#2671B1', fontFamily:'Kumbh Sans' }}>
                     Sync Versions
                 </Typography>
+                {isSyncing && <CircularProgress sx={{color:'#2671B1', marginLeft:'10px',marginTop:'5px'}} size={16}/>}
+                {!isSyncing && finishedSyncing && <CheckIcon sx={{color:'#2671B1', marginLeft:'10px'}} />}
+                {!isSyncing && failedSyncing && <ErrorIcon sx={{color:'#2671B1', marginLeft:'10px'}} />}
+
              </Box>
             </Grid>
+            <Grid item xs={4} style={{display:'flex', justifyContent:'center', alignItems:'flex-start', flexDirection:'column'}}>
+                <Typography sx={{color:'#2671B1', fontFamily:'Kumbh Sans', fontSize:'12px', fontWeight:'500', lineHeight:'16px', letterSpacing:'0.2px',flexGrow:1}}>last sync: {lastSync}</Typography>
+            </Grid>
           </Grid>
-          <Grid item xs={8} style={{display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'row'}}>
+          <Grid item xs={6} style={{display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'row'}}>
            
            <Grid item xs={4} style={{display:'flex', justifyContent:'flex-start', alignItems:'flex-end', flexDirection:'column'}}>
            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -138,16 +178,16 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
         <Grid container xs={12} style={{display:'flex', justifyContent:'flex-start', alignItems:'center', flexDirection:'row', paddingLeft:'80px'}}>
           <Grid container item xs={9} style={{display:'flex', justifyContent:'flex-start', alignItems:'center', flexDirection:'row'}}>
 
-            <Table versions={versions? versions: []} setChosenversion={setChosenversion} filtervalue={filtervalue} distinctVendors={distinctVendors} setDistinctVendors={setDistinctVendors} vendor={vendor} setVendor={setVendor}/>
+            <Table versions={versions? versions: []} setChosenversion={setChosenversion} chosenversion={chosenversion} filtervalue={filtervalue} distinctVendors={distinctVendors} setDistinctVendors={setDistinctVendors} vendor={vendor} setVendor={setVendor}/>
           </Grid>
           <Grid item xs={3} style={{display:'flex', alignSelf:'flex-start', flexDirection:'column',alignItems:'center', justifyContent:'center',gap:'10px'}}>
 
             <Typography style={{color:"#424242", fontSize:'14px', fontWeight:'500', lineHeight:'16px', letterSpacing:'0.2px', textAlign:'center', fontFamily:'Kumbh Sans'}}>
-              {chosenversion?.VendorName || 'Vendor Name'}
+              {vendor? vendor: 'All Vendors'}
             </Typography>
             { 
             vendor===''?
-            <Box sx={{display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'250px', paddingLeft:'25px', paddingRight:'25px', paddingTop:'25px', paddingBottom:'25px', backgroundColor:'#F5F5F5', width:'200px', height:'200px', marginLeft:'-30px',zIndex:'0'}}>
+            <Box sx={{display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'250px', paddingLeft:'25px', paddingRight:'25px', paddingTop:'25px', paddingBottom:'25px', backgroundColor:'#F5F5F5', width:'200px', height:'200px',zIndex:'0'}}>
             <Box sx={{display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'100px', paddingLeft:'25px', paddingRight:'25px', paddingTop:'25px', paddingBottom:'25px', backgroundColor:'#FFFFFF', width:'80px', height:'80px'}}>
             
               
@@ -210,7 +250,6 @@ null
                 About
               </Typography>
               <Typography style={{color:"#A7A7A7", fontSize:'14px', fontWeight:'500', lineHeight:'16px', letterSpacing:'0.2px', fontFamily:'Kumbh Sans'}}>  
-                  version Details
                 </Typography>
             </Grid>
             <Grid container xs={8} style={{display:'flex', justifyContent:'flex-start', alignItems:'center', flexDirection:'row', marginTop:'40px',paddingLeft:'10px',gap:'10px', 
@@ -219,18 +258,18 @@ null
 
               <Grid item xs={4} style={{display:'flex', justifyContent:'flex-start', alignItems:'flex-start', flexDirection:'column', gap:'10px'}}>
                 <Typography style={{color:"#424242", fontSize:'14px', fontWeight:'500', lineHeight:'16px', letterSpacing:'0.2px', fontFamily:'Kumbh Sans'}}>
-                  Version
+                  Stability
                 </Typography>
                 <Typography style={{color:"#A7A7A7", fontSize:'14px', fontWeight:'500', lineHeight:'16px', letterSpacing:'0.2px', fontFamily:'Kumbh Sans'}}>  
-                  {chosenversion?.VersionName || 'Version Name'}
+                  {/* {chosenversion?.Stability || ''} */}
                 </Typography>
               </Grid>
               <Grid item xs={4} style={{display:'flex', justifyContent:'flex-start', alignItems:'flex-start', flexDirection:'column', gap:'10px'}}>
                 <Typography style={{color:"#424242", fontSize:'14px', fontWeight:'500', lineHeight:'16px', letterSpacing:'0.2px', fontFamily:'Kumbh Sans'}}>
-                  Version
+                 Known Issues 
                 </Typography>
                 <Typography style={{color:"#A7A7A7", fontSize:'14px', fontWeight:'500', lineHeight:'16px', letterSpacing:'0.2px', fontFamily:'Kumbh Sans'}}>  
-                  {chosenversion?.ProductName || 'Product Name'}
+                  {/* {chosenversion?.KnownIssues || ''} */}
                 </Typography>
               </Grid>
 
@@ -238,11 +277,11 @@ null
             </Grid>
             <Grid container xs={8} style={{display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'row', marginTop:'40px',paddingLeft:'10px'}}>
               <Typography style={{color:"#1A1A1A", fontSize:'14px', fontWeight:'700', lineHeight:'16px', letterSpacing:'0.2px', textAlign:'center', fontFamily:'Kumbh Sans'}}>
-                More Availble Vendors
+                 Availble Vendors
               </Typography>
             </Grid>
 
-            <Grid container xs={8} style={{display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'row', marginTop:'40px',paddingLeft:'10px'}}>
+            <Grid container xs={8} style={{display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'row', marginTop:'20px',paddingLeft:'10px'}}>
               
             <Box sx={{display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'50px', paddingLeft:'25px', paddingRight:'25px',zIndex:'-2', paddingTop:'25px', paddingBottom:'25px', backgroundColor:'#F5F5F5', width:'50px', height:'50px'}}>
 

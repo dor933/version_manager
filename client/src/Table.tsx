@@ -13,11 +13,13 @@ import Filter from './Filter';
 import CustomizedSelects from './CustomizeSelect';
 
 interface Column {
-  id: 'VersionName' | 'ProductName' | 'VendorName' | 'ReleaseDate' | 'EndOfSupportDate' | 'Extended_Support_End_Date' | 'LevelOfSupport';
+  id: 'VersionName' | 'ProductName' | 'VendorName' | 'ReleaseDate' | 'EndOfSupportDate' | 'Extended_Support_End_Date' | 'LevelOfSupport' | 'Issues';
   label: string;
   minWidth?: number;
   align?: 'right';
-  format?: (value: number) => string;
+  format_number?: (value: number) => string;
+  format_date?: (value: Date) => string;
+
 }
 
 const columns: readonly Column[] = [
@@ -28,36 +30,43 @@ const columns: readonly Column[] = [
     label: 'Vendor Name',
     minWidth: 140,
     align: 'right',
-    format: (value: number) => value.toLocaleString('en-US'),
+    format_number: (value: number) => value.toLocaleString('en-US'),
   },
   {
     id: 'ReleaseDate',
     label: 'Version Release Date',
     minWidth: 140,
     align: 'right',
-    format: (value: number) => value.toLocaleString('en-US'),
+    format_date: (value: Date) => value.toLocaleString('he-IL').split(',')[0]
   },
   {
     id:'LevelOfSupport',
     label:'Level Of Support',
     minWidth:140,
     align:'right',
-    format: (value: number) => value.toLocaleString('en-US'),
+    format_number: (value: number) => value.toLocaleString('en-US'),
   },
   {
     id: 'EndOfSupportDate',
         label: 'Version EOL',
     minWidth: 140,
     align: 'right',
-    format: (value: number) => value.toFixed(2),
+    format_date: (value: Date) => value.toLocaleString('he-IL').split(',')[0],
   },
   {
     id: 'Extended_Support_End_Date',
         label: 'Version Partial EOL',
     minWidth: 140,
     align: 'right',
-    format: (value: number) => value.toFixed(2),
+    format_date: (value: Date) => value.toLocaleString('he-IL').split(',')[0]
   },
+  {
+    id:'Issues',
+    label:'Issues',
+    minWidth:140,
+    align:'right',
+    format_number: (value: number) => value.toLocaleString('en-US'),
+  }
 
 
 ];
@@ -73,7 +82,7 @@ interface Data {
 
 
 
-export default function StickyHeadTable({versions, setChosenversion, filtervalue, distinctVendors, setDistinctVendors , vendor, setVendor}: {versions: any[], setChosenversion: any, filtervalue: string, distinctVendors: any[], setDistinctVendors: any, vendor: any, setVendor: any}) {
+export default function StickyHeadTable({versions, setChosenversion, filtervalue, distinctVendors, setDistinctVendors , vendor, setVendor, chosenversion}: {versions: any[], setChosenversion: any, filtervalue: string, distinctVendors: any[], setDistinctVendors: any, vendor: any, setVendor: any, chosenversion: any}) {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [filteredVersions, setFilteredVersions] = React.useState(versions);
@@ -92,14 +101,29 @@ export default function StickyHeadTable({versions, setChosenversion, filtervalue
   }, [searchvalue]);
 
   useEffect(() => {
+    console.log('vendor effect activated');
     if (vendor !== '' && versions) {
       const newfilteredversions = versions?.filter((version: any) => version.VendorName === vendor);
       console.log('newfilteredversions', newfilteredversions);
       setFilteredVersions(newfilteredversions);
+      if (newfilteredversions[0].VendorName!== chosenversion?.VendorName) {
+        setChosenversion(newfilteredversions[0]);
+      }
     } else if (versions) {
       setFilteredVersions(versions);
     }
+    setPage(0);
   }, [vendor]);
+
+  
+  const handleRowClick = (row: any) => {
+    console.log('row', row);
+    setChosenversion(row);
+    setVendor(row.VendorName);
+  } 
+
+  
+
 
 
   const handleChangePage = (event: unknown, newPage: number) => {
@@ -162,7 +186,7 @@ export default function StickyHeadTable({versions, setChosenversion, filtervalue
         <Grid item xs={12}>
     
     <Paper sx={{ width: '100%', overflow: 'hidden', boxShadow: 'none' }}>
-      <TableContainer sx={{ maxHeight: 900, minHeight:'700px' }}>
+      <TableContainer sx={{ maxHeight: 900 }}>
         <Table 
           stickyHeader 
           aria-label="sticky table"
@@ -209,7 +233,7 @@ export default function StickyHeadTable({versions, setChosenversion, filtervalue
                       },
                       backgroundColor: index % 2 === 0 ? 'rgba(235, 246, 255, 0.50)' : '#FFFFFF',
                     }}
-                    onClick={() => { setChosenversion(row); setVendor(row.VendorName);}}
+                    onClick={() => { handleRowClick(row); }}
                   >
 
                     {columns.map((column) => {
@@ -222,10 +246,13 @@ export default function StickyHeadTable({versions, setChosenversion, filtervalue
                             fontFamily: 'Kumbh Sans',
                             fontSize: '14px',
                             color: '#4B4B4B',
+                            paddingY: '25px',  // Vertical padding
                           }}
                         >
-                          {column.format && typeof value === 'number'
-                            ? column.format(value) 
+                          {column.format_number && typeof value === 'number'
+                            ? column.format_number(value) 
+                            : column.format_date && typeof value === 'string'
+                            ? column.format_date(new Date(value))
                             : column.id==='VendorName' ? 
                             
                             
