@@ -19,7 +19,7 @@ app.get('/', (req, res) => {
 
 app.get('/api/versions', async (req, res) => {
    const versions = await db.getVersions();
-   res.json(versions);
+   res.json({versions});
 });
 
 app.get('/api/sync', async (req, res) => {

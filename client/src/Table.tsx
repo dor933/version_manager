@@ -88,13 +88,19 @@ export default function StickyHeadTable({versions, setChosenversion, filtervalue
   const [filteredVersions, setFilteredVersions] = React.useState(versions);
   const [searchvalue, setSearchvalue] = React.useState('');
 
+
+
   useEffect(() => {
     console.log('filtervalue', filtervalue);
+    console.log('vendor', vendor);
     if (searchvalue !== '' && versions) {
-      const newfilteredversions = versions?.filter((version: any) => version.VersionName.toLowerCase().includes(searchvalue.toLowerCase()) || version.ProductName.toLowerCase().includes(searchvalue.toLowerCase()) || version.VendorName.toLowerCase().includes(searchvalue.toLowerCase()));
+      const newfilteredversions = versions?.filter((version: any) => version.VersionName.toLowerCase().includes(searchvalue.toLowerCase()) && (vendor!='' ? version.VendorName== vendor : true) || version.ProductName.toLowerCase().includes(searchvalue.toLowerCase()) && (vendor!==''?  version.VendorName==vendor : true) || version.VendorName.toLowerCase().includes(searchvalue.toLowerCase()) && (vendor!='' ? version.VendorName==vendor : true) );
       console.log('newfilteredversions', newfilteredversions);
       setFilteredVersions(newfilteredversions);
-    } else if (versions) {
+    } else if (versions && searchvalue==='' && vendor!=='') {
+      setFilteredVersions(versions.filter((version: any) => version.VendorName === vendor));
+    }
+    else{
       setFilteredVersions(versions);
     }
     setPage(0);
@@ -111,6 +117,21 @@ export default function StickyHeadTable({versions, setChosenversion, filtervalue
       }
     } else if (versions) {
       setFilteredVersions(versions);
+      console.log('versions is true')
+      console.log('chosenversion', chosenversion);
+      console.log('versions[0]', versions[0]);
+
+      //if chosen version is not the same as the first version in the filtered versions, set the chosen version to the first version in the filtered versions
+
+      //if chosen version is not the same as the first version in the filtered versions, set the chosen version to the first version in the filtered versions 
+      if (chosenversion && versions[0].VendorName!== chosenversion?.VendorName) {
+ 
+        setChosenversion(versions[0]);
+      }
+
+
+   
+      
     }
     setPage(0);
   }, [vendor]);
@@ -119,7 +140,6 @@ export default function StickyHeadTable({versions, setChosenversion, filtervalue
   const handleRowClick = (row: any) => {
     console.log('row', row);
     setChosenversion(row);
-    setVendor(row.VendorName);
   } 
 
   

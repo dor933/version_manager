@@ -20,18 +20,25 @@ const argv = await yargs(hideBin(process.argv))
         type: 'number',
         description: 'Cron interval in minutes'
     })
+    .option('unit', {
+        alias: 'u',
+        type: 'string',
+        description: 'Interval time unit',
+        default: process.env.UNIT || 'MONTHS'
+    })
     .parseAsync();
 
     let emails= argv.emails;
     let interval= argv.interval;
+    let unit= argv.unit;
 
-    startservice(emails!,interval!)
+    startservice(emails!,interval!,unit!)
 
     
 
 }
 
-async function startservice(emails:string, interval:number){
+async function startservice(emails:string, interval:number, unit:string){
 
 const isServiceCommand = process.argv.length > 2 && ['install', 'uninstall', 'start', 'stop'].includes(process.argv[2]);
 
@@ -55,6 +62,10 @@ if (isServiceCommand) {
             {
                 name: "CRON_INTERVAL",
                 value: (interval || process.env.CRON_INTERVAL || '60').toString()
+            },
+            {
+                name: "UNIT",
+                value: (unit || process.env.UNIT || 'MONTHS').toString()
             }
         ],
 
@@ -80,8 +91,24 @@ if (isServiceCommand) {
         console.log('Service installed successfully');
         console.log('Environment variables set:');
         console.log('NOTIFICATION_EMAILS:', emails || process.env.NOTIFICATION_EMAILS || 'not set');
-        console.log('CRON_INTERVAL:', interval || process.env.CRON_INTERVAL || '60');
+        console.log('CRON_INTERVAL:', interval || process.env.CRON_INTERVAL || '1');
+        console.log('UNIT:', unit || process.env.UNIT || 'MONTHS');
+        
+        // Start the Windows service
         svc.start();
+        
+        // Start the React app
+        const { exec } = require('child_process');
+        const reactAppPath = path.join(__dirname, '../../client'); // Adjust this path to your React app location
+        
+        exec('npm start', { cwd: reactAppPath }, (error: any, stdout: any, stderr: any) => {
+            if (error) {
+                console.error(`Error starting React app: ${error}`);
+                return;
+            }
+            console.log(`React app output: ${stdout}`);
+            if (stderr) console.error(`React app errors: ${stderr}`);
+        });
     });
 
     svc.on('error', (err:any) => {
@@ -99,8 +126,20 @@ if (isServiceCommand) {
 
     // ... rest of the service event handlers ...
 } else {
-    // Normal application execution
-    require('./index.js')
+    // Start both the main application and React app in non-service mode
+    require('./index.js');
+    
+    const { exec } = require('child_process');
+    const reactAppPath = path.join(__dirname, '../../client'); // Adjust this path to your React app location
+    
+    exec('npm start', { cwd: reactAppPath }, (error: any, stdout: any, stderr: any) => {
+        if (error) {
+            console.error(`Error starting React app: ${error}`);
+            return;
+        }
+        console.log(`React app output: ${stdout}`);
+        if (stderr) console.error(`React app errors: ${stderr}`);
+    });
 } 
 }
 

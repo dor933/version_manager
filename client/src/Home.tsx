@@ -12,6 +12,10 @@ import axios from 'axios';
 import Report from './Report';
 import CheckIcon from '@mui/icons-material/Check';
 import ErrorIcon from '@mui/icons-material/Error';
+import { Dialog, DialogContent } from '@mui/material';
+import Notification from './Notification';
+import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
+import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined';
 
 export default function Home() {
 
@@ -29,18 +33,23 @@ const [lastSync, setLastSync] = React.useState<string>('');
 const [finishedSyncing, setFinishedSyncing] = React.useState(false);
 const [failedSyncing, setFailedSyncing] = React.useState(false);
 const [isSyncing, setIsSyncing] = React.useState(false);
+const [openNotification, setOpenNotification] = React.useState(false);
+const [readnotifications, setReadnotifications] = React.useState<boolean>(false);
+const [versions_near_eosl, setVersionsNearEosl] = React.useState<any[]>([]);
 
 useEffect(() => {
     axios.get('http://localhost:3001/api/versions',{
     })
     .then(response => response.data)
-    .then(data => {setVersions(data)
+    .then(data => {setVersions(data.versions)
+      console.log('data',data.versions_near_eosl)
   })
     .catch(error => console.error('Error fetching versions:', error));
 
     console.log('fetching versions', versions);
     const now = new Date();
-    setLastSync(now.toLocaleString());
+    setLastSync(now.toLocaleString('he-IL'));
+    
   
 
     //create distinct vendors
@@ -58,6 +67,17 @@ useEffect(() => {
     const distinctVendors = [...new Set(versions.map((version: any) => version.VendorName))];
     console.log('distinct vendors', distinctVendors);
     setDistinctVendors(distinctVendors);
+    const versions_near_eosl = versions.filter((version: any) => {
+      const endDate = new Date(version.EndOfSupportDate);
+      endDate.setDate(endDate.getDate() + 1);
+      
+      return endDate <= new Date(new Date().setDate(new Date().getDate() + 30)) 
+          && endDate >= new Date();
+    });
+    
+    console.log('versions_near_eosl', versions_near_eosl);
+    setVersionsNearEosl(versions_near_eosl);
+    setReadnotifications(false);
   }
 }, [versions]);
 
@@ -70,7 +90,7 @@ const handleSync = async () => {
   //take now date and time
   if(response.data.sync){
     const now = new Date();
-    setLastSync(now.toLocaleString());
+    setLastSync(now.toLocaleString('he-IL'));
     setFinishedSyncing(true);
     setIsSyncing(false);
     setTimeout(() => {
@@ -88,6 +108,10 @@ const handleSync = async () => {
 }
 }
 
+const onCloseNotification = () => {
+  setOpenNotification(false);
+  setReadnotifications(true);
+}
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
   open?: boolean;
@@ -156,13 +180,19 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
           </Grid>
           <Grid item xs={6} style={{display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'row'}}>
            
-           <Grid item xs={4} style={{display:'flex', justifyContent:'flex-start', alignItems:'flex-end', flexDirection:'column'}}>
-           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M13.73 21C13.5544 21.3033 13.3021 21.5552 12.9985 21.7302C12.6948 21.9053 12.3505 21.9974 12 21.9974C11.6495 21.9974 11.3052 21.9053 11.0015 21.7302C10.6979 21.5552 10.4456 21.3033 10.27 21M18.134 11C18.715 16.375 21 18 21 18H3C3 18 6 15.867 6 8.4C6 6.703 6.632 5.075 7.757 3.875C8.883 2.675 10.41 2 12 2C12.337 2 12.672 2.03 13 2.09L18.134 11ZM19 8C19.7956 8 20.5587 7.68393 21.1213 7.12132C21.6839 6.55871 22 5.79565 22 5C22 4.20435 21.6839 3.44129 21.1213 2.87868C20.5587 2.31607 19.7956 2 19 2C18.2044 2 17.4413 2.31607 16.8787 2.87868C16.3161 3.44129 16 4.20435 16 5C16 5.79565 16.3161 6.55871 16.8787 7.12132C17.4413 7.68393 18.2044 8 19 8Z" stroke="#282828" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-  <ellipse cx="5.4" cy="5.4" rx="5.4" ry="5.4" transform="matrix(-1 0 0 1 22.7998 0)" fill="#2D88D4"/>
-</svg>
+           <Box sx={{ position: 'relative' }}>
+             <Box onClick={() => setOpenNotification(!openNotification)} sx={{cursor:'pointer'}}>
+             
+             {readnotifications ? <NotificationsOutlinedIcon sx={{color:'#2D88D4'}}/> : <NotificationsActiveOutlinedIcon sx={{color:'#2D88D4'}}/>}
 
-           </Grid>
+             </Box>
+             
+             <Notification 
+               open={openNotification} 
+               onClose={onCloseNotification}    
+               versions_near_eosl={versions_near_eosl}
+             />
+           </Box>
            <Grid item xs={4} style={{display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'column'}}>
              
              <Box sx={{display:'flex', backgroundColor:'#FFF', borderRadius:'4px', paddingLeft:'13px', paddingRight:'13px', paddingTop:'14px', paddingBottom:'14px'}}>

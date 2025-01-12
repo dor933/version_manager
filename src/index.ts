@@ -109,7 +109,7 @@ function startCronJob() {
 
         //default to monthly
         logger.warn(`Unrecognized unit: ${unit}, defaulting to monthly`);
-            cronExpression = `0 0 0 1 *`;
+            cronExpression = `0 0 1 */1 *`;
     }
 
     logger.info(`Cron expression: ${cronExpression}`);
