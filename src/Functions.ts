@@ -133,6 +133,79 @@ catch(error){
 
 }
 
+async function extract_json_req_from_url(url: string): Promise<any> {
+    try {
+        const capturedRequests: string[] = [];
+        const axiosInstance = axios.create();
+
+        // Add request interceptor
+        axiosInstance.interceptors.request.use(
+            config => {
+                if (config.url) {
+                    capturedRequests.push(config.url);
+                    console.log('Outgoing request:', config.url);
+                }
+                return config;
+            },
+            error => {
+                return Promise.reject(error);
+            }
+        );
+
+        // Add response interceptor to capture redirects and related requests
+        axiosInstance.interceptors.response.use(
+            response => {
+                // Capture any related URLs from response headers
+                const relatedUrls = response.headers['x-related-urls'];
+                if (relatedUrls) {
+                    capturedRequests.push(...relatedUrls.split(','));
+                }
+                
+                // Check for redirects
+                if (response.request?.res?.responseUrl) {
+                    capturedRequests.push(response.request.res.responseUrl);
+                }
+
+                console.log('Current captured requests:', capturedRequests);
+                return response;
+            },
+            error => {
+                // Even capture URLs from error responses
+                if (error.response?.config?.url) {
+                    capturedRequests.push(error.response.config.url);
+                }
+                return Promise.reject(error);
+            }
+        );
+
+        // Make the initial request to trigger the interceptors
+        await axiosInstance.get(url, {
+            maxRedirects: 5,
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
+            }
+        });
+
+        console.log('All captured requests:', capturedRequests);
+
+        // Find the JSON API request from captured requests
+        const jsonRequest = capturedRequests.find(req => 
+            req.match(/https:\/\/api\.developerhub\.io\/api\/public\/page\/\d+\.json/)
+        );
+
+        if (jsonRequest) {
+            return jsonRequest;
+        }
+
+        return null;
+
+    } catch (error) {
+        console.error('Error extracting JSON from URL:', error);
+        throw error;
+    }
+}
+
 async function extract_fortra_versions_to_json(json_url:string):Promise<any> {
 
     let listofVersions:any= await axios.get(json_url)
@@ -393,4 +466,4 @@ async function sendEmail({ subject, content, vendor_name, to }: { subject: strin
     // }
 }
 
-export { notify_on_end_of_support, notify_new_version, sendEmail, parseDate, notify_on_end_of_support_changes, extract_versions_from_json,extract_fortra_versions_to_json };
+export { notify_on_end_of_support, notify_new_version, sendEmail, parseDate, notify_on_end_of_support_changes, extract_versions_from_json,extract_fortra_versions_to_json, extract_json_req_from_url };

@@ -1253,3 +1253,11 @@
 {"level":"info","message":"Cron expression: 0 0 1 */1 *","timestamp":"2025-01-13T14:27:07.019Z"}
 {"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2025-01-13T14:54:30.328Z"}
 {"level":"info","message":"Stopped cron job","timestamp":"2025-01-13T14:54:30.329Z"}
+{"error":{},"level":"error","message":"Uncaught Exception:","timestamp":"2025-01-13T19:17:10.345Z"}
+{"error":{},"level":"error","message":"Uncaught Exception:","timestamp":"2025-01-13T19:21:25.107Z"}
+{"level":"info","message":"Successfully completed version check","timestamp":"2025-01-13T19:26:25.804Z"}
+{"level":"info","message":"Starting version manager service with 1 months interval","timestamp":"2025-01-13T19:26:25.862Z"}
+{"level":"info","message":"Cron expression: 0 0 1 */1 *","timestamp":"2025-01-13T19:26:25.863Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2025-01-13T20:43:52.421Z"}
+{"level":"info","message":"Stopped cron job","timestamp":"2025-01-13T20:43:52.425Z"}
+{"level":"info","message":"Closed database connections","timestamp":"2025-01-13T20:43:52.429Z"}

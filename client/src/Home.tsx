@@ -19,6 +19,8 @@ import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsAc
 
 export default function Home() {
 
+  console.log('home re rendered')
+
   
   
   const { versions, setVersions, opendialog, setOpenDialog } = useAuth();
@@ -37,6 +39,7 @@ const [openNotification, setOpenNotification] = React.useState(false);
 const [readnotifications, setReadnotifications] = React.useState<boolean>(false);
 const [versions_near_eosl, setVersionsNearEosl] = React.useState<any[]>([]);
 const [openSubscribe, setOpenSubscribe] = React.useState<boolean>(false);
+const [page, setPage] = React.useState(0);
 
 
 useEffect(() => {
@@ -227,7 +230,7 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
         <Grid container xs={12} style={{display:'flex', justifyContent:'flex-start', alignItems:'center', flexDirection:'row', paddingLeft:'80px'}}>
           <Grid container item xs={9} style={{display:'flex', justifyContent:'flex-start', alignItems:'center', flexDirection:'row'}}>
 
-            <Table versions={versions? versions: []} setChosenversion={setChosenversion} chosenversion={chosenversion} filtervalue={filtervalue} distinctVendors={distinctVendors} setDistinctVendors={setDistinctVendors} vendor={vendor} setVendor={setVendor}/>
+            <Table versions={versions? versions: []} setChosenversion={setChosenversion} chosenversion={chosenversion} filtervalue={filtervalue} distinctVendors={distinctVendors} setDistinctVendors={setDistinctVendors} vendor={vendor} setVendor={setVendor} page={page} setPage={setPage}/>
           </Grid>
           <Grid item xs={3} style={{display:'flex', alignSelf:'flex-start', flexDirection:'column',alignItems:'center', justifyContent:'center',gap:'10px'}}>
 

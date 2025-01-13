@@ -12,6 +12,9 @@ import Grid from '@mui/material/Grid';
 import Filter from './Filter';
 import CustomizedSelects from './CustomizeSelect';
 
+console.log()
+
+
 interface Column {
   id: 'VersionName' | 'ProductName' | 'VendorName' | 'ReleaseDate' | 'EndOfSupportDate' | 'Extended_Support_End_Date' | 'LevelOfSupport' | 'Issues';
   label: string;
@@ -82,78 +85,92 @@ interface Data {
 
 
 
-export default function StickyHeadTable({versions, setChosenversion, filtervalue, distinctVendors, setDistinctVendors , vendor, setVendor, chosenversion}: {versions: any[], setChosenversion: any, filtervalue: string, distinctVendors: any[], setDistinctVendors: any, vendor: any, setVendor: any, chosenversion: any}) {
-  const [page, setPage] = React.useState(0);
+export default function StickyHeadTable({versions, setChosenversion, filtervalue, distinctVendors, setDistinctVendors , vendor, setVendor, chosenversion, page, setPage}: {versions: any[], setChosenversion: any, filtervalue: string, distinctVendors: any[], setDistinctVendors: any, vendor: any, setVendor: any, chosenversion: any, page: any, setPage: any}) {
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [filteredVersions, setFilteredVersions] = React.useState(versions);
   const [searchvalue, setSearchvalue] = React.useState('');
 
+  console.log('re rendered and page is', page);
+
+  // Calculate page based on chosen version's index
 
 
-  useEffect(() => {
-    console.log('filtervalue', filtervalue);
-    console.log('vendor', vendor);
-    if (searchvalue !== '' && versions) {
-      const newfilteredversions = versions?.filter((version: any) => version.VersionName.toLowerCase().includes(searchvalue.toLowerCase()) && (vendor!='' ? version.VendorName== vendor : true) || version.ProductName.toLowerCase().includes(searchvalue.toLowerCase()) && (vendor!==''?  version.VendorName==vendor : true) || version.VendorName.toLowerCase().includes(searchvalue.toLowerCase()) && (vendor!='' ? version.VendorName==vendor : true) );
-      console.log('newfilteredversions', newfilteredversions);
-      setFilteredVersions(newfilteredversions);
-    } else if (versions && searchvalue==='' && vendor!=='') {
-      setFilteredVersions(versions.filter((version: any) => version.VendorName === vendor));
-    }
-    else{
-      setFilteredVersions(versions);
-    }
-    setPage(0);
-  }, [searchvalue]);
-
-  useEffect(() => {
-    console.log('vendor effect activated');
-    if (vendor !== '' && versions) {
-      const newfilteredversions = versions?.filter((version: any) => version.VendorName === vendor);
-      console.log('newfilteredversions', newfilteredversions);
-      setFilteredVersions(newfilteredversions);
-      if (newfilteredversions[0].VendorName!== chosenversion?.VendorName) {
-        setChosenversion(newfilteredversions[0]);
-      }
-    } else if (versions) {
-      setFilteredVersions(versions);
-      console.log('versions is true')
-      console.log('chosenversion', chosenversion);
-      console.log('versions[0]', versions[0]);
-
-      //if chosen version is not the same as the first version in the filtered versions, set the chosen version to the first version in the filtered versions
-
-      //if chosen version is not the same as the first version in the filtered versions, set the chosen version to the first version in the filtered versions 
-      if (chosenversion && versions[0].VendorName!== chosenversion?.VendorName) {
  
-        setChosenversion(versions[0]);
-      }
 
-
-   
-      
+  const prevVendorRef = React.useRef(vendor);
+  const prevSearchRef = React.useRef(searchvalue);
+ 
+  useEffect(() => {
+    if (!versions) return;
+  
+    if (searchvalue !== '') {
+      // Filter by search + vendor
+      const newFiltered = versions.filter((version: any) => {
+        const matchesSearch =
+          version.VersionName?.toLowerCase().includes(searchvalue.toLowerCase()) ||
+          version.ProductName?.toLowerCase().includes(searchvalue.toLowerCase()) ||
+          version.VendorName?.toLowerCase().includes(searchvalue.toLowerCase());
+  
+        const matchesVendor = vendor ? version.VendorName === vendor : true;
+        return matchesSearch && matchesVendor;
+      });
+      setFilteredVersions(newFiltered);
+    } else if (vendor) {
+      // No search, but vendor chosen
+      setFilteredVersions(versions.filter((v) => v.VendorName === vendor));
+    } else {
+      // No search, no vendor
+      setFilteredVersions(versions);
     }
+  }, [searchvalue, vendor, versions]);
+  
+useEffect(() => {
+  // Compare old vs new
+  if (prevVendorRef.current !== vendor || prevSearchRef.current !== searchvalue) {
     setPage(0);
-  }, [vendor]);
+  }
+  // Update refs for next render
+  prevVendorRef.current = vendor;
+  prevSearchRef.current = searchvalue;
+}, [vendor, searchvalue]);
 
   
   const handleRowClick = (row: any) => {
     console.log('row', row);
     setChosenversion(row);
+    if (chosenversion && filteredVersions) {
+      decidePage(row);
+    }
+  
   } 
 
+  const decidePage = (row: any) => {
+    const rowIndex = filteredVersions.findIndex(version => version.VersionName === row.VersionName);
+    console.log('rowIndex', rowIndex);
+    if (rowIndex !== -1) {
+      setPage(Math.floor(rowIndex / rowsPerPage));
+      console.log('page', Math.floor(rowIndex / rowsPerPage));
+    }
+  }
+
   
-
-
+    
 
   const handleChangePage = (event: unknown, newPage: number) => {
+    // Force a re-render
     setPage(newPage);
+    setFilteredVersions([...filteredVersions]);
   };
 
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(+event.target.value);
     setPage(0);
+    // Force a re-render
+    setFilteredVersions([...filteredVersions]);
   };
+  
+  
+ 
 
   return (
     <>
