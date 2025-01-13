@@ -214,10 +214,10 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_nea
                 <Grid container spacing={2} sx={{ width: '100%' }}>
                   <Grid item xs={12}>
                     <FormControl fullWidth>
-                        <InputLabel id="email-label" sx={{ fontFamily: 'Kumbh Sans' }}>Email</InputLabel>
 
                     <TextField 
                       variant="outlined" 
+                      label="Email"
                       fullWidth
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
