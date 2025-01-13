@@ -1089,3 +1089,162 @@
 {"level":"info","message":"Successfully completed version check","timestamp":"2025-01-12T16:00:44.656Z"}
 {"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2025-01-12T16:11:46.673Z"}
 {"level":"info","message":"Stopped cron job","timestamp":"2025-01-12T16:11:46.674Z"}
+{"level":"info","message":"Successfully completed version check","timestamp":"2025-01-13T08:01:50.581Z"}
+{"level":"info","message":"Starting version manager service with 1 MONTHS interval","timestamp":"2025-01-13T08:01:50.599Z"}
+{"level":"info","message":"Cron expression: 0 0 1 */1 *","timestamp":"2025-01-13T08:01:50.600Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2025-01-13T08:08:36.902Z"}
+{"level":"info","message":"Stopped cron job","timestamp":"2025-01-13T08:08:36.902Z"}
+{"level":"info","message":"Closed database connections","timestamp":"2025-01-13T08:08:36.903Z"}
+{"level":"info","message":"Successfully completed version check","timestamp":"2025-01-13T08:09:53.957Z"}
+{"level":"info","message":"Starting version manager service with 1 MONTHS interval","timestamp":"2025-01-13T08:09:53.971Z"}
+{"level":"info","message":"Cron expression: 0 0 1 */1 *","timestamp":"2025-01-13T08:09:53.972Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2025-01-13T08:10:26.194Z"}
+{"level":"info","message":"Stopped cron job","timestamp":"2025-01-13T08:10:26.194Z"}
+{"level":"error","message":"Unhandled Rejection:","reason":{"__augmented":true,"code":"SQLITE_ERROR","errno":1},"timestamp":"2025-01-13T08:10:40.455Z"}
+{"level":"info","message":"Received unhandled rejection. Starting graceful shutdown...","timestamp":"2025-01-13T08:10:40.460Z"}
+{"error":{"code":"EENVELOPE","command":"API"},"level":"error","message":"Error sending email:","timestamp":"2025-01-13T08:48:28.263Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2025-01-13T08:48:28.582Z"}
+{"level":"info","message":"Closed database connections","timestamp":"2025-01-13T08:48:28.583Z"}
+{"error":{"code":"EENVELOPE","command":"API"},"level":"error","message":"Error sending email:","timestamp":"2025-01-13T08:49:14.194Z"}
+{"error":{"code":"EENVELOPE","command":"API"},"level":"error","message":"Error sending email:","timestamp":"2025-01-13T08:49:14.628Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2025-01-13T08:49:16.212Z"}
+{"level":"info","message":"Closed database connections","timestamp":"2025-01-13T08:49:16.214Z"}
+{"error":{"code":"EENVELOPE","command":"API"},"level":"error","message":"Error sending email:","timestamp":"2025-01-13T08:50:14.044Z"}
+{"error":{"code":"EENVELOPE","command":"API"},"level":"error","message":"Error sending email:","timestamp":"2025-01-13T08:50:14.664Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2025-01-13T08:50:15.593Z"}
+{"level":"info","message":"Closed database connections","timestamp":"2025-01-13T08:50:15.597Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2025-01-13T08:51:15.676Z"}
+{"level":"info","message":"Closed database connections","timestamp":"2025-01-13T08:51:15.678Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2025-01-13T08:51:38.667Z"}
+{"level":"info","message":"Closed database connections","timestamp":"2025-01-13T08:51:38.669Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2025-01-13T08:52:24.498Z"}
+{"level":"info","message":"Closed database connections","timestamp":"2025-01-13T08:52:24.501Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2025-01-13T08:53:33.740Z"}
+{"level":"info","message":"Closed database connections","timestamp":"2025-01-13T08:53:33.742Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2025-01-13T08:54:23.212Z"}
+{"level":"info","message":"Closed database connections","timestamp":"2025-01-13T08:54:23.215Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2025-01-13T08:55:01.372Z"}
+{"level":"info","message":"Closed database connections","timestamp":"2025-01-13T08:55:01.374Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2025-01-13T08:55:28.282Z"}
+{"level":"info","message":"Closed database connections","timestamp":"2025-01-13T08:55:28.284Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2025-01-13T08:56:09.410Z"}
+{"level":"info","message":"Closed database connections","timestamp":"2025-01-13T08:56:09.412Z"}
+{"error":{"code":"EENVELOPE","command":"API"},"level":"error","message":"Error sending email:","timestamp":"2025-01-13T08:56:43.826Z"}
+{"error":{"code":"EENVELOPE","command":"API"},"level":"error","message":"Error sending email:","timestamp":"2025-01-13T08:56:44.248Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2025-01-13T08:56:45.249Z"}
+{"level":"info","message":"Closed database connections","timestamp":"2025-01-13T08:56:45.252Z"}
+{"level":"info","message":"Successfully completed version check","timestamp":"2025-01-13T08:58:57.557Z"}
+{"level":"info","message":"Starting version manager service with 1 MONTHS interval","timestamp":"2025-01-13T08:58:57.581Z"}
+{"level":"info","message":"Cron expression: 0 0 1 */1 *","timestamp":"2025-01-13T08:58:57.582Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2025-01-13T10:43:45.130Z"}
+{"level":"info","message":"Stopped cron job","timestamp":"2025-01-13T10:43:45.131Z"}
+{"level":"info","message":"Successfully completed version check","timestamp":"2025-01-13T10:44:33.886Z"}
+{"level":"info","message":"Starting version manager service with 1 MONTHS interval","timestamp":"2025-01-13T10:44:33.899Z"}
+{"level":"info","message":"Cron expression: 0 0 1 */1 *","timestamp":"2025-01-13T10:44:33.899Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2025-01-13T10:49:57.649Z"}
+{"level":"info","message":"Stopped cron job","timestamp":"2025-01-13T10:49:57.649Z"}
+{"level":"info","message":"Successfully completed version check","timestamp":"2025-01-13T10:50:26.532Z"}
+{"level":"info","message":"Starting version manager service with 1 MONTHS interval","timestamp":"2025-01-13T10:50:26.542Z"}
+{"level":"info","message":"Cron expression: 0 0 1 */1 *","timestamp":"2025-01-13T10:50:26.542Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2025-01-13T10:56:50.019Z"}
+{"level":"info","message":"Stopped cron job","timestamp":"2025-01-13T10:56:50.019Z"}
+{"level":"info","message":"Successfully completed version check","timestamp":"2025-01-13T10:57:12.528Z"}
+{"level":"info","message":"Starting version manager service with 1 MONTHS interval","timestamp":"2025-01-13T10:57:12.540Z"}
+{"level":"info","message":"Cron expression: 0 0 1 */1 *","timestamp":"2025-01-13T10:57:12.541Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2025-01-13T11:03:52.094Z"}
+{"level":"info","message":"Stopped cron job","timestamp":"2025-01-13T11:03:52.094Z"}
+{"level":"info","message":"Closed database connections","timestamp":"2025-01-13T11:03:52.098Z"}
+{"level":"info","message":"Successfully completed version check","timestamp":"2025-01-13T11:04:24.161Z"}
+{"level":"info","message":"Starting version manager service with 1 MONTHS interval","timestamp":"2025-01-13T11:04:24.173Z"}
+{"level":"info","message":"Cron expression: 0 0 1 */1 *","timestamp":"2025-01-13T11:04:24.173Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2025-01-13T11:05:09.624Z"}
+{"level":"info","message":"Stopped cron job","timestamp":"2025-01-13T11:05:09.625Z"}
+{"level":"info","message":"Successfully completed version check","timestamp":"2025-01-13T11:05:40.747Z"}
+{"level":"info","message":"Starting version manager service with 1 MONTHS interval","timestamp":"2025-01-13T11:05:40.759Z"}
+{"level":"info","message":"Cron expression: 0 0 1 */1 *","timestamp":"2025-01-13T11:05:40.759Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2025-01-13T11:09:24.538Z"}
+{"level":"info","message":"Stopped cron job","timestamp":"2025-01-13T11:09:24.539Z"}
+{"level":"info","message":"Successfully completed version check","timestamp":"2025-01-13T11:10:30.625Z"}
+{"level":"info","message":"Starting version manager service with 1 MONTHS interval","timestamp":"2025-01-13T11:10:30.636Z"}
+{"level":"info","message":"Cron expression: 0 0 1 */1 *","timestamp":"2025-01-13T11:10:30.637Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2025-01-13T11:20:38.206Z"}
+{"level":"info","message":"Stopped cron job","timestamp":"2025-01-13T11:20:38.215Z"}
+{"level":"info","message":"Successfully completed version check","timestamp":"2025-01-13T11:21:26.066Z"}
+{"level":"info","message":"Starting version manager service with 1 MONTHS interval","timestamp":"2025-01-13T11:21:26.075Z"}
+{"level":"info","message":"Cron expression: 0 0 1 */1 *","timestamp":"2025-01-13T11:21:26.075Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2025-01-13T11:24:12.100Z"}
+{"level":"info","message":"Stopped cron job","timestamp":"2025-01-13T11:24:12.101Z"}
+{"level":"info","message":"Successfully completed version check","timestamp":"2025-01-13T11:24:41.829Z"}
+{"level":"info","message":"Starting version manager service with 1 MONTHS interval","timestamp":"2025-01-13T11:24:41.842Z"}
+{"level":"info","message":"Cron expression: 0 0 1 */1 *","timestamp":"2025-01-13T11:24:41.842Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2025-01-13T11:26:03.380Z"}
+{"level":"info","message":"Stopped cron job","timestamp":"2025-01-13T11:26:03.387Z"}
+{"level":"info","message":"Successfully completed version check","timestamp":"2025-01-13T11:27:22.923Z"}
+{"level":"info","message":"Starting version manager service with 1 MONTHS interval","timestamp":"2025-01-13T11:27:22.934Z"}
+{"level":"info","message":"Cron expression: 0 0 1 */1 *","timestamp":"2025-01-13T11:27:22.934Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2025-01-13T11:35:10.695Z"}
+{"level":"info","message":"Stopped cron job","timestamp":"2025-01-13T11:35:10.696Z"}
+{"level":"info","message":"Successfully completed version check","timestamp":"2025-01-13T11:35:49.171Z"}
+{"level":"info","message":"Starting version manager service with 1 MONTHS interval","timestamp":"2025-01-13T11:35:49.183Z"}
+{"level":"info","message":"Cron expression: 0 0 1 */1 *","timestamp":"2025-01-13T11:35:49.183Z"}
+{"error":{"__augmented":true,"code":"SQLITE_ERROR","errno":1},"level":"error","message":"Uncaught Exception:","timestamp":"2025-01-13T11:36:01.409Z"}
+{"level":"info","message":"Successfully completed version check","timestamp":"2025-01-13T11:37:57.577Z"}
+{"level":"info","message":"Starting version manager service with 1 MONTHS interval","timestamp":"2025-01-13T11:37:57.586Z"}
+{"level":"info","message":"Cron expression: 0 0 1 */1 *","timestamp":"2025-01-13T11:37:57.586Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2025-01-13T12:55:41.173Z"}
+{"level":"info","message":"Stopped cron job","timestamp":"2025-01-13T12:55:41.174Z"}
+{"level":"info","message":"Closed database connections","timestamp":"2025-01-13T12:55:41.179Z"}
+{"level":"info","message":"Successfully completed version check","timestamp":"2025-01-13T12:56:10.278Z"}
+{"level":"info","message":"Starting version manager service with 1 MONTHS interval","timestamp":"2025-01-13T12:56:10.287Z"}
+{"level":"info","message":"Cron expression: 0 0 1 */1 *","timestamp":"2025-01-13T12:56:10.287Z"}
+{"error":{"code":"SQLITE_ERROR","errno":1},"level":"error","message":"Uncaught Exception:","timestamp":"2025-01-13T12:56:26.156Z"}
+{"level":"info","message":"Successfully completed version check","timestamp":"2025-01-13T13:00:13.080Z"}
+{"level":"info","message":"Starting version manager service with 1 MONTHS interval","timestamp":"2025-01-13T13:00:13.090Z"}
+{"level":"info","message":"Cron expression: 0 0 1 */1 *","timestamp":"2025-01-13T13:00:13.090Z"}
+{"level":"error","message":"Unhandled Rejection:","reason":{"__augmented":true,"code":"SQLITE_ERROR","errno":1},"timestamp":"2025-01-13T13:02:11.983Z"}
+{"level":"info","message":"Received unhandled rejection. Starting graceful shutdown...","timestamp":"2025-01-13T13:02:11.983Z"}
+{"level":"info","message":"Stopped cron job","timestamp":"2025-01-13T13:02:11.983Z"}
+{"level":"info","message":"Closed database connections","timestamp":"2025-01-13T13:02:11.984Z"}
+{"level":"info","message":"Successfully completed version check","timestamp":"2025-01-13T13:03:14.021Z"}
+{"level":"info","message":"Starting version manager service with 1 MONTHS interval","timestamp":"2025-01-13T13:03:14.029Z"}
+{"level":"info","message":"Cron expression: 0 0 1 */1 *","timestamp":"2025-01-13T13:03:14.029Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2025-01-13T13:04:39.166Z"}
+{"level":"info","message":"Stopped cron job","timestamp":"2025-01-13T13:04:39.168Z"}
+{"level":"info","message":"Successfully completed version check","timestamp":"2025-01-13T13:05:02.132Z"}
+{"level":"info","message":"Starting version manager service with 1 MONTHS interval","timestamp":"2025-01-13T13:05:02.142Z"}
+{"level":"info","message":"Cron expression: 0 0 1 */1 *","timestamp":"2025-01-13T13:05:02.142Z"}
+{"level":"error","message":"Unhandled Rejection:","reason":{"__augmented":true,"code":"SQLITE_ERROR","errno":1},"timestamp":"2025-01-13T13:05:16.751Z"}
+{"level":"info","message":"Received unhandled rejection. Starting graceful shutdown...","timestamp":"2025-01-13T13:05:16.752Z"}
+{"level":"info","message":"Stopped cron job","timestamp":"2025-01-13T13:05:16.752Z"}
+{"level":"info","message":"Successfully completed version check","timestamp":"2025-01-13T13:11:05.281Z"}
+{"level":"info","message":"Starting version manager service with 1 MONTHS interval","timestamp":"2025-01-13T13:11:05.291Z"}
+{"level":"info","message":"Cron expression: 0 0 1 */1 *","timestamp":"2025-01-13T13:11:05.292Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2025-01-13T13:12:38.487Z"}
+{"level":"info","message":"Stopped cron job","timestamp":"2025-01-13T13:12:38.487Z"}
+{"level":"info","message":"Successfully completed version check","timestamp":"2025-01-13T13:13:08.705Z"}
+{"level":"info","message":"Starting version manager service with 1 MONTHS interval","timestamp":"2025-01-13T13:13:08.717Z"}
+{"level":"info","message":"Cron expression: 0 0 1 */1 *","timestamp":"2025-01-13T13:13:08.717Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2025-01-13T13:14:38.205Z"}
+{"level":"info","message":"Stopped cron job","timestamp":"2025-01-13T13:14:38.206Z"}
+{"level":"info","message":"Closed database connections","timestamp":"2025-01-13T13:14:38.208Z"}
+{"level":"info","message":"Successfully completed version check","timestamp":"2025-01-13T13:15:11.293Z"}
+{"level":"info","message":"Starting version manager service with 1 MONTHS interval","timestamp":"2025-01-13T13:15:11.320Z"}
+{"level":"info","message":"Cron expression: 0 0 1 */1 *","timestamp":"2025-01-13T13:15:11.320Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2025-01-13T13:16:00.621Z"}
+{"level":"info","message":"Stopped cron job","timestamp":"2025-01-13T13:16:00.621Z"}
+{"level":"info","message":"Successfully completed version check","timestamp":"2025-01-13T13:16:46.954Z"}
+{"level":"info","message":"Starting version manager service with 1 MONTHS interval","timestamp":"2025-01-13T13:16:46.962Z"}
+{"level":"info","message":"Cron expression: 0 0 1 */1 *","timestamp":"2025-01-13T13:16:46.962Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2025-01-13T13:19:28.078Z"}
+{"level":"info","message":"Stopped cron job","timestamp":"2025-01-13T13:19:28.079Z"}
+{"level":"info","message":"Successfully completed version check","timestamp":"2025-01-13T13:19:52.396Z"}
+{"level":"info","message":"Starting version manager service with 1 MONTHS interval","timestamp":"2025-01-13T13:19:52.407Z"}
+{"level":"info","message":"Cron expression: 0 0 1 */1 *","timestamp":"2025-01-13T13:19:52.408Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2025-01-13T13:22:52.929Z"}
+{"level":"info","message":"Stopped cron job","timestamp":"2025-01-13T13:22:52.929Z"}
+{"level":"info","message":"Closed database connections","timestamp":"2025-01-13T13:22:52.934Z"}
+{"level":"info","message":"Successfully completed version check","timestamp":"2025-01-13T13:23:26.118Z"}
+{"level":"info","message":"Starting version manager service with 1 MONTHS interval","timestamp":"2025-01-13T13:23:26.126Z"}
+{"level":"info","message":"Cron expression: 0 0 1 */1 *","timestamp":"2025-01-13T13:23:26.126Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2025-01-13T13:39:41.389Z"}
+{"level":"info","message":"Stopped cron job","timestamp":"2025-01-13T13:39:41.391Z"}

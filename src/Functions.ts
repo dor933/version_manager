@@ -54,7 +54,7 @@ function parseDate(dateStr: string): Date | null {
     return null;
 }
 
-async function notify_on_end_of_support(versionData: VersionData , daysUntilEOS: number, daysUntilExtendedEOS?:number) {
+async function notify_on_end_of_support(versionData: VersionData , daysUntilEOS: number, daysUntilExtendedEOS?:number, mailboxes?: any) {
     const product = versionData.ProductName;
     const version = versionData.VersionName;
     
@@ -66,9 +66,9 @@ async function notify_on_end_of_support(versionData: VersionData , daysUntilEOS:
 
         
         emailBody = {
-            name:'Dor',
+            name:'Team',
             subject: `End of Extended Support Alert: ${product} ${version}`,
-            row1: `Hey Dor`,
+            row1: `Hey Team`,
             row2: `The end of extended support date for ${product} ${version} is approaching.`,
             row3: `End of Support Date:`,
             row4: `The end of extended support date for ${product} ${version} is:`,
@@ -85,9 +85,9 @@ async function notify_on_end_of_support(versionData: VersionData , daysUntilEOS:
     if (daysUntilEOS <= 7) { // Notify when 30 days or less remaining
 
         emailBody = {
-            name:'Dor',
+            name:'Team',
             subject: `Critical: End of Support Approaching - 7 days or less remaining`,
-            row1: `Hey Dor`,
+            row1: `Hey Team`,
             row2: `The end of support date for ${product} ${version} is approaching.`,
             row3: `End of Support Date:`,
             row4: `The end of support date for ${product} ${version} is:`,
@@ -104,7 +104,7 @@ async function notify_on_end_of_support(versionData: VersionData , daysUntilEOS:
         emailBody = {
             name:'Dor',
             subject: `End of Support Alert: ${product} ${version}`,
-            row1: `Hey Dor`,
+            row1: `Hey Team`,
             row2: `The end of support date for ${product} ${version} is approaching.`,
             row3: `End of Support Date:`,
             row4: `The end of support date for ${product} ${version} is:`,
@@ -123,7 +123,8 @@ async function notify_on_end_of_support(versionData: VersionData , daysUntilEOS:
     await sendEmail({
         subject: `End of Support Alert: ${product} ${version}`,
         content: emailBody,
-        vendor_name: versionData.VendorName
+        vendor_name: versionData.VendorName,
+        to: mailboxes
     });
 }
 catch(error){
@@ -203,15 +204,15 @@ async function extract_fortra_versions_to_json(json_url:string):Promise<any> {
 
 }
 
-async function notify_on_end_of_support_changes(product: string, vendor: string, version: string, oldDate?: Date, newDate?: Date) {
+async function notify_on_end_of_support_changes(product: string, vendor: string, version: string, oldDate?: Date, newDate?: Date, mailboxes?: any) {
 
 
     const emailBody =
         
         {
-            name:'Dor',
+            name:'Team',
             subject: `End of Support Date Change: ${product} ${version}`,
-            row1: `Hey Dor`,
+            row1: `Hey Team`,
             row2: `The end of support date for ${product} ${version} has been changed.`,
             row3: `Changes Detected:`,
             row4: `End of Support Date changed from `,
@@ -228,7 +229,8 @@ async function notify_on_end_of_support_changes(product: string, vendor: string,
         await sendEmail({
             subject: `End of Support Date Change: ${product} ${version}`,
             content: emailBody,
-            vendor_name: vendor
+            vendor_name: vendor,
+            to: mailboxes
         });
     }
     catch(error){
@@ -322,15 +324,15 @@ function isType1Product(productName: string): productName is Type1Products {
     return ['Metadefender_Core', 'OCMv7', 'Metadefender_Kiosk', 'Metadefender_Vault', 'Metadefender_Gateway_Email_Security', 'Metadefender_Icap_Server', 'Metadefender_MFT', 'Metadefender_Cloud'].includes(productName);
 }
 
-async function notify_new_version(newVersion: VersionData) {
+async function notify_new_version(newVersion: VersionData, mailboxes?: any) {
     
     // Compare relevant fields
     
     
         const emailBody = {
-            name:'Dor',
+            name:'Team',
             subject: `Version Changes Detected: ${newVersion.ProductName}`,
-            row1: `Hey Dor`,
+            row1: `Hey Team`,
             row2: `A new version has been detected for ${newVersion.ProductName}`,
             row3: `Version:`,
             row4: ``,
@@ -345,7 +347,8 @@ async function notify_new_version(newVersion: VersionData) {
         await sendEmail({
             subject: `Version Changes Detected: ${newVersion.ProductName}`,
             content: emailBody,
-            vendor_name: newVersion.VendorName
+            vendor_name: newVersion.VendorName,
+            to: mailboxes
         });
     }
     catch(error){
@@ -354,40 +357,40 @@ async function notify_new_version(newVersion: VersionData) {
     
 }
 
-async function sendEmail({ subject, content, vendor_name }: { subject: string, content: any, vendor_name:string, to?: string}) {
+async function sendEmail({ subject, content, vendor_name, to }: { subject: string, content: any, vendor_name:string, to?: string}) {
 
-    if(notificationEmails===undefined || notificationEmails===''){
-        return
-    }
-    
-    
+    // if(to===undefined || to===''){
+    //     return
+    // }
 
-    const transporter = nodemailer.createTransport({
-        host: "mail.bulwarx.local", // Exchange server address
-        port: 25,                  // Standard secure SMTP port
-        secure: false,              // true for 465, false for other ports
+    // console.log('to', to);
+
+    // const transporter = nodemailer.createTransport({
+    //     host: "mail.bulwarx.local", // Exchange server address
+    //     port: 25,                  // Standard secure SMTP port
+    //     secure: false,              // true for 465, false for other ports
    
-        tls: {
-            ciphers: 'SSLv3:TLSv1:TLSv1.1:TLSv1.2:TLSv1.3',  // Supports multiple cipher suites
-            rejectUnauthorized: false
-        }
-    });
+    //     tls: {
+    //         ciphers: 'SSLv3:TLSv1:TLSv1.1:TLSv1.2:TLSv1.3',  // Supports multiple cipher suites
+    //         rejectUnauthorized: false
+    //     }
+    // });
 
-    try {
-        const info = await transporter.sendMail({
-            from: process.env.USER_EMAIL,
-            to: notificationEmails,
-            subject: subject,
-            html: createEmailTemplate(content, vendor_name)
+    // try {
+    //     const info = await transporter.sendMail({
+    //         from: process.env.USER_EMAIL,
+    //         to: to,
+    //         subject: subject,
+    //         html: createEmailTemplate(content, vendor_name)
             
-        });
+    //     });
 
-        console.log('Email sent:', info.messageId);
-        return info;
-    } catch (error) {
-        console.error('Error sending email:', error);
-        throw error;
-    }
+    //     console.log('Email sent:', info.messageId);
+    //     return info;
+    // } catch (error) {
+    //     console.error('Error sending email:', error);
+    //     throw error;
+    // }
 }
 
 export { notify_on_end_of_support, notify_new_version, sendEmail, parseDate, notify_on_end_of_support_changes, extract_versions_from_json,extract_fortra_versions_to_json };

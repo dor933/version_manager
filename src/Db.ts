@@ -59,6 +59,8 @@ class Database {
 
 
         for (const vendor of Data.Vendors) {
+            let mailboxes= await this.GetMailBoxes(vendor.VendorName);
+            console.log('mailboxes', mailboxes);
 
             if(vendor.VendorName==='Fortra'){
                 listoffortraversions=await extract_fortra_versions_to_json(vendor.JSON_URL!);
@@ -134,7 +136,7 @@ class Database {
                             Version.EOSL_Start_Date? Version.EOSL_Start_Date.toISOString() : 'NULL'
                         ] , 
                         Version,
-                        
+                        mailboxes
                     );
 
 
@@ -147,7 +149,7 @@ class Database {
                              daysUntilExtendedEOS= Math.ceil((ExtendedEndOfSupportDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
                         }
                         if((daysUntilEOS <= 30 && daysUntilEOS >= 0) || daysUntilExtendedEOS && daysUntilExtendedEOS <14){
-                         notify_on_end_of_support(Version, daysUntilEOS, daysUntilExtendedEOS && daysUntilExtendedEOS );
+                         notify_on_end_of_support(Version, daysUntilEOS, daysUntilExtendedEOS && daysUntilExtendedEOS, mailboxes);
                         }
                     }
                 }
@@ -200,7 +202,8 @@ class Database {
         });
     }
 
-    async insertData(table: string, columns: string[], values: string[], versionData?: VersionData) {
+    async insertData(table: string, columns: string[], values: string[], versionData?: VersionData, mailboxes?: any) {
+        
 
 
         return new Promise((resolve, reject) => {
@@ -235,7 +238,7 @@ class Database {
                             }
                             else if(rows[0]?.EndOfSupportDate !== values[4]){
                                 this.UpdateRecord(table, ['EndOfSupportDate'], [values[4]], 'VersionName', rows[0].VersionName);
-                                notify_on_end_of_support_changes(rows[0].ProductName, rows[0].VendorName, rows[0].VersionName, EndOfSupportDate_DateTime? EndOfSupportDate_DateTime : undefined, EndOfSupportDate_DateTime_new? EndOfSupportDate_DateTime_new : undefined);   
+                                notify_on_end_of_support_changes(rows[0].ProductName, rows[0].VendorName, rows[0].VersionName, EndOfSupportDate_DateTime? EndOfSupportDate_DateTime : undefined, EndOfSupportDate_DateTime_new? EndOfSupportDate_DateTime_new : undefined, mailboxes);   
                                 resolve(false);
                             }
 
@@ -260,7 +263,7 @@ class Database {
                             } else {
                                 if(table === 'Version'){
                               
-                                    notify_new_version(versionData!);
+                                    notify_new_version(versionData!, mailboxes);
                                 }
                                 resolve(true);
                             }
@@ -308,6 +311,58 @@ class Database {
         });
     });
     
+   }
+
+   async GetMailBoxes(vendor:string){
+
+    let field= vendor === 'Fortra' ? 'Fortra_Notifications' : 'OPSW_Notifications';
+
+    return new Promise((resolve, reject) => {
+        this.db.all(`SELECT Email FROM User WHERE ${field}=1`, (err: Error, rows: any) => {
+
+            let mails= rows.map((row:any)=>row.Email).join(',');
+            console.log('mails', mails);
+            resolve(mails);
+        });
+    });
+   }
+
+   async subscribe(vendor:string, email:string){
+
+
+
+    let field= vendor === 'Fortra' ? 'Fortra_Notifications' : vendor==='OPSWAT' ? 'OPSW_Notifications' : 'All';
+    let field_to_0= vendor==='Fortra' ? 'OPSW_Notifications' : 'Fortra_Notifications';
+
+    let query='';
+
+        if(field==='All'){
+            query=`INSERT INTO User (Email, Fortra_Notifications, OPSW_Notifications) VALUES ("${email}", 1, 1)`;   
+        }
+        else{
+            query=`INSERT INTO User (Email, ${field}, ${field_to_0}) VALUES ("${email}", 1, 0)`;
+            console.log('query', query);
+        }
+        return new Promise((resolve, reject) => {
+
+            try{
+                this.db.run(query, () => {
+             
+                resolve(true);
+            }) 
+            }
+            catch(err:any){
+                reject(false);
+                }
+        });
+    }
+
+   async checkUser(email:string){
+    return new Promise((resolve, reject) => {
+        this.db.all(`SELECT * FROM User WHERE Email = '${email}'`, (err: Error, rows: any) => {
+            resolve(rows.length > 0);
+        });
+    });
    }
 
 

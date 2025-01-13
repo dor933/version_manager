@@ -13,6 +13,22 @@ app.use((req, res, next) => {
     next();
 });
 
+
+app.post('/api/subscribe', async (req, res) => {
+  const { vendor, email } = req.body;
+
+  const existinguser= await db.checkUser(email);
+  if(existinguser){
+    res.json({subscribe:'Already Subscribed'});
+  }
+  else{
+  await db.subscribe(vendor, email);
+  let ifexists= await db.checkUser(email);
+    res.json({subscribe:ifexists});
+  }
+
+});
+
 app.get('/', (req, res) => {
   res.send('Hello World');
 });
@@ -27,6 +43,7 @@ app.get('/api/sync', async (req, res) => {
     const versions = await db.getVersions();
     res.json({sync, versions});
 });
+
 
 export function startServer() {
     app.listen(port, () => {

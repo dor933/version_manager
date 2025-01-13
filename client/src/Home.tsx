@@ -36,6 +36,8 @@ const [isSyncing, setIsSyncing] = React.useState(false);
 const [openNotification, setOpenNotification] = React.useState(false);
 const [readnotifications, setReadnotifications] = React.useState<boolean>(false);
 const [versions_near_eosl, setVersionsNearEosl] = React.useState<any[]>([]);
+const [openSubscribe, setOpenSubscribe] = React.useState<boolean>(false);
+
 
 useEffect(() => {
     axios.get('http://localhost:3001/api/versions',{
@@ -111,6 +113,10 @@ const handleSync = async () => {
 const onCloseNotification = () => {
   setOpenNotification(false);
   setReadnotifications(true);
+}
+
+const onCloseSubscribe = () => {
+  setOpenSubscribe(false);
 }
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
@@ -191,14 +197,27 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
                open={openNotification} 
                onClose={onCloseNotification}    
                versions_near_eosl={versions_near_eosl}
+               type='notifications'
              />
            </Box>
            <Grid item xs={4} style={{display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'column'}}>
              
-             <Box sx={{display:'flex', backgroundColor:'#FFF', borderRadius:'4px', paddingLeft:'13px', paddingRight:'13px', paddingTop:'14px', paddingBottom:'14px'}}>
+             <Box sx={{display:'flex', backgroundColor:'#FFF', borderRadius:'4px', paddingLeft:'13px', paddingRight:'13px', paddingTop:'14px', paddingBottom:'14px', cursor:'pointer'}} onClick={() => {
+              if(!openSubscribe){
+                return setOpenSubscribe(true);
+              }
+            
+             }}>
                  <Typography  sx={{ color: '#424242', fontSize:'14px', fontWeight:'600', lineHeight:'16px', letterSpacing:'0.2px', textAlign:'center', fontFamily:'Kumbh Sans' }}>
-                     Log Out
+                     Subscribe to Notifications
                  </Typography>
+                 <Notification
+                 open={openSubscribe}
+                 onClose={onCloseSubscribe}
+                 versions_near_eosl={versions_near_eosl}
+                 type='subscribe'
+                 distinctVendors={distinctVendors}
+                 />
               </Box>
              </Grid>
 

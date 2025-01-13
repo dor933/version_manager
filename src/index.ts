@@ -6,7 +6,6 @@ import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { startServer } from './server/server';
 let errorCount=0;
-let notificationEmails:any= process.env.NOTIFICATION_EMAILS;
 let croninterval:any= process.env.CRON_INTERVAL;
 let unit=process.env.UNIT;
 let isinit=true;
@@ -43,11 +42,9 @@ const argv = await yargs(hideBin(process.argv))
 
 
 
-notificationEmails = argv.emails!==''? argv.emails : argv.email!==''? argv.email : process.env.NOTIFICATION_EMAILS;
 croninterval= argv.interval? argv.interval: parseInt(process.env.CRON_INTERVAL!)
 unit= argv.unit!==''? argv.unit : process.env.NOTIFICATION_EMAILS;
 
-console.log('Notification Emails are now:', notificationEmails)
 console.log('Interval is:', croninterval)
 
 
@@ -84,7 +81,6 @@ let cronJob: nodecron.ScheduledTask;
 function startCronJob() {
     logger.info(`Starting version manager service with ${croninterval} ${unit} interval`);
     isinit=false;
-    console.log('notificationEmails',notificationEmails);
 
     let cronExpression: string;
 
@@ -207,17 +203,17 @@ process.on('unhandledRejection', (reason) => {
 
 // Start the application
 (async () => {
+    startServer();
     console.log('Initiate version manager...')
     await db.HandleData();
     console.log('Initiation finished successfully')
     getEmails();
-    startServer();
 })();
 
 async function addKnownIssue(issue:any){
 await db.insertData('Known_Issues',['VersionName','ProductName','VendorName','IssueName','IssueDescription','IssueDate','IssueStatus','IssueSeverity','IssueResolution'],[issue.VersionName,issue.ProductName,issue.VendorName,issue.IssueName,issue.IssueDescription,issue.IssueDate,issue.IssueStatus,issue.IssueSeverity,issue.IssueResolution]);
 }
 
-export { logger, notificationEmails, isinit, db };
+export { logger, isinit, db };
 
 
