@@ -87,6 +87,9 @@ export default function FormDialog({versions}: ReportProps) {
             <Grid container style={{display:'flex', justifyContent:'flex-start', alignItems:'center', flexDirection:'row'}}>
                 <Grid item xs={4}>
                     <Typography sx={{fontSize:'32px', fontWeight:'600', lineHeight:'28px', letterSpacing:'0.2px', textAlign:'left', fontFamily:'Kumbh Sans', color:'#4F4F4F'}}>Report Issue</Typography>
+
+                    <Typography sx={{fontSize:'14px', marginTop:'10px', fontWeight:'400', lineHeight:'28px', letterSpacing:'0.2px', textAlign:'left', fontFamily:'Kumbh Sans', color:'#4F4F4F'}}>Will be applicable soon</Typography>
+
                 </Grid>
                 <Grid item xs={8} style={{display:'flex', justifyContent:'flex-end', alignItems:'center', flexDirection:'row'}}>
                     <FormControl sx={{ display:'flex', justifyContent:'flex-end', alignItems:'center', flexDirection:'row', width: '50%'}}>

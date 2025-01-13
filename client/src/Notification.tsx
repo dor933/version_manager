@@ -19,6 +19,71 @@ interface NotificationProps {
 
 const emailSchema = z.string().email();
 
+const customTextFieldStyle = {
+  '& .MuiOutlinedInput-root': {
+    height: '50px',
+    fontFamily: 'Kumbh Sans',
+    '& fieldset': {
+      borderColor: '#E0E0E0',
+    },
+    '&:hover fieldset': {
+      borderColor: '#2D88D4',
+    },
+    '&.Mui-focused fieldset': {
+      borderColor: '#2D88D4',
+    }
+  },
+  '& .MuiInputLabel-root': {
+    fontFamily: 'Kumbh Sans',
+    fontSize: '15px',
+    color: '#424242',
+    '&.Mui-focused': {
+      color: '#2D88D4'
+    },
+    transform: 'translate(14px, 16px) scale(1)',
+    '&.MuiInputLabel-shrink': {
+      transform: 'translate(14px, -9px) scale(0.75)',
+    }
+  },
+
+
+
+  '& .MuiOutlinedInput-input': {
+    padding: '14px',
+    fontSize: '14px',
+    color: '#424242'
+  }
+};
+
+const customSelectStyle = {
+  '& .MuiOutlinedInput-root': {
+    height: '50px',
+    fontFamily: 'Kumbh Sans',
+    '& fieldset': {
+      borderColor: '#E0E0E0',
+    },
+    '&:hover fieldset': {
+      borderColor: '#2D88D4',
+    },
+    '&.Mui-focused fieldset': {
+      borderColor: '#2D88D4',
+    }
+  },
+  '& .MuiSelect-select': {
+    padding: '14px 16px',
+    fontSize: '14px',
+    color: '#424242'
+  },
+  '& .MuiInputLabel-root': {
+    fontFamily: 'Kumbh Sans',
+    fontSize: '14px',
+    color: '#424242',
+    '&.Mui-focused': {
+      color: '#2D88D4'
+    }
+  }
+};
+
 const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_near_eosl,type, distinctVendors }) => {
 
 
@@ -73,11 +138,13 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_nea
             position: 'absolute',
             left: '35px',
             top: '30px',
+            
             width: '300px',
             backgroundColor: 'white',
             borderRadius: '8px',
             boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
             zIndex: 1000,
+
           }}
         >     
           <Box sx={{ p: 2}}>
@@ -146,44 +213,89 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_nea
               }}>
                 <Grid container spacing={2} sx={{ width: '100%' }}>
                   <Grid item xs={12}>
+                    <FormControl fullWidth>
+                        <InputLabel id="email-label" sx={{ fontFamily: 'Kumbh Sans' }}>Email</InputLabel>
+
                     <TextField 
-                      label="Email" 
                       variant="outlined" 
                       fullWidth
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      sx={{ 
-                        '& .MuiOutlinedInput-root': {
-                          width: '100%'
-                        }
-                      }} 
+                      sx={customTextFieldStyle}
                     />
+                    </FormControl>
                   </Grid>
                   <Grid item xs={12}>
                     <FormControl fullWidth>
-                        <InputLabel id="vendor-label">Vendor</InputLabel>
-
-                <Select 
-                label="Vendor"
-                fullWidth
-                value={chosenVendor}
-                onChange={(e) => setChosenVendor(e.target.value)}
-                sx={{width:'100%'}}
-                >
-                    <MenuItem value="All Vendors">All Vendors</MenuItem>
-                 {distinctVendors?.map((vendor) => (
-                  <MenuItem value={vendor}>{vendor}</MenuItem>
-                 ))}
-                </Select>
-                </FormControl>
-
+                      <InputLabel id="vendor-label" sx={{ fontFamily: 'Kumbh Sans' }}>
+                        Vendor
+                      </InputLabel>
+                      <Select 
+                        labelId="vendor-label"
+                        label="Vendor"
+                        value={chosenVendor}
+                        onChange={(e) => setChosenVendor(e.target.value)}
+                        sx={customSelectStyle}
+                        MenuProps={{
+                          PaperProps: {
+                            sx: {
+                              '& .MuiMenuItem-root': {
+                                fontFamily: 'Kumbh Sans',
+                                fontSize: '14px',
+                                color: '#424242',
+                                '&:hover': {
+                                  backgroundColor: '#F5F5F5'
+                                },
+                                '&.Mui-selected': {
+                                  backgroundColor: '#E3F2FD',
+                                  '&:hover': {
+                                    backgroundColor: '#E3F2FD'
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }}
+                      >
+                        <MenuItem value="All Vendors">All Vendors</MenuItem>
+                        {distinctVendors?.map((vendor) => (
+                          <MenuItem key={vendor} value={vendor}>
+                            {vendor}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
                   </Grid>
-                  <Grid item xs={12} style={{display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'row'}}>
-                  <Box sx={{display:'flex', backgroundColor:'#509CDB', borderRadius:'4px', paddingLeft:'13px', paddingRight:'13px', paddingTop:'14px', paddingBottom:'14px', cursor:'pointer'}} onClick={()=>{handleSubscribe(); }}>
-                <Typography  sx={{ color: '#FFF', fontSize:'14px', fontWeight:'600', lineHeight:'16px', letterSpacing:'0.2px', textAlign:'center', fontFamily:'Kumbh Sans' }}>
-                    Subscribe
-                </Typography>
-             </Box>
+                  <Grid item xs={12} style={{
+                    display: 'flex', 
+                    justifyContent: 'center', 
+                    alignItems: 'center'
+                  }}>
+                    <Box 
+                      sx={{
+                        display: 'flex',
+                        backgroundColor: '#509CDB',
+                        borderRadius: '4px',
+                        padding: '13px',
+                        cursor: 'pointer',
+                        '&:hover': {
+                          backgroundColor: '#4084C2'
+                        }
+                      }} 
+                      onClick={handleSubscribe}
+                    >
+                      <Typography sx={{ 
+                        color: '#FFF',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        lineHeight: '16px',
+                        letterSpacing: '0.2px',
+                        textAlign: 'center',
+                        fontFamily: 'Kumbh Sans'
+                      }}>
+                        Subscribe
+                      </Typography>
+                    </Box>
                   </Grid>
                 </Grid>
               </Box>

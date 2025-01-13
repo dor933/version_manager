@@ -4,7 +4,7 @@ import nodemailer from 'nodemailer';
 import { VersionData } from './types';
 import { createEmailTemplate } from './emailTemplate';
 import { Type1Products, Type2Products, version_extracted } from './types';
-import { logger,notificationEmails,isinit } from './index';
+import { logger,isinit } from './index';
 import { Version } from './Classes';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
