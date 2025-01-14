@@ -80,3 +80,6 @@
 {"level":"error","message":"Unhandled Rejection:","reason":{"__augmented":true,"code":"SQLITE_ERROR","errno":1},"timestamp":"2025-01-13T13:05:16.751Z"}
 {"error":{},"level":"error","message":"Uncaught Exception:","timestamp":"2025-01-13T19:17:10.345Z"}
 {"error":{},"level":"error","message":"Uncaught Exception:","timestamp":"2025-01-13T19:21:25.107Z"}
+{"level":"error","message":"Unhandled Rejection:","reason":{"code":"ERR_INVALID_ARG_TYPE"},"timestamp":"2025-01-14T16:16:00.834Z"}
+{"level":"error","message":"Unhandled Rejection:","reason":{},"timestamp":"2025-01-14T16:19:57.365Z"}
+{"level":"error","message":"Unhandled Rejection:","reason":{"code":"ERR_INVALID_ARG_TYPE"},"timestamp":"2025-01-14T16:36:59.547Z"}

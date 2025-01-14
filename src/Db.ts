@@ -1,10 +1,11 @@
 import axios from 'axios';
-import { notify_on_end_of_support, notify_on_end_of_support_changes, notify_new_version, extract_versions_from_json,extract_fortra_versions_to_json } from './Functions';
+import { notify_on_end_of_support, notify_on_end_of_support_changes, notify_new_version, extract_versions_from_json,extract_fortra_versions_to_json, extract_JSON_URL } from './Functions';
 import { parseDate } from './Functions';
 import { DataStructure, VersionData, version_extracted} from './types';
 const path = require('path');
 const Data=require('../Data.json') as DataStructure;
 import { logger } from './index';
+import puppeteer from 'puppeteer';
 
 
 
@@ -92,8 +93,24 @@ class Database {
                 }
 
                 else{
-                    listofversions = await axios.get(product.JSON_URL!)
+                   
+                    if(product.BASE_URL){
+                        try {
+                            const id = await extract_JSON_URL(product.JSON_URL!);
+                            console.log('id', id);
+                            const jsonRequest = product.BASE_URL! + id;
+                            console.log('json_url', jsonRequest);
+                            listofversions = await axios.get(jsonRequest);
+                        } catch (error) {
+                            console.error('Error fetching data:', error);
+                            throw error;
+                        }
+                    }
+                    else{
+                        listofversions = await axios.get(product.JSON_URL!)
+                    }
                     listofversions = extract_versions_from_json(listofversions, vendor.VendorName, product.ProductName)
+                    console.log('listofversions', listofversions);
                 }
         
 

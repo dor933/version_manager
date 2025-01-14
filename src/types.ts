@@ -3,6 +3,7 @@ export interface ProductData {
     VendorId: number;
     Versions: VersionData[];
     JSON_URL?: string;
+    BASE_URL?:string
 }
 
 export interface VendorData {
