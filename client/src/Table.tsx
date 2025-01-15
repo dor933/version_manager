@@ -98,7 +98,7 @@ export default function StickyHeadTable({versions, distinctVendors, setDistinctV
   
     if (searchvalue !== '') {
       // Filter by search + vendor
-      const newFiltered = versions.filter((version: any) => {
+      let newFiltered = versions.filter((version: any) => {
         const matchesSearch =
           version.VersionName?.toLowerCase().includes(searchvalue.toLowerCase()) ||
           version.ProductName?.toLowerCase().includes(searchvalue.toLowerCase()) ||
@@ -107,10 +107,14 @@ export default function StickyHeadTable({versions, distinctVendors, setDistinctV
         const matchesVendor = vendor ? version.VendorName === vendor : true;
         return matchesSearch && matchesVendor;
       });
+
+      //sort by release date descending
+    newFiltered=newFiltered.sort((a: any, b: any) => new Date(b.ReleaseDate).getTime() - new Date(a.ReleaseDate).getTime());
       setFilteredVersions(newFiltered);
     } else if (vendor) {
       // No search, but vendor chosen
-      const filtered_versions= versions.filter((v) => v.VendorName === vendor);
+      let filtered_versions= versions.filter((v) => v.VendorName === vendor);
+      filtered_versions=filtered_versions.sort((a: any, b: any) => new Date(b.ReleaseDate).getTime() - new Date(a.ReleaseDate).getTime());  
       setFilteredVersions(filtered_versions);
       if(chosenversion?.VendorName!==vendor){
         setChosenversion(filtered_versions[0])
@@ -118,7 +122,8 @@ export default function StickyHeadTable({versions, distinctVendors, setDistinctV
       }
     } else {
       // No search, no vendor
-      setFilteredVersions(versions);
+      let filtered_versions= versions.sort((a: any, b: any) => new Date(b.ReleaseDate).getTime() - new Date(a.ReleaseDate).getTime());  
+      setFilteredVersions(filtered_versions);
     }
   }, [searchvalue, vendor, versions]);
   
