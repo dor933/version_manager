@@ -9,9 +9,7 @@ import { Version } from './Classes';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 import fs from 'fs';
-import puppeteer from 'puppeteer-extra';
-import StealthPlugin from 'puppeteer-extra-plugin-stealth';
-puppeteer.use(StealthPlugin());
+
 
 let identifier=1;
 
@@ -251,21 +249,43 @@ async function notify_on_end_of_support_changes(product: string, vendor: string,
 
 async function extract_JSON_URL(url:string){
 
+    try {
+        identifier++;
+
+
     const object= await axios.get(url);
-    console.log('object', object);
     //get the last element in the array in the object that called "publicVersions"
     const publicVersions= object.data.publicVersions;
     const lengthpublicVersions= publicVersions.length;
     let relevant_obj= publicVersions[lengthpublicVersions-1]
-    console.log('lengthpublicVersions', lengthpublicVersions);
-    console.log('relevant_obj', relevant_obj);
-    relevant_obj= relevant_obj.publicDocumentations.find((element:any)=> element.slug.includes('knowledge'));
+    relevant_obj= relevant_obj.publicDocumentations.find((element:any)=> element.slug.includes('knowledgebase') || element.slug.includes('knowledge-base'));
    //write as txt each time
-   fs.writeFileSync(`relevant_obj_${identifier}.txt`, JSON.stringify(relevant_obj));
-   identifier++;
-    const objwithpageonly= relevant_obj.publicIndxes.filter((element:any)=> element.page !== null);
-    console.log('objwithpageonly', objwithpageonly);
-    return objwithpageonly;
+
+    const objwithpageonly= relevant_obj.publicIndxes;
+    const arrayofpages:any[]=[];
+
+    for(let i=0; i<objwithpageonly.length; i++){
+      
+        if(objwithpageonly[i].page!==undefined){
+            if(objwithpageonly[i].page?.slug==='how-long-is-the-support-lifecycle-for-a-specific-version-of-ocmv' ||  objwithpageonly[i].page?.slug==='how-long-is-the-support-lifecycle-for-a-specific-version-of-meta' || objwithpageonly[i].page?.slug==='how-long-is-the-support-life-cycle-for-a-specific-version-releas'){
+
+                console.log('relevant page')
+
+                               
+                arrayofpages.push(objwithpageonly[i].page);
+            }
+        }
+    }
+
+    const concated_indexes:string[]= arrayofpages.map((element:any)=> element.id);
+    return concated_indexes;
+
+
+}
+catch(error){
+    logger.error('Error extracting JSON URL:', { error });
+    return []
+}
 
 
 

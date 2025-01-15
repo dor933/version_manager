@@ -96,11 +96,20 @@ class Database {
                    
                     if(product.BASE_URL){
                         try {
-                            const id = await extract_JSON_URL(product.JSON_URL!);
-                            console.log('id', id);
-                            const jsonRequest = product.BASE_URL! + id;
-                            console.log('json_url', jsonRequest);
-                            listofversions = await axios.get(jsonRequest);
+                            const ids = await extract_JSON_URL(product.JSON_URL!);
+                            console.log('id', ids);
+                            const merged_listofversions:any[]=[]
+                            
+                            for(const index of ids){
+                                const jsonRequest = product.BASE_URL! + index;
+                                console.log('json_url', jsonRequest);
+                                let listofversionstemp:any= await axios.get(jsonRequest);
+                                listofversionstemp= extract_versions_from_json(listofversionstemp, vendor.VendorName, product.ProductName);
+                                console.log('listofversionstemp', listofversionstemp);
+                                merged_listofversions.push(...listofversionstemp);
+                            }
+                            console.log('merged_listofversions', merged_listofversions);
+                            listofversions= merged_listofversions;
                         } catch (error) {
                             console.error('Error fetching data:', error);
                             throw error;
@@ -108,9 +117,9 @@ class Database {
                     }
                     else{
                         listofversions = await axios.get(product.JSON_URL!)
+                        listofversions = extract_versions_from_json(listofversions, vendor.VendorName, product.ProductName)
                     }
-                    listofversions = extract_versions_from_json(listofversions, vendor.VendorName, product.ProductName)
-                    console.log('listofversions', listofversions);
+            
                 }
         
 

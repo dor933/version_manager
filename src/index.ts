@@ -206,24 +206,15 @@ process.on('unhandledRejection', (reason) => {
 
 // Start the application
 (async () => {
-    // startServer();
-    // console.log('Initiate version manager...')
-    // await db.HandleData();
-    // console.log('Initiation finished successfully')
-    // getEmails();
+    startServer();
+    console.log('Initiate version manager...')
+    await db.HandleData();
+    console.log('Initiation finished successfully')
+    getEmails();
 
-    console.log(Data)
     
 
-   for(const vendor of Data.Vendors){
 
-    for(const product of vendor.Products){
-        let relevant_obj=await extract_JSON_URL(product.JSON_URL!);
-        fs.writeFileSync(`relevant_obj_${vendor.VendorName}_${product.ProductName}.txt`, JSON.stringify(relevant_obj));
-        console.log(relevant_obj);
-    }
-    
-   }
  
 
 })();
