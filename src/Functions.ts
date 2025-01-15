@@ -11,7 +11,7 @@ import * as cheerio from 'cheerio';
 import fs from 'fs';
 
 
-let identifier=1;
+let identifier=0;
 
 function parseDate(dateStr: string): Date | null {
     if (!dateStr) return null;
@@ -250,7 +250,6 @@ async function notify_on_end_of_support_changes(product: string, vendor: string,
 async function extract_JSON_URL(url:string){
 
     try {
-        identifier++;
 
 
     const object= await axios.get(url);
@@ -267,15 +266,20 @@ async function extract_JSON_URL(url:string){
     for(let i=0; i<objwithpageonly.length; i++){
       
         if(objwithpageonly[i].page!==undefined){
-            if(objwithpageonly[i].page?.slug==='how-long-is-the-support-lifecycle-for-a-specific-version-of-ocmv' ||  objwithpageonly[i].page?.slug==='how-long-is-the-support-lifecycle-for-a-specific-version-of-meta' || objwithpageonly[i].page?.slug==='how-long-is-the-support-life-cycle-for-a-specific-version-releas'){
+            //note for myself to convert it to regex with 'how-long-is-the-support-lifecycle-for-a-specific-version-of-' or 'how-long-is-the-support-life-cycle-for-a-' 
+            const regex= /how-long-is-the-support-lifecycle-for-a-specific-version-of-|how-long-is-the-support-life-cycle-for-a-/;
+            if(objwithpageonly[i].page?.slug.match(regex)){
 
                 console.log('relevant page')
+                identifier++;
 
                                
                 arrayofpages.push(objwithpageonly[i].page);
             }
+            
         }
     }
+    console.log('identifier number of times relevant page was found', identifier);
 
     const concated_indexes:string[]= arrayofpages.map((element:any)=> element.id);
     return concated_indexes;
@@ -411,38 +415,38 @@ async function notify_new_version(newVersion: VersionData, mailboxes?: any) {
 
 async function sendEmail({ subject, content, vendor_name, to }: { subject: string, content: any, vendor_name:string, to?: string}) {
 
-    // if(to===undefined || to===''){
-    //     return
-    // }
+    if(to===undefined || to===''){
+        return
+    }
 
-    // console.log('to', to);
+    console.log('to', to);
 
-    // const transporter = nodemailer.createTransport({
-    //     host: "mail.bulwarx.local", // Exchange server address
-    //     port: 25,                  // Standard secure SMTP port
-    //     secure: false,              // true for 465, false for other ports
+    const transporter = nodemailer.createTransport({
+        host: "mail.bulwarx.local", // Exchange server address
+        port: 25,                  // Standard secure SMTP port
+        secure: false,              // true for 465, false for other ports
    
-    //     tls: {
-    //         ciphers: 'SSLv3:TLSv1:TLSv1.1:TLSv1.2:TLSv1.3',  // Supports multiple cipher suites
-    //         rejectUnauthorized: false
-    //     }
-    // });
+        tls: {
+            ciphers: 'SSLv3:TLSv1:TLSv1.1:TLSv1.2:TLSv1.3',  // Supports multiple cipher suites
+            rejectUnauthorized: false
+        }
+    });
 
-    // try {
-    //     const info = await transporter.sendMail({
-    //         from: process.env.USER_EMAIL,
-    //         to: to,
-    //         subject: subject,
-    //         html: createEmailTemplate(content, vendor_name)
+    try {
+        const info = await transporter.sendMail({
+            from: process.env.USER_EMAIL,
+            to: to,
+            subject: subject,
+            html: createEmailTemplate(content, vendor_name)
             
-    //     });
+        });
 
-    //     console.log('Email sent:', info.messageId);
-    //     return info;
-    // } catch (error) {
-    //     console.error('Error sending email:', error);
-    //     throw error;
-    // }
+        console.log('Email sent:', info.messageId);
+        return info;
+    } catch (error) {
+        console.error('Error sending email:', error);
+        throw error;
+    }
 }
 
 export { notify_on_end_of_support, notify_new_version, sendEmail, parseDate, notify_on_end_of_support_changes, extract_versions_from_json,extract_fortra_versions_to_json,extract_JSON_URL };
