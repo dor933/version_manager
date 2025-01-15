@@ -105,7 +105,7 @@ async function notify_on_end_of_support(versionData: VersionData , daysUntilEOS:
     }
     else if (daysUntilEOS <= 30) {
         emailBody = {
-            name:'Dor',
+            name:'Team',
             subject: `End of Support Alert: ${product} ${version}`,
             row1: `Hey Team`,
             row2: `The end of support date for ${product} ${version} is approaching.`,

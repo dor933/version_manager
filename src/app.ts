@@ -55,13 +55,10 @@ if (isServiceCommand) {
                 name: "NODE_ENV",
                 value: "production"
             },
-            {
-                name: "NOTIFICATION_EMAILS",
-                value: emails || process.env.NOTIFICATION_EMAILS || ''
-            },
+     
             {
                 name: "CRON_INTERVAL",
-                value: (interval || process.env.CRON_INTERVAL || '60').toString()
+                value: (interval || process.env.CRON_INTERVAL || '1').toString()
             },
             {
                 name: "UNIT",
@@ -90,7 +87,6 @@ if (isServiceCommand) {
     svc.on('install', () => {
         console.log('Service installed successfully');
         console.log('Environment variables set:');
-        console.log('NOTIFICATION_EMAILS:', emails || process.env.NOTIFICATION_EMAILS || 'not set');
         console.log('CRON_INTERVAL:', interval || process.env.CRON_INTERVAL || '1');
         console.log('UNIT:', unit || process.env.UNIT || 'MONTHS');
         

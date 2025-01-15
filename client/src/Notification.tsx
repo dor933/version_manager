@@ -103,7 +103,7 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_nea
             return;
         }
 
-        axios.post('http://localhost:3001/api/subscribe', {
+        axios.post('http://192.168.27.42:3001/api/subscribe', {
             vendor: chosenVendor,
             email: email
         })
