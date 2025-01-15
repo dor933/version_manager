@@ -85,15 +85,10 @@ export default function StickyHeadTable({versions, distinctVendors, setDistinctV
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [filteredVersions, setFilteredVersions] = React.useState(versions);
   const [searchvalue, setSearchvalue] = React.useState('');
-  const [chosenversion, setChosenversion] = React.useState<any>(null);
+  const [chosenversion, setChosenversion] = React.useState<any>(versions? versions[0]: null);
   const [vendor, setVendor] = React.useState('');
   const [page, setPage] = React.useState(0);
 
-
-
-
-
- 
 
   const prevVendorRef = React.useRef(vendor);
   const prevSearchRef = React.useRef(searchvalue);

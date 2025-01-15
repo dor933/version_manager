@@ -44,6 +44,7 @@ useEffect(() => {
     .then(response => response.data)
     .then(data => {setVersions(data.versions)
       console.log('data',data.versions_near_eosl)
+      
   })
     .catch(error => console.error('Error fetching versions:', error));
 
