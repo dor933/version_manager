@@ -85,11 +85,10 @@ interface Data {
 
 
 
-export default function StickyHeadTable({versions, setChosenversion, filtervalue, distinctVendors, setDistinctVendors , vendor, setVendor, chosenversion}: {versions: any[], setChosenversion: any, filtervalue: string, distinctVendors: any[], setDistinctVendors: any, vendor: any, setVendor: any, chosenversion: any}) {
+export default function StickyHeadTable({versions, setChosenversion, filtervalue, distinctVendors, setDistinctVendors , vendor, setVendor, chosenversion, page, setPage}: {versions: any[], setChosenversion: any, filtervalue: string, distinctVendors: any[], setDistinctVendors: any, vendor: any, setVendor: any, chosenversion: any, page: number, setPage: any}) {
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [filteredVersions, setFilteredVersions] = React.useState(versions);
   const [searchvalue, setSearchvalue] = React.useState('');
-  const [page, setPage] = React.useState(0);
 
   console.log('re rendered and page is', page);
 
