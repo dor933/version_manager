@@ -18,7 +18,7 @@ console.log()
 
 
 interface Column {
-  id: 'VersionName' | 'ProductName' | 'VendorName' | 'ReleaseDate' | 'EndOfSupportDate' | 'Extended_Support_End_Date' | 'LevelOfSupport' | 'Issues';
+  id: 'VersionName' | 'ProductName' | 'VendorName' | 'ReleaseDate' | 'EndOfSupportDate' | 'Extended_Support_End_Date' | 'LevelOfSupport' 
   label: string;
   minWidth?: number;
   align?: 'right';
@@ -65,13 +65,7 @@ const columns: readonly Column[] = [
     align: 'right',
     format_date: (value: Date) => value.toLocaleString('he-IL').split(',')[0]
   },
-  {
-    id:'Issues',
-    label:'Issues',
-    minWidth:140,
-    align:'right',
-    format_number: (value: number) => value.toLocaleString('en-US'),
-  }
+
 
 
 ];
@@ -413,7 +407,7 @@ null
   </Grid>
   <Grid item xs={4} style={{display:'flex', justifyContent:'flex-start', alignItems:'flex-start', flexDirection:'column', gap:'10px'}}>
     <Typography style={{color:"#424242", fontSize:'14px', fontWeight:'500', lineHeight:'16px', letterSpacing:'0.2px', fontFamily:'Kumbh Sans'}}>
-     Known Issues 
+    Issues 
     </Typography>
     <Typography style={{color:"#A7A7A7", fontSize:'14px', fontWeight:'500', lineHeight:'16px', letterSpacing:'0.2px', fontFamily:'Kumbh Sans'}}>  
       {/* {chosenversion?.KnownIssues || ''} */}
