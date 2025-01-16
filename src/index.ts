@@ -9,10 +9,6 @@ let errorCount=0;
 let croninterval:any= process.env.CRON_INTERVAL;
 let unit=process.env.UNIT;
 let isinit=true;
-import {extract_JSON_URL} from './Functions';
-import { DataStructure, VersionData, version_extracted} from './types';
-const Data=require('../Data.json') as DataStructure;
-import fs from 'fs';
 
 async function getEmails(){
 
@@ -49,8 +45,7 @@ croninterval= argv.interval? argv.interval: parseInt(process.env.CRON_INTERVAL!)
 unit= argv.unit!==''? argv.unit : process.env.NOTIFICATION_EMAILS;
 
 console.log('Interval is:', croninterval)
-
-
+isinit=false;
 
 
     startCronJob();

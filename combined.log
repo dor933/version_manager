@@ -1634,3 +1634,9 @@
 {"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2025-01-15T20:00:24.399Z"}
 {"level":"info","message":"Stopped cron job","timestamp":"2025-01-15T20:00:24.401Z"}
 {"level":"info","message":"Closed database connections","timestamp":"2025-01-15T20:00:24.408Z"}
+{"level":"info","message":"Successfully completed version check","timestamp":"2025-01-16T07:18:43.366Z"}
+{"level":"info","message":"Starting version manager service with 1 MONTHS interval","timestamp":"2025-01-16T07:18:43.374Z"}
+{"level":"info","message":"Cron expression: 0 0 1 */1 *","timestamp":"2025-01-16T07:18:43.374Z"}
+{"level":"info","message":"Received SIGINT. Starting graceful shutdown...","timestamp":"2025-01-16T07:26:41.296Z"}
+{"level":"info","message":"Stopped cron job","timestamp":"2025-01-16T07:26:41.303Z"}
+{"level":"info","message":"Closed database connections","timestamp":"2025-01-16T07:26:41.303Z"}

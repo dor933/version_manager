@@ -127,6 +127,9 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_nea
     if(singleproduct===''){
       return
     }
+    else if(singleproduct==='All Products'){
+      setIsVersionDisabled(true);
+    }
     else{
       let allVersions:any = [...new Set(versions.filter((version: any) => version.ProductName === singleproduct).map((version: any) => version.VersionName))];
       setProductVersions(allVersions);
@@ -331,6 +334,7 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_nea
                         sx={customSelectStyle}
                         disabled={isproductsdisabled}
                       >
+                        <MenuItem key={'all-products'} value={'All Products'}>All Products</MenuItem>
                         {products.map((product) => (
                           <MenuItem key={product} value={product}>{product}</MenuItem>
                         ))}
@@ -348,6 +352,7 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_nea
                         disabled={isversiondisabled}
                         sx={customSelectStyle}
                       >
+                        <MenuItem key={'all-versions'} value={'All Versions'}>All Versions</MenuItem>
                         {productVersions.map((version) => (
                           <MenuItem key={version} value={version}>{version}</MenuItem>
                         ))}
