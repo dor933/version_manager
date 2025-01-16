@@ -415,7 +415,7 @@ async function notify_new_version(newVersion: VersionData, mailboxes?: any) {
 
 async function sendEmail({ subject, content, vendor_name, to }: { subject: string, content: any, vendor_name:string, to?: string}) {
 
-    if(to===undefined || to===''){
+    if(to===undefined || to==='' || isinit===true){
         return
     }
 

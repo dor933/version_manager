@@ -255,3 +255,8 @@
 {"error":{"code":"ERR_INVALID_ARG_TYPE"},"level":"error","message":"Error extracting JSON URL:","timestamp":"2025-01-15T09:03:07.101Z"}
 {"error":{"code":"ERR_INVALID_ARG_TYPE"},"level":"error","message":"Error extracting JSON URL:","timestamp":"2025-01-15T09:03:07.102Z"}
 {"error":{"code":"ERR_INVALID_ARG_TYPE"},"level":"error","message":"Error extracting JSON URL:","timestamp":"2025-01-15T09:03:07.102Z"}
+{"error":{"code":"EDNS","command":"CONN","errno":-3008,"hostname":"mail.bulwarx.local","syscall":"getaddrinfo"},"level":"error","message":"Error sending email:","timestamp":"2025-01-15T19:23:10.819Z"}
+{"error":{"code":"EDNS","command":"CONN","errno":-3008,"hostname":"mail.bulwarx.local","syscall":"getaddrinfo"},"level":"error","message":"Error sending email:","timestamp":"2025-01-15T19:23:15.370Z"}
+{"error":{"code":"EDNS","command":"CONN","errno":-3008,"hostname":"mail.bulwarx.local","syscall":"getaddrinfo"},"level":"error","message":"Error sending email:","timestamp":"2025-01-15T19:23:16.533Z"}
+{"error":{"code":"EDNS","command":"CONN","errno":-3008,"hostname":"mail.bulwarx.local","syscall":"getaddrinfo"},"level":"error","message":"Error sending email:","timestamp":"2025-01-15T19:23:17.917Z"}
+{"error":{"code":"EDNS","command":"CONN","errno":-3008,"hostname":"mail.bulwarx.local","syscall":"getaddrinfo"},"level":"error","message":"Error sending email:","timestamp":"2025-01-15T19:23:19.647Z"}

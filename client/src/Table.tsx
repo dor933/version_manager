@@ -118,6 +118,7 @@ export default function StickyHeadTable({versions, distinctVendors, setDistinctV
       // No search, no vendor
       let filtered_versions= versions.sort((a: any, b: any) => new Date(b.ReleaseDate).getTime() - new Date(a.ReleaseDate).getTime());  
       setFilteredVersions(filtered_versions);
+      setChosenversion(filtered_versions[0])
     }
   }, [searchvalue, vendor, versions]);
   

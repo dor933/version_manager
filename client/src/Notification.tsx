@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Box, Typography, Paper, Grid, TextField, Button, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
@@ -7,6 +7,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import { z } from 'zod';
 import axios from 'axios';
 import { response } from 'express';
+import { versions } from 'process';
 
 
 interface NotificationProps {
@@ -15,6 +16,7 @@ interface NotificationProps {
   versions_near_eosl: any[];
   type: string;
   distinctVendors?: string[];
+  versions: any[];
 }
 
 const emailSchema = z.string().email();
@@ -42,7 +44,7 @@ const customTextFieldStyle = {
     },
     transform: 'translate(14px, 16px) scale(1)',
     '&.MuiInputLabel-shrink': {
-      transform: 'translate(14px, -9px) scale(0.75)',
+      transform: 'translate(14px, -3px) scale(0.75)',
     }
   },
 
@@ -84,15 +86,68 @@ const customSelectStyle = {
   }
 };
 
-const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_near_eosl,type, distinctVendors }) => {
+const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_near_eosl,type, distinctVendors, versions }) => {
 
 
-    const [chosenVendor, setChosenVendor] = useState<string>('');
     const [email, setEmail] = useState<string>('');
     const [isSubscribed, setIsSubscribed] = useState<boolean>(false);
+    const [vendor, setVendor] = useState('');
+  const [products, setProducts] = useState([]);
+  const [singleproduct, setSingleProduct] = useState('');
+  const [singleversion, setSingleVersion] = useState('');
+  const [productVersions, setProductVersions] = useState([]);
+  const [isproductsdisabled, setIsProductsDisabled] = useState(true);
+  const [isversiondisabled, setIsVersionDisabled] = useState(true);
+
+
+
+  useEffect(() => {
+
+
+
+      if(vendor==='All Vendors'){
+       let allProducts:any = [...new Set(versions.map((version: any) => version.ProductName))];
+       setProducts(allProducts);
+      }
+      else{
+        let allProducts:any = [...new Set(versions.filter((version: any) => version.VendorName === vendor).map((version: any) => version.ProductName))];
+        setProducts(allProducts);
+        console.log(allProducts);
+      }
+     
+      setIsProductsDisabled(false);
+      setIsVersionDisabled(true);
+      setSingleProduct('');
+      setSingleVersion('');
+
+
+  }, [vendor]);
+
+  useEffect(() => {
+    if(singleproduct===''){
+      return
+    }
+    else if(singleproduct==='All Products'){
+      setIsVersionDisabled(true);
+    }
+    else{
+      let allVersions:any = [...new Set(versions.filter((version: any) => version.ProductName === singleproduct).map((version: any) => version.VersionName))];
+      setProductVersions(allVersions);
+      setIsVersionDisabled(false);
+    }
+  }, [singleproduct]);
+
+
+
+  
+
+
+
+
+
 
     const handleSubscribe = () => {
-        if(chosenVendor === '') {
+        if(vendor === '') {
             alert('Please select a vendor');
             return;
         }
@@ -103,9 +158,11 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_nea
             return;
         }
 
-        axios.post('http://192.168.27.42:3001/api/subscribe', {
-            vendor: chosenVendor,
-            email: email
+        axios.post('http://localhost:3001/api/subscribe', {
+              vendor: vendor,
+            email: email,
+            product: singleproduct,
+            version: singleversion
         })
         .then((response) => {
             console.log('response', response);
@@ -125,7 +182,7 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_nea
         })
         .catch(error => console.error('Error subscribing:', error));
         
-        console.log(chosenVendor, email);
+        console.log(vendor, email, singleproduct, singleversion);
     }
 
   if (!open) return null;
@@ -233,8 +290,8 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_nea
                       <Select 
                         labelId="vendor-label"
                         label="Vendor"
-                        value={chosenVendor}
-                        onChange={(e) => setChosenVendor(e.target.value)}
+                        value={vendor}
+                        onChange={(e) => { setVendor(e.target.value); console.log(e.target.value)}}
                         sx={customSelectStyle}
                         MenuProps={{
                           PaperProps: {
@@ -262,6 +319,42 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_nea
                           <MenuItem key={vendor} value={vendor}>
                             {vendor}
                           </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <FormControl fullWidth>
+                      <InputLabel id="product-label" sx={{ fontFamily: 'Kumbh Sans' }}>Product</InputLabel>
+                      <Select 
+                        labelId="product-label"
+                        label="Product"
+                        value={singleproduct}
+                        onChange={(e) => setSingleProduct(e.target.value)}
+                        sx={customSelectStyle}
+                        disabled={isproductsdisabled}
+                      >
+                        <MenuItem key={'all-products'} value={'All Products'}>All Products</MenuItem>
+                        {products.map((product) => (
+                          <MenuItem key={product} value={product}>{product}</MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <FormControl fullWidth>
+                      <InputLabel id="version-label" sx={{ fontFamily: 'Kumbh Sans' }}>Version</InputLabel>
+                      <Select 
+                        labelId="version-label"
+                        label="Version"
+                        value={singleversion}
+                        onChange={(e) => setSingleVersion(e.target.value)}
+                        disabled={isversiondisabled}
+                        sx={customSelectStyle}
+                      >
+                        <MenuItem key={'all-versions'} value={'All Versions'}>All Versions</MenuItem>
+                        {productVersions.map((version) => (
+                          <MenuItem key={version} value={version}>{version}</MenuItem>
                         ))}
                       </Select>
                     </FormControl>

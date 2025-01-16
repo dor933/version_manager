@@ -198,6 +198,7 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
                onClose={onCloseNotification}    
                versions_near_eosl={versions_near_eosl}
                type='notifications'
+               versions={versions? versions: []}
              />
            </Box>
            <Grid item xs={4} style={{display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'column'}}>
@@ -217,6 +218,7 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
                  versions_near_eosl={versions_near_eosl}
                  type='subscribe'
                  distinctVendors={distinctVendors}
+                 versions={versions? versions: []}
                  />
               </Box>
              </Grid>
