@@ -4,7 +4,7 @@ import nodemailer from 'nodemailer';
 import { VersionData } from './types';
 import { createEmailTemplate } from './emailTemplate';
 import { Type1Products, Type2Products, version_extracted } from './types';
-import { logger } from './index';
+import { isinit, logger } from './index';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 import fs from 'fs';
@@ -409,7 +409,7 @@ async function notify_new_version(newVersion: VersionData, mailboxes?: any) {
 
 async function sendEmail({ subject, content, vendor_name, to }: { subject: string, content: any, vendor_name:string, to?: string}) {
 
-    if(to===undefined || to===''){
+    if(to===undefined || to==='' || isinit===true){
         return
     }
 

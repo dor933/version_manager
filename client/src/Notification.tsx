@@ -125,6 +125,9 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_nea
     if(singleproduct===''){
       return
     }
+    else if(singleproduct==='All Products'){
+      setIsVersionDisabled(true);
+    }
     else{
       let allVersions:any = [...new Set(versions.filter((version: any) => version.ProductName === singleproduct).map((version: any) => version.VersionName))];
       setProductVersions(allVersions);

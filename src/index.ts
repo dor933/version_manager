@@ -46,8 +46,7 @@ croninterval= argv.interval? argv.interval: parseInt(process.env.CRON_INTERVAL!)
 unit= argv.unit!==''? argv.unit : process.env.NOTIFICATION_EMAILS;
 
 console.log('Interval is:', croninterval)
-
-
+isinit=false;
 
 
     startCronJob();
@@ -215,23 +214,23 @@ process.on('unhandledRejection', (reason) => {
 
 // Start the application
 (async () => {
-    // startServer();
-    // console.log('Initiate version manager...')
-    // await db.HandleData();
-    // console.log('Initiation finished successfully')
-    // getEmails();
+    startServer();
+    console.log('Initiate version manager...')
+    await db.HandleData();
+    console.log('Initiation finished successfully')
+    getEmails();
 
     //create table that will store the users and the products they are interested in
-    await db.createTable('Users_Chosen_Products', [
-        'UserID TEXT',
-        'ProductName TEXT',
-        'VendorName TEXT',
-        'Unit_of_time TEXT CHECK(Unit_of_time IN ("hours", "days", "months"))',
-        'Interval_of_time INTEGER',
-        'PRIMARY KEY (UserID, ProductName, VendorName)',
-        'FOREIGN KEY (UserID) REFERENCES User(Id)',
-        'FOREIGN KEY (ProductName, VendorName) REFERENCES Product(ProductName, VendorName)'
-    ]);
+    // await db.createTable('Users_Chosen_Products', [
+    //     'UserID TEXT',
+    //     'ProductName TEXT',
+    //     'VendorName TEXT',
+    //     'Unit_of_time TEXT CHECK(Unit_of_time IN ("hours", "days", "months"))',
+    //     'Interval_of_time INTEGER',
+    //     'PRIMARY KEY (UserID, ProductName, VendorName)',
+    //     'FOREIGN KEY (UserID) REFERENCES User(Id)',
+    //     'FOREIGN KEY (ProductName, VendorName) REFERENCES Product(ProductName, VendorName)'
+    // ]);
 
 
  
