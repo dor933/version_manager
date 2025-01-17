@@ -14,27 +14,29 @@ import CustomizedSelects from './CustomizeSelect';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 
-console.log()
+console.log('rendered table')
 
 
 interface Column {
   id: 'VersionName' | 'ProductName' | 'VendorName' | 'ReleaseDate' | 'EndOfSupportDate' | 'Extended_Support_End_Date' | 'LevelOfSupport' 
   label: string;
   minWidth?: number;
-  align?: 'right';
+  align?: 'right' | 'left';
   format_number?: (value: number) => string;
   format_date?: (value: Date) => string;
+  format_product?: (value: string) => string;
 
 }
 
 const columns: readonly Column[] = [
-  { id: 'VersionName', label: 'Version Name', minWidth: 140 },
-  { id: 'ProductName', label: 'Product Name', minWidth: 100 },
+  { id: 'VersionName', label: 'Version Name', minWidth: 140, format_product: (value: string) => value.replace(/_/g, ' ') },
+  { id: 'ProductName', label: 'Product Name', minWidth: 100, format_product: (value: string) => value.replace(/_/g, ' ') },
   {
     id: 'VendorName',
     label: 'Vendor Name',
-    minWidth: 140,
-    align: 'right',
+    minWidth: 100,
+    
+    align: 'left',
     format_number: (value: number) => value.toLocaleString('en-US'),
   },
   {
@@ -106,11 +108,13 @@ export default function StickyHeadTable({versions, distinctVendors, setDistinctV
     newFiltered=newFiltered.sort((a: any, b: any) => new Date(b.ReleaseDate).getTime() - new Date(a.ReleaseDate).getTime());
       setFilteredVersions(newFiltered);
     } else if (vendor) {
+      console.log('entered vendor')
       // No search, but vendor chosen
       let filtered_versions= versions.filter((v) => v.VendorName === vendor);
       filtered_versions=filtered_versions.sort((a: any, b: any) => new Date(b.ReleaseDate).getTime() - new Date(a.ReleaseDate).getTime());  
       setFilteredVersions(filtered_versions);
       if(chosenversion?.VendorName!==vendor){
+        console.log('entered vendor not the same')
         setChosenversion(filtered_versions[0])
         setPage(0)
       }
@@ -118,6 +122,7 @@ export default function StickyHeadTable({versions, distinctVendors, setDistinctV
       // No search, no vendor
       let filtered_versions= versions.sort((a: any, b: any) => new Date(b.ReleaseDate).getTime() - new Date(a.ReleaseDate).getTime());  
       setFilteredVersions(filtered_versions);
+      setChosenversion(filtered_versions[0])
     }
   }, [searchvalue, vendor, versions]);
   
@@ -133,22 +138,11 @@ useEffect(() => {
 
   
   const handleRowClick = (row: any) => {
-    console.log('row', row);
+
     setChosenversion(row);
-    if (chosenversion && filteredVersions) {
-      decidePage(row);
-    }
   
   } 
 
-  const decidePage = (row: any) => {
-    const rowIndex = filteredVersions.findIndex(version => version.VersionName === row.VersionName);
-    console.log('rowIndex', rowIndex);
-    if (rowIndex !== -1) {
-      setPage(Math.floor(rowIndex / rowsPerPage));
-      console.log('page', Math.floor(rowIndex / rowsPerPage));
-    }
-  }
 
 
     
@@ -182,26 +176,11 @@ useEffect(() => {
                label="Vendor" 
                value={vendor} 
                setVendor={setVendor}
+               style={{width:'180px', marginTop:'5px'}}
              />
              
   
-               {/* <Box sx={{display:'flex', backgroundColor:'#FFF', borderRadius:'4px', paddingLeft:'13px', paddingRight:'13px', paddingTop:'14px', paddingBottom:'14px', gap:'10px', alignItems:'center'}}>
-                  <Typography  sx={{ color: '#C4C4C4', fontSize:'14px', fontWeight:'500', lineHeight:'16px', letterSpacing:'0.2px', textAlign:'center', fontFamily:'Kumbh Sans' }}>
-                      Choose Vendor
-                  </Typography>
-                  <svg width="9" height="7" viewBox="0 0 9 7" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M4.243 6.32851L0 2.08551L1.415 0.671509L4.243 3.50051L7.071 0.671509L8.486 2.08551L4.243 6.32851Z" fill="#C4C4C4"/>
-  </svg>
              
-             //create a dropdown for the vendors
-             <Select
-             label='Vendor'
-             options={versions!.map((version: any) => version.VendorName)}
-             onChange={(e) => setVendor(e.target.value)}
-            
-             /> 
-             
-               </Box> */}
   
               </Grid>
 
@@ -228,6 +207,7 @@ useEffect(() => {
           sx={{
             '& .MuiTableCell-root': {  // Remove borders from all cells
               border: 'none',
+              paddingLeft:'10px'
             },
           }}
         >
@@ -287,11 +267,13 @@ useEffect(() => {
                           {column.format_number && typeof value === 'number'
                             ? column.format_number(value) 
                             : column.format_date && typeof value === 'string'
-                            ? column.format_date(new Date(value))
+                            ? column.format_date(new Date(value)) 
+                            : column.format_product && typeof value === 'string'
+                            ? column.format_product(value)
                             : column.id==='VendorName' ? 
                             
                             
-                            <img src={value==='Fortra' ? 'https://static.fortra.com/hs-logo.png' : 'https://cybersecurity-excellence-awards.com/wp-content/uploads/2022/01/507133.png'} style={{width: value==='Fortra'? '60px': '90px', height:'15px'}}/> 
+                            <img alt={value==='Fortra' ? 'fortra' : 'opswat'} src={value==='Fortra' ? 'https://static.fortra.com/hs-logo.png' : 'https://cybersecurity-excellence-awards.com/wp-content/uploads/2022/01/507133.png'} style={{width: value==='Fortra'? '60px': '90px', height:'15px'}}/> 
                             :
 
                             value != null ? value : 'N/A'
@@ -332,7 +314,7 @@ vendor===''?
 <Box sx={{display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'100px', paddingLeft:'25px', paddingRight:'25px', paddingTop:'25px', paddingBottom:'25px', backgroundColor:'#FFFFFF', width:'80px', height:'80px'}}>
 
   
-   <img src='https://static.fortra.com/hs-logo.png' style={{width:'90px', height:'25px'}}/>
+   <img alt='fortra' src='https://static.fortra.com/hs-logo.png' style={{width:'90px', height:'25px'}}/>
 
 </Box>
 <Box sx={{display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'100px', paddingLeft:'25px', paddingRight:'25px', paddingTop:'25px', paddingBottom:'25px', backgroundColor:'#FFFFFF', width:'80px', height:'80px', marginLeft:'-30px',zIndex:'1'}}>
@@ -345,17 +327,17 @@ vendor===''?
 
 vendor==='Fortra' ?
             <Box sx={{display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'250px', paddingLeft:'25px', paddingRight:'25px', paddingTop:'25px', paddingBottom:'25px', backgroundColor:'#F5F5F5', width:'200px', height:'200px'}}>
-              <img src='https://static.fortra.com/hs-logo.png' style={{width:'120px', height:'40px'}}/>
+              <img alt='fortra' src='https://static.fortra.com/hs-logo.png' style={{width:'120px', height:'40px'}}/>
 
 </Box> : vendor==='OPSWAT' ?
             <Box sx={{display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'250px', paddingLeft:'25px', paddingRight:'25px', paddingTop:'25px', paddingBottom:'25px', backgroundColor:'#F5F5F5', width:'200px', height:'200px'}}>
-              <img src='https://cybersecurity-excellence-awards.com/wp-content/uploads/2022/01/507133.png' style={{width:'150px', height:'30px'}}/>
+              <img alt='opswat' src='https://cybersecurity-excellence-awards.com/wp-content/uploads/2022/01/507133.png' style={{width:'150px', height:'30px'}}/>
 
 </Box> : 
 null
 }
 <Typography style={{color:"#424242", fontSize:'16px', fontWeight:'700', lineHeight:'16px', letterSpacing:'0.2px', textAlign:'center', fontFamily:'Kumbh Sans'}}>
- {chosenversion?.ProductName || 'Product Name'}
+ {chosenversion?.ProductName.replace(/_/g, ' ') || 'Product Name'}
 </Typography>
 <Typography style={{color:"#424242", fontSize:'14px', fontWeight:'500', lineHeight:'16px', letterSpacing:'0.2px', textAlign:'center', fontFamily:'Kumbh Sans'}}>
  {chosenversion?.VersionName || 'Version Name'}

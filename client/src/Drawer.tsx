@@ -1,6 +1,4 @@
-import { AppBar, AppBarProps, Drawer, styled, Toolbar } from '@mui/material';
-import { Typography } from '@mui/material';
-import { useState } from 'react';
+import { Drawer, styled, Toolbar } from '@mui/material';
 import React from 'react';
 import { IconButton } from '@mui/material';
 import { Divider } from '@mui/material';

@@ -2,6 +2,7 @@ import nodecron from 'node-cron';
 import { Database } from './Db';
 import { sendEmail } from './Functions';
 import winston from 'winston';
+import DailyRotateFile from 'winston-daily-rotate-file';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { startServer } from './server/server';
@@ -9,10 +10,6 @@ let errorCount=0;
 let croninterval:any= process.env.CRON_INTERVAL;
 let unit=process.env.UNIT;
 let isinit=true;
-import {extract_JSON_URL} from './Functions';
-import { DataStructure, VersionData, version_extracted} from './types';
-const Data=require('../Data.json') as DataStructure;
-import fs from 'fs';
 
 async function getEmails(){
 
@@ -56,16 +53,28 @@ console.log('Interval is:', croninterval)
     startCronJob();
 }
 
-// Configure logger
+// Configure logger with new file for each day
+
 const logger = winston.createLogger({
+
     level: 'info',
     format: winston.format.combine(
         winston.format.timestamp(),
         winston.format.json()
+        
     ),
     transports: [
-        new winston.transports.File({ filename: 'error.log', level: 'error' }),
-        new winston.transports.File({ filename: 'combined.log' })
+        new DailyRotateFile({
+            filename: 'logs/error-%DATE%.log',
+            datePattern: 'YYYY-MM-DD',
+            level: 'error',
+            maxFiles: '14d'  // Keep logs for 14 days
+        }),
+        new DailyRotateFile({
+            filename: 'logs/combined-%DATE%.log',
+            datePattern: 'YYYY-MM-DD',
+            maxFiles: '14d'  // Keep logs for 14 days
+        })
     ]
 });
 
@@ -206,13 +215,23 @@ process.on('unhandledRejection', (reason) => {
 
 // Start the application
 (async () => {
-    startServer();
-    console.log('Initiate version manager...')
-    await db.HandleData();
-    console.log('Initiation finished successfully')
-    getEmails();
+    // startServer();
+    // console.log('Initiate version manager...')
+    // await db.HandleData();
+    // console.log('Initiation finished successfully')
+    // getEmails();
 
-    
+    //create table that will store the users and the products they are interested in
+    await db.createTable('Users_Chosen_Products', [
+        'UserID TEXT',
+        'ProductName TEXT',
+        'VendorName TEXT',
+        'Unit_of_time TEXT CHECK(Unit_of_time IN ("hours", "days", "months"))',
+        'Interval_of_time INTEGER',
+        'PRIMARY KEY (UserID, ProductName, VendorName)',
+        'FOREIGN KEY (UserID) REFERENCES User(Id)',
+        'FOREIGN KEY (ProductName, VendorName) REFERENCES Product(ProductName, VendorName)'
+    ]);
 
 
  
@@ -222,6 +241,8 @@ process.on('unhandledRejection', (reason) => {
 async function addKnownIssue(issue:any){
 await db.insertData('Known_Issues',['VersionName','ProductName','VendorName','IssueName','IssueDescription','IssueDate','IssueStatus','IssueSeverity','IssueResolution'],[issue.VersionName,issue.ProductName,issue.VendorName,issue.IssueName,issue.IssueDescription,issue.IssueDate,issue.IssueStatus,issue.IssueSeverity,issue.IssueResolution]);
 }
+
+
 
 export { logger, isinit, db };
 

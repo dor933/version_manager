@@ -1,13 +1,9 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { Box, Typography, Paper, Grid, TextField, Button, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-//import close icon
+import React, {  useEffect, useState } from 'react';
+import { Box, Typography, Paper, Grid, TextField, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { z } from 'zod';
 import axios from 'axios';
-import { response } from 'express';
-import { versions } from 'process';
+import FormControlSelect from './NotificationSelect';
 
 
 interface NotificationProps {
@@ -72,9 +68,10 @@ const customSelectStyle = {
     }
   },
   '& .MuiSelect-select': {
-    padding: '14px 16px',
+    padding: '16px',
     fontSize: '14px',
-    color: '#424242'
+    color: '#424242',
+    fontFamily: 'Kumbh Sans'
   },
   '& .MuiInputLabel-root': {
     fontFamily: 'Kumbh Sans',
@@ -82,24 +79,25 @@ const customSelectStyle = {
     color: '#424242',
     '&.Mui-focused': {
       color: '#2D88D4'
-    }
+    },
+    
+ 
   }
 };
 
 const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_near_eosl,type, distinctVendors, versions }) => {
 
 
-    const [email, setEmail] = useState<string>('');
-    const [isSubscribed, setIsSubscribed] = useState<boolean>(false);
-    const [vendor, setVendor] = useState('');
+  const [email, setEmail] = useState<string>('');
+  const [vendor, setVendor] = useState('');
   const [products, setProducts] = useState([]);
   const [singleproduct, setSingleProduct] = useState('');
   const [singleversion, setSingleVersion] = useState('');
   const [productVersions, setProductVersions] = useState([]);
   const [isproductsdisabled, setIsProductsDisabled] = useState(true);
   const [isversiondisabled, setIsVersionDisabled] = useState(true);
-
-
+  const [Unit, setUnit] = useState('');
+  const [Interval, setInterval] = useState('');
 
   useEffect(() => {
 
@@ -121,7 +119,7 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_nea
       setSingleVersion('');
 
 
-  }, [vendor]);
+  }, [vendor,versions]);
 
   useEffect(() => {
     if(singleproduct===''){
@@ -132,7 +130,7 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_nea
       setProductVersions(allVersions);
       setIsVersionDisabled(false);
     }
-  }, [singleproduct]);
+  }, [singleproduct,versions]);
 
 
 
@@ -235,7 +233,7 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_nea
             position: 'absolute',
             right: '45px',
             top: '75px',
-            width: '300px',
+            width: '400px',
             backgroundColor: 'white',
             borderRadius: '8px',
             boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
@@ -256,7 +254,7 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_nea
          
               
               <Box sx={{ 
-                maxHeight: '300px', 
+                maxHeight: '400px', 
                 overflowY: 'auto', 
                 gap: '5px', 
                 display: 'flex', 
@@ -280,79 +278,55 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_nea
                     </FormControl>
                   </Grid>
                   <Grid item xs={12}>
-                    <FormControl fullWidth>
-                      <InputLabel id="vendor-label" sx={{ fontFamily: 'Kumbh Sans' }}>
-                        Vendor
-                      </InputLabel>
-                      <Select 
-                        labelId="vendor-label"
-                        label="Vendor"
-                        value={vendor}
-                        onChange={(e) => { setVendor(e.target.value); console.log(e.target.value)}}
-                        sx={customSelectStyle}
-                        MenuProps={{
-                          PaperProps: {
-                            sx: {
-                              '& .MuiMenuItem-root': {
-                                fontFamily: 'Kumbh Sans',
-                                fontSize: '14px',
-                                color: '#424242',
-                                '&:hover': {
-                                  backgroundColor: '#F5F5F5'
-                                },
-                                '&.Mui-selected': {
-                                  backgroundColor: '#E3F2FD',
-                                  '&:hover': {
-                                    backgroundColor: '#E3F2FD'
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        }}
-                      >
-                        <MenuItem value="All Vendors">All Vendors</MenuItem>
-                        {distinctVendors?.map((vendor) => (
-                          <MenuItem key={vendor} value={vendor}>
-                            {vendor}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
+              
+               <FormControlSelect   
+                label="Vendor"
+                singleitem={vendor}
+                setSingleItem={setVendor}
+                items={distinctVendors? distinctVendors : []}
+                customSelectStyle={customSelectStyle}
+                />
                   </Grid>
                   <Grid item xs={6}>
-                    <FormControl fullWidth>
-                      <InputLabel id="product-label" sx={{ fontFamily: 'Kumbh Sans' }}>Product</InputLabel>
-                      <Select 
-                        labelId="product-label"
-                        label="Product"
-                        value={singleproduct}
-                        onChange={(e) => setSingleProduct(e.target.value)}
-                        sx={customSelectStyle}
-                        disabled={isproductsdisabled}
-                      >
-                        {products.map((product) => (
-                          <MenuItem key={product} value={product}>{product}</MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
+           
+                  <FormControlSelect   
+                  label="Product"
+                  singleitem={singleproduct}
+                  setSingleItem={setSingleProduct}
+                  isitemdisabled={isproductsdisabled}
+                  items={products}
+                  customSelectStyle={customSelectStyle}
+                  />
                   </Grid>
                   <Grid item xs={6}>
-                    <FormControl fullWidth>
-                      <InputLabel id="version-label" sx={{ fontFamily: 'Kumbh Sans' }}>Version</InputLabel>
-                      <Select 
-                        labelId="version-label"
-                        label="Version"
-                        value={singleversion}
-                        onChange={(e) => setSingleVersion(e.target.value)}
-                        disabled={isversiondisabled}
-                        sx={customSelectStyle}
-                      >
-                        {productVersions.map((version) => (
-                          <MenuItem key={version} value={version}>{version}</MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
+             
+                  <FormControlSelect   
+                  label="Version"
+                  singleitem={singleversion}
+                  setSingleItem={setSingleVersion}
+                  isitemdisabled={isversiondisabled}
+                  items={productVersions}
+                  customSelectStyle={customSelectStyle}
+                  />
+                  </Grid>
+                  <Grid item xs={6}>
+                    <FormControlSelect   
+                    label="Unit"
+                    singleitem={Unit}
+                    setSingleItem={setUnit}
+                    items={["hours", "days", "months"]}
+                    customSelectStyle={customSelectStyle}
+                    />
+                  </Grid>
+                  <Grid item xs={6}>
+                    <TextField 
+                      variant="outlined" 
+                      label="Interval of time"
+                      fullWidth
+                      value={Interval}
+                      onChange={(e) => setInterval(e.target.value)}
+                      sx={customTextFieldStyle}
+                    />
                   </Grid>
                   <Grid item xs={12} style={{
                     display: 'flex', 

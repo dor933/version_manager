@@ -4,8 +4,7 @@ import nodemailer from 'nodemailer';
 import { VersionData } from './types';
 import { createEmailTemplate } from './emailTemplate';
 import { Type1Products, Type2Products, version_extracted } from './types';
-import { logger,isinit } from './index';
-import { Version } from './Classes';
+import { logger } from './index';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 import fs from 'fs';
@@ -148,11 +147,7 @@ async function extract_fortra_versions_to_json(json_url:string):Promise<any> {
     try{
         const $= cheerio.load(listofVersions);
         let listoftd= $('td');
-        //write the listoftd to a file
-        fs.writeFileSync('listoftd.txt', listoftd.toString());
         
-    
-
 
     let listofVersions_ret:any={
 
@@ -203,7 +198,7 @@ async function extract_fortra_versions_to_json(json_url:string):Promise<any> {
     return listofVersions_ret;
 }
     catch(error){
-        console.error('error',error);
+        logger.error('error extracting fortra versions to json', error);
         return []
     }
 
@@ -279,7 +274,6 @@ async function extract_JSON_URL(url:string){
             
         }
     }
-    console.log('identifier number of times relevant page was found', identifier);
 
     const concated_indexes:string[]= arrayofpages.map((element:any)=> element.id);
     return concated_indexes;
