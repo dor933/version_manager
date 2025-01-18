@@ -1,5 +1,5 @@
 import express from 'express';
-import { db } from '../index';
+import { db, logger } from '../index';
 
 
 const app = express();
@@ -15,16 +15,41 @@ app.use((req, res, next) => {
 
 
 app.post('/api/subscribe', async (req, res) => {
-  const { vendor, email } = req.body;
+  const { vendor, email , product, version, Unit_of_time, Frequency} = req.body;
 
-  const existinguser= await db.checkUser(email);
-  if(existinguser){
-    res.json({subscribe:'Already Subscribed'});
+  try{
+
+  const existinguser= await db.CheckUserExists(email);
+  if(!existinguser){  
+  await db.registerUser(email);
   }
+
+  if(vendor==='All'){
+    let allversions:any= await db.getVersions()
+    for(let version of allversions){
+      await db.subscribe(email, version.ProductName, version.VendorName, version.VersionName, version.Unit_of_time, version.Frequency);
+    }
+  }
+  else if(product==='All'){
+    let allproducts:any= await db.getVersions(vendor);
+    for(let product of allproducts){
+      await db.subscribe(email, product.ProductName, product.VendorName, product.VersionName, product.Unit_of_time, product.Frequency);
+    }
+  }
+  else if(version==='All'){
+    let allversions:any= await db.getVersions(vendor, product);
+    for(let version of allversions){
+      await db.subscribe(email, version.ProductName, version.VendorName, version.VersionName, version.Unit_of_time, version.Frequency);
+    }
+    }
   else{
-  await db.subscribe(vendor, email);
-  let ifexists= await db.checkUser(email);
-    res.json({subscribe:ifexists});
+    await db.subscribe(email, product, vendor, version, Unit_of_time, Frequency);
+  }
+  res.json({subscribe:true});
+  }
+  catch(err:any){
+    logger.error(err);
+    res.json({subscribe:false});
   }
 
 });

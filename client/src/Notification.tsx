@@ -317,7 +317,7 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_nea
                     label="Unit"
                     singleitem={Unit}
                     setSingleItem={setUnit}
-                    items={["hours", "days", "months"]}
+                    items={["Hours", "Days", "Months"]}
                     customSelectStyle={customSelectStyle}
                     />
                   </Grid>
