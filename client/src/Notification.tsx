@@ -92,7 +92,6 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_nea
   const [vendor, setVendor] = useState('');
   const [products, setProducts] = useState([]);
   const [singleproduct, setSingleProduct] = useState('');
-  const [singleversion, setSingleVersion] = useState('');
   const [productVersions, setProductVersions] = useState([]);
   const [isproductsdisabled, setIsProductsDisabled] = useState(true);
   const [isversiondisabled, setIsVersionDisabled] = useState(true);
@@ -104,8 +103,10 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_nea
 
 
       if(vendor==='All Vendors'){
-       let allProducts:any = [...new Set(versions.map((version: any) => version.ProductName))];
-       setProducts(allProducts);
+       setSingleProduct('All Products');
+       setIsProductsDisabled(true);
+       setIsVersionDisabled(true);
+       return;
       }
       else{
         let allProducts:any = [...new Set(versions.filter((version: any) => version.VendorName === vendor).map((version: any) => version.ProductName))];
@@ -116,7 +117,6 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_nea
       setIsProductsDisabled(false);
       setIsVersionDisabled(true);
       setSingleProduct('');
-      setSingleVersion('');
 
 
   }, [vendor,versions]);
@@ -149,7 +149,20 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_nea
             alert('Please select a vendor');
             return;
         }
-        
+        else if(singleproduct === ''){
+            alert('Please select a product');
+            return;
+        }
+      
+        else if(Unit === ''){
+            alert('Please select a unit');
+            return;
+        }
+        else if(Interval === ''){
+            alert('Please select an interval');
+            return;
+        }
+   
         const emailValidation = emailSchema.safeParse(email);
         if (!emailValidation.success) {
             alert('Please enter a valid email address');
@@ -160,7 +173,8 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_nea
               vendor: vendor,
             email: email,
             product: singleproduct,
-            version: singleversion
+            Unit_of_time: Unit,
+            Frequency: Interval
         })
         .then((response) => {
             console.log('response', response);
@@ -180,7 +194,7 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_nea
         })
         .catch(error => console.error('Error subscribing:', error));
         
-        console.log(vendor, email, singleproduct, singleversion);
+        console.log(vendor, email, singleproduct, Unit, Interval);
     }
 
   if (!open) return null;
@@ -290,7 +304,7 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_nea
                 customSelectStyle={customSelectStyle}
                 />
                   </Grid>
-                  <Grid item xs={6}>
+                  <Grid item xs={12}>
            
                   <FormControlSelect   
                   label="Product"
@@ -301,17 +315,7 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_nea
                   customSelectStyle={customSelectStyle}
                   />
                   </Grid>
-                  <Grid item xs={6}>
-             
-                  <FormControlSelect   
-                  label="Version"
-                  singleitem={singleversion}
-                  setSingleItem={setSingleVersion}
-                  isitemdisabled={isversiondisabled}
-                  items={productVersions}
-                  customSelectStyle={customSelectStyle}
-                  />
-                  </Grid>
+            
                   <Grid item xs={6}>
                     <FormControlSelect   
                     label="Unit"

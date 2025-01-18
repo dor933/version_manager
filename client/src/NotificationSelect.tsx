@@ -28,6 +28,9 @@ const FormControlSelect: React.FC<FormControlProps> = ({singleitem, setSingleIte
       disabled={isitemdisabled? isitemdisabled : false}
       sx={customSelectStyle}
     >
+      {label!=='Unit' &&
+      <MenuItem value={`All ${label}s`}>{`All ${label}s`}</MenuItem>
+      }
       {items.map((item) => (
         <MenuItem key={item} value={item}>{item}</MenuItem>
       ))}

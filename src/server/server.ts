@@ -15,7 +15,7 @@ app.use((req, res, next) => {
 
 
 app.post('/api/subscribe', async (req, res) => {
-  const { vendor, email , product, version, Unit_of_time, Frequency} = req.body;
+  const { vendor, email , product, Unit_of_time, Frequency} = req.body;
 
   try{
 
@@ -24,26 +24,23 @@ app.post('/api/subscribe', async (req, res) => {
   await db.registerUser(email);
   }
 
-  if(vendor==='All'){
-    let allversions:any= await db.getVersions()
-    for(let version of allversions){
-      await db.subscribe(email, version.ProductName, version.VendorName, version.VersionName, version.Unit_of_time, version.Frequency);
+  const userid:any= await db.CheckUserExists(email);
+
+  if(vendor==='All Vendors'){
+    let allproducts:any= await db.getProducts()
+    for(let product of allproducts){
+      await db.subscribe(userid, product.ProductName, product.VendorName, Unit_of_time, Frequency);
     }
   }
-  else if(product==='All'){
+  else if(product==='All Products'){
     let allproducts:any= await db.getVersions(vendor);
     for(let product of allproducts){
-      await db.subscribe(email, product.ProductName, product.VendorName, product.VersionName, product.Unit_of_time, product.Frequency);
+      await db.subscribe(userid, product.ProductName, product.VendorName, Unit_of_time,Frequency);
     }
   }
-  else if(version==='All'){
-    let allversions:any= await db.getVersions(vendor, product);
-    for(let version of allversions){
-      await db.subscribe(email, version.ProductName, version.VendorName, version.VersionName, version.Unit_of_time, version.Frequency);
-    }
-    }
+
   else{
-    await db.subscribe(email, product, vendor, version, Unit_of_time, Frequency);
+    await db.subscribe(userid, product, vendor, Unit_of_time, Frequency);
   }
   res.json({subscribe:true});
   }

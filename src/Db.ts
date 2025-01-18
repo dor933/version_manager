@@ -127,7 +127,6 @@ class Database {
                 for(const version of listofversions){
                     
                     let UsersArray= await this.GetUsersArray(product.ProductName, vendor.VendorName, version[0]);
-
                    
 
                     let ReleaseDate_DateTime = parseDate(version[1]!);
@@ -341,25 +340,54 @@ class Database {
     
    }
 
+   async getProducts(vendor?:string, product?:string){
+    return new Promise((resolve, reject) => {
+        this.db.all(`SELECT * FROM Product ${vendor ? `WHERE VendorName='${vendor}'` : ''} ${product ? ` AND ProductName='${product}'` : ''}`, (err: Error, rows: any) => {
+            resolve(rows);
+        });
+    });
+   }
+
    async GetUsersArray(product:string, vendor:string,version:string){
 
     
 
     return new Promise((resolve, reject) => {
-        this.db.all(`SELECT U.Email,U.Last_Update, UC.Unit_of_time, UC.Frequency FROM User_Chosen_Products UC INNER JOIN Users U ON UC.UserID=U.Id WHERE UC.ProductName='${product}' AND UC.VendorName='${vendor}' AND UC.VersionName='${version}'`, (err: Error, rows: any) => {
+        try{
+            let query= `SELECT U.Email,UC.Last_Update, UC.Unit_of_time, UC.Frequency FROM User_Chosen_Products UC INNER JOIN User U ON UC.UserID=U.Id WHERE UC.ProductName='${product}' AND UC.VendorName='${vendor}'`;
+        this.db.all(query, (err: Error, rows: any) => {
 
-            let mails= rows.map((row:any)=>row.Email).join(',');
-            console.log('mails', mails);
-            resolve(mails);
+           if(err){
+            logger.error('Error getting users array', err.message);
+            reject(err);
+           }
+
+           console.log(rows);
+            let users_to_update= rows.map((row:any)=>{
+                return {
+                    Email: row.Email,
+                    Last_Update: row.Last_Update,
+                    Unit_of_time: row.Unit_of_time,
+                    Frequency: row.Frequency,
+                    UserID: row.UserID
+                }
+            });
+            resolve(users_to_update);
         });
+    }
+    catch(err:any){
+        console.error('Error getting users array', err.message);
+        logger.error('Error getting users array', err.message);
+        reject(err);
+    }
     });
    }
 
-   async subscribe(userid:string, product:string, vendor:string, version:string, Unit_of_time:string, Frequency:string){
+   async subscribe(userid:string, product:string, vendor:string, Unit_of_time:string, Frequency:string){
 
     return new Promise((resolve, reject) => {
         try{
-        this.db.run(`INSERT INTO User_Chosen_Products (UserID, ProductName, VendorName, VersionName, Unit_of_time, Frequency) VALUES ("${userid}", "${product}", "${vendor}", "${version}", "${Unit_of_time}", "${Frequency}")`, (err: Error) => {
+        this.db.run(`INSERT INTO User_Chosen_Products (UserID, ProductName, VendorName, Unit_of_time, Frequency, Last_Update) VALUES ("${userid}", "${product}", "${vendor}", "${Unit_of_time}", "${Frequency}", "${new Date().toISOString()}")`, (err: Error) => {
             resolve(true);
         });
         }
@@ -398,7 +426,7 @@ class Database {
 
    async checkUserSubscription( product:string, vendor:string){
     return new Promise((resolve, reject) => {
-        this.db.all(`SELECT * FROM Users U INNER JOIN Users_Chosen_Products UC ON UC.UserID=U.Id WHERE UC.ProductName='${product}' AND UC.VendorName='${vendor}'`, (err: Error, rows: any) => {
+        this.db.all(`SELECT * FROM User U INNER JOIN User_Chosen_Products UC ON UC.UserID=U.Id WHERE UC.ProductName='${product}' AND UC.VendorName='${vendor}'`, (err: Error, rows: any) => {
             resolve(rows.length > 0);
         });
     });
@@ -406,8 +434,13 @@ class Database {
 
    async CheckUserExists(email:string){
     return new Promise((resolve, reject) => {
-        this.db.all(`SELECT * FROM Users WHERE Email='${email}'`, (err: Error, rows: any) => {
-            resolve(rows.length > 0);
+        this.db.all(`SELECT * FROM User WHERE Email='${email}'`, (err: Error, rows: any) => {
+            if(rows.length > 0){
+                resolve(rows[0].Id);
+            }
+            else{
+                resolve(false);
+            }
         });
     });
    }

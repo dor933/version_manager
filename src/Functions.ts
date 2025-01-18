@@ -430,7 +430,7 @@ async function sendEmail({ subject, content, vendor_name, users_array }: { subje
 
         for(const mailbox of users_array){
 
-            if(new Date(mailbox.Last_Update).getTime() + mailbox.Unit_of_time * mailbox.Frequency * (mailbox.Frequency==='Hours'? 3600000 : mailbox.Frequency==='Days'? 86400000 : mailbox.Frequency==='Weeks'? 604800000 : mailbox.Frequency==='Months'? 2629746000 : 0) < new Date().getTime()){  
+            if( (subject.includes('End of Support Date Change:') || subject.includes('Version Changes Detected:')) || new Date(mailbox.Last_Update).getTime() + mailbox.Unit_of_time * mailbox.Frequency * (mailbox.Frequency==='Hours'? 3600000 : mailbox.Frequency==='Days'? 86400000 : mailbox.Frequency==='Weeks'? 604800000 : mailbox.Frequency==='Months'? 2629746000 : 0) < new Date().getTime()){  
 
                 const info = await transporter.sendMail({
                     from: process.env.USER_EMAIL,
