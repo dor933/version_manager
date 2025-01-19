@@ -392,11 +392,22 @@ class Database {
         });
         }
         catch(err:any){
+            try{
+            this.db.all(`SELECT * FROM User_Chosen_Products WHERE UserID='${userid}' AND ProductName='${product}' AND VendorName='${vendor}'`, (err: Error, rows: any) => {
+                if(rows.length > 0){
+                    resolve(true);
+                }
+                else{
+                    reject(false);
+                }
+            });
+        }
+        catch(err:any){
             reject(false);
         }
 
+    }
     });
-
    }
 
 

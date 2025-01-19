@@ -17,11 +17,13 @@ app.use((req, res, next) => {
 app.post('/api/subscribe', async (req, res) => {
   const { vendor, email , product, Unit_of_time, Frequency} = req.body;
 
+  let result:any;
+
   try{
 
   const existinguser= await db.CheckUserExists(email);
   if(!existinguser){  
-  await db.registerUser(email);
+  result= await db.registerUser(email);
   }
 
   const userid:any= await db.CheckUserExists(email);
@@ -29,20 +31,21 @@ app.post('/api/subscribe', async (req, res) => {
   if(vendor==='All Vendors'){
     let allproducts:any= await db.getProducts()
     for(let product of allproducts){
-      await db.subscribe(userid, product.ProductName, product.VendorName, Unit_of_time, Frequency);
+      result= await db.subscribe(userid, product.ProductName, product.VendorName, Unit_of_time, Frequency);
     }
   }
   else if(product==='All Products'){
     let allproducts:any= await db.getVersions(vendor);
     for(let product of allproducts){
-      await db.subscribe(userid, product.ProductName, product.VendorName, Unit_of_time,Frequency);
+      result= await db.subscribe(userid, product.ProductName, product.VendorName, Unit_of_time,Frequency);
     }
   }
 
   else{
-    await db.subscribe(userid, product, vendor, Unit_of_time, Frequency);
+    result= await db.subscribe(userid, product, vendor, Unit_of_time, Frequency);
   }
-  res.json({subscribe:true});
+  
+  res.json({subscribe:result});
   }
   catch(err:any){
     logger.error(err);
