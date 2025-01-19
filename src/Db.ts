@@ -5,7 +5,6 @@ import { DataStructure, VersionData, version_extracted} from './types';
 const path = require('path');
 const Data=require('../Data.json') as DataStructure;
 import { logger } from './index';
-import puppeteer from 'puppeteer';
 
 
 
@@ -57,6 +56,20 @@ class Database {
 
         let listoffortraversions:version_extracted[]=[]
         try{
+
+           await  this.createTable('User', ['Id INTEGER PRIMARY KEY AUTOINCREMENT', 'Email TEXT', 'Role TEXT']);
+
+            await this.createTable('User_Chosen_Products', [
+                'UserID INTEGER',
+                'ProductName TEXT',
+                'VendorName TEXT',
+                'Unit_of_time TEXT CHECK(Unit_of_time IN ("Days", "Months", "Hours"))',
+                'Interval_of_time INTEGER',
+                'Last_Update TEXT',
+                'PRIMARY KEY (UserID, ProductName, VendorName)',
+                'FOREIGN KEY (UserID) REFERENCES User(Id)',
+                'FOREIGN KEY (ProductName, VendorName) REFERENCES Product(ProductName, VendorName)'
+            ]);
 
 
         for (const vendor of Data.Vendors) {
@@ -383,32 +396,59 @@ class Database {
     });
    }
 
-   async subscribe(userid:string, product:string, vendor:string, Unit_of_time:string, Frequency:string){
+   async subscribe(userid:number, product:string, vendor:string, Unit_of_time:string, Frequency:string){
 
     return new Promise((resolve, reject) => {
         try{
-        this.db.run(`INSERT INTO User_Chosen_Products (UserID, ProductName, VendorName, Unit_of_time, Frequency, Last_Update) VALUES ("${userid}", "${product}", "${vendor}", "${Unit_of_time}", "${Frequency}", "${new Date().toISOString()}")`, (err: Error) => {
-            resolve(true);
-        });
-        }
-        catch(err:any){
-            try{
-            this.db.all(`SELECT * FROM User_Chosen_Products WHERE UserID='${userid}' AND ProductName='${product}' AND VendorName='${vendor}' AND (Unit_of_time <> '${Unit_of_time}' OR Frequency <> '${Frequency}')`, (err: Error, rows: any) => {
-                if(rows.length > 0){
+            // First check if record exists
+            const checkQuery = `SELECT COUNT(*) as count FROM User_Chosen_Products 
+                WHERE UserID = ? AND ProductName = ? AND VendorName = ? AND (Unit_of_time <> ? OR Frequency <> ?)`;
+
+            // Then do the insert with proper error handling
+            this.db.get(checkQuery, [userid, product, vendor, Unit_of_time, Frequency], (err: Error, row: any) => {
+                if (err) {
+                    logger.error('Error checking for existing subscription:', err);
+                    reject({ error: 'Database error', details: err });
+                    return;
+                }
+                
+                
+                if (row.count > 0) {
                     this.db.run(`UPDATE User_Chosen_Products SET Unit_of_time='${Unit_of_time}', Frequency='${Frequency}' WHERE UserID='${userid}' AND ProductName='${product}' AND VendorName='${vendor}'`, (err: Error) => {
-                        resolve(true);
+                        if(err){
+                            logger.error('Error updating subscription:', err);
+                            reject({ error: 'Database error', details: err });
+                        }
+                        else{
+                            resolve(true);
+                        }
                     });
                 }
+                
                 else{
-                    reject(false);
-                }
+
+                const insertQuery = `INSERT INTO User_Chosen_Products 
+                    (UserID, ProductName, VendorName, Unit_of_time, Frequency, Last_Update) 
+                    VALUES (?, ?, ?, ?, ?, ?)`;
+                    
+                this.db.run(insertQuery, 
+                    [userid, product, vendor, Unit_of_time, Frequency, new Date().toISOString()], 
+                    (err: Error) => {
+                        if (err) {
+                            logger.error('Error inserting subscription:', err);
+                            reject({ error: 'Database error', details: err });
+                            return;
+                        }
+                        resolve({ success: true, message: 'Subscription added' });
+                    }
+                );
+
+            }
             });
         }
         catch(err:any){
             reject(false);
         }
-
-    }
     });
    }
 
@@ -420,15 +460,23 @@ class Database {
 
     let query='';
 
-            query=`INSERT INTO User (Email, ${role && 'Role'} ) VALUES ("${email}", ${role ? role : null})`;   
+            query=`INSERT INTO User (Email ${role ? ',Role' : ''} ) VALUES ('${email}' ${role ? `,'${role}'` : ''})`;
+            console.log(query);
         
        
         return new Promise((resolve, reject) => {
 
             try{
-                this.db.run(query, () => {
+                this.db.run(query, (err: Error) => {
              
-                resolve(true);
+                if(err){
+                    console.error('Error registering user', err.message);
+                    reject(false);
+                }
+                else{
+                    console.log('User registered successfully');
+                    resolve(true);
+                }
             }) 
             }
             catch(err:any){
@@ -445,14 +493,14 @@ class Database {
     });
    }
 
-   async CheckUserExists(email:string){
+   async CheckUserExists(email:string):Promise<number> {
     return new Promise((resolve, reject) => {
         this.db.all(`SELECT * FROM User WHERE Email='${email}'`, (err: Error, rows: any) => {
             if(rows.length > 0){
-                resolve(rows[0].Id);
+                resolve(parseInt(rows[0].Id));
             }
             else{
-                resolve(false);
+                resolve(0);
             }
         });
     });

@@ -1,5 +1,0 @@
-{"error":{"code":"EDNS","command":"CONN","errno":-3008,"hostname":"mail.bulwarx.local","syscall":"getaddrinfo"},"level":"error","message":"Error sending email:","timestamp":"2025-01-17T20:53:16.427Z"}
-{"error":{"code":"EDNS","command":"CONN","errno":-3008,"hostname":"mail.bulwarx.local","syscall":"getaddrinfo"},"level":"error","message":"Error sending email:","timestamp":"2025-01-17T20:53:17.914Z"}
-{"error":{"code":"EDNS","command":"CONN","errno":-3008,"hostname":"mail.bulwarx.local","syscall":"getaddrinfo"},"level":"error","message":"Error sending email:","timestamp":"2025-01-17T20:53:18.465Z"}
-{"error":{"code":"EDNS","command":"CONN","errno":-3008,"hostname":"mail.bulwarx.local","syscall":"getaddrinfo"},"level":"error","message":"Error sending email:","timestamp":"2025-01-17T20:53:18.966Z"}
-{"error":{"code":"EDNS","command":"CONN","errno":-3008,"hostname":"mail.bulwarx.local","syscall":"getaddrinfo"},"level":"error","message":"Error sending email:","timestamp":"2025-01-17T20:53:19.768Z"}
