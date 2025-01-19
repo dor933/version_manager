@@ -85,12 +85,12 @@
                     "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fmddownloader%2Frelease-notes"
                 },
                 {
-                    "ProductName": "Metadefender Endpoint",
+                    "ProductName": "Metadefender_Endpoint",
                     "ProductId": 14,
                     "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fmdendpoint%2Frelease-notes"
                 },
                 {
-                    "ProductName": "Cloud Secuirty For Salesforce",
+                    "ProductName": "Cloud_Secuirty_For_Salesforce",
                     "ProductId": 15,
                     "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fcsfs%2Frelease-notes"
                 },

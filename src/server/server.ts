@@ -23,10 +23,12 @@ app.post('/api/subscribe', async (req, res) => {
 
   const existinguser= await db.CheckUserExists(email);
   if(!existinguser){  
-  result= await db.registerUser(email);
+    console.log('User not found, registering user');
+    result= await db.registerUser(email);
+
   }
 
-  const userid:any= await db.CheckUserExists(email);
+  const userid:number= await db.CheckUserExists(email);
 
   if(vendor==='All Vendors'){
     let allproducts:any= await db.getProducts()
@@ -42,7 +44,7 @@ app.post('/api/subscribe', async (req, res) => {
   }
 
   else{
-    result= await db.subscribe(userid, product, vendor, Unit_of_time, Frequency);
+    result= await db.subscribe(userid , product, vendor, Unit_of_time, Frequency);
   }
   
   res.json({subscribe:result});
