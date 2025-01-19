@@ -12,7 +12,6 @@ import axios from 'axios';
 import Report from './Report';
 import CheckIcon from '@mui/icons-material/Check';
 import ErrorIcon from '@mui/icons-material/Error';
-import { Dialog, DialogContent } from '@mui/material';
 import Notification from './Notification';
 import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
 import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined';
@@ -23,7 +22,7 @@ export default function Home() {
 
   
   
-  const { versions, setVersions, opendialog, setOpenDialog } = useAuth();
+  const { versions, setVersions, setOpenDialog } = useAuth();
 
 const drawerWidth = 240;
 const [open, setOpen] = React.useState(false);

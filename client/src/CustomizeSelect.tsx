@@ -1,10 +1,8 @@
 import * as React from 'react';
 import { styled } from '@mui/material/styles';
-import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
-import NativeSelect from '@mui/material/NativeSelect';
 import InputBase from '@mui/material/InputBase';
 
 const BootstrapInput = styled(InputBase)(({ theme }) => ({
@@ -45,17 +43,18 @@ interface CustomizedSelectsProps {
   label: string;
   value: string;
   setVendor: (value: string) => void;
+  style: React.CSSProperties;
 }
 
-const CustomizedSelects: React.FC<CustomizedSelectsProps> = ({options, label, value, setVendor}) => {
+const CustomizedSelects: React.FC<CustomizedSelectsProps> = ({options, label, value, setVendor, style}) => {
 
   return (
     <div>
       
-      <FormControl sx={{ width:'180px', marginTop:'5px' }} variant="standard">
+      <FormControl sx={style} variant="standard">
         <Select
-          labelId="demo-customized-select-label"
-          id="demo-customized-select"
+          labelId="custom-select-label"
+          id="custom-select"
           value={value}
           onChange={(e) => setVendor(e.target.value)}
           input={<BootstrapInput />}
@@ -67,7 +66,7 @@ const CustomizedSelects: React.FC<CustomizedSelectsProps> = ({options, label, va
             return selected;
           }}
         >
-          <MenuItem value="">
+            <MenuItem value="">
             <em>All</em>
           </MenuItem>
           {options.map((option: string) => (

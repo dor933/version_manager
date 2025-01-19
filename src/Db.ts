@@ -60,8 +60,6 @@ class Database {
 
 
         for (const vendor of Data.Vendors) {
-            let mailboxes= await this.GetMailBoxes(vendor.VendorName);
-            console.log('mailboxes', mailboxes);
 
             if(vendor.VendorName==='Fortra'){
                 listoffortraversions=await extract_fortra_versions_to_json(vendor.JSON_URL!);
@@ -74,6 +72,8 @@ class Database {
          
 
             for(const product of vendor.Products){
+
+
 
 
                 await this.createTable('Product', [
@@ -126,6 +126,7 @@ class Database {
 
                 for(const version of listofversions){
                     
+                    let UsersArray= await this.GetUsersArray(product.ProductName, vendor.VendorName, version[0]);
                    
 
                     let ReleaseDate_DateTime = parseDate(version[1]!);
@@ -162,7 +163,7 @@ class Database {
                             Version.EOSL_Start_Date? Version.EOSL_Start_Date.toISOString() : 'NULL'
                         ] , 
                         Version,
-                        mailboxes
+                        UsersArray
                     );
 
 
@@ -175,7 +176,7 @@ class Database {
                              daysUntilExtendedEOS= Math.ceil((ExtendedEndOfSupportDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
                         }
                         if((daysUntilEOS <= 30 && daysUntilEOS >= 0) || daysUntilExtendedEOS && daysUntilExtendedEOS <14){
-                         notify_on_end_of_support(Version, daysUntilEOS, daysUntilExtendedEOS && daysUntilExtendedEOS, mailboxes);
+                         notify_on_end_of_support(Version, daysUntilEOS, daysUntilExtendedEOS && daysUntilExtendedEOS, UsersArray);
                         }
                     }
                 }
@@ -228,7 +229,7 @@ class Database {
         });
     }
 
-    async insertData(table: string, columns: string[], values: string[], versionData?: VersionData, mailboxes?: any) {
+    async insertData(table: string, columns: string[], values: string[], versionData?: VersionData, UsersArrayes?: any) {
         
 
 
@@ -264,7 +265,7 @@ class Database {
                             }
                             else if(rows[0]?.EndOfSupportDate !== values[4]){
                                 this.UpdateRecord(table, ['EndOfSupportDate'], [values[4]], 'VersionName', rows[0].VersionName);
-                                notify_on_end_of_support_changes(rows[0].ProductName, rows[0].VendorName, rows[0].VersionName, EndOfSupportDate_DateTime? EndOfSupportDate_DateTime : undefined, EndOfSupportDate_DateTime_new? EndOfSupportDate_DateTime_new : undefined, mailboxes);   
+                                notify_on_end_of_support_changes(rows[0].ProductName, rows[0].VendorName, rows[0].VersionName, EndOfSupportDate_DateTime? EndOfSupportDate_DateTime : undefined, EndOfSupportDate_DateTime_new? EndOfSupportDate_DateTime_new : undefined, UsersArrayes);   
                                 resolve(false);
                             }
 
@@ -289,7 +290,7 @@ class Database {
                             } else {
                                 if(table === 'Version'){
                               
-                                    notify_new_version(versionData!, mailboxes);
+                                    notify_new_version(versionData!, UsersArrayes);
                                 }
                                 resolve(true);
                             }
@@ -330,45 +331,96 @@ class Database {
     }
    }
 
-   async getVersions(){
+   async getVersions(vendor?:string, product?:string, version?:string){
     return new Promise((resolve, reject) => {
-        this.db.all(`SELECT * FROM Version`, (err: Error, rows: any) => {
+        this.db.all(`SELECT * FROM Version ${vendor ? `WHERE VendorName='${vendor}'` : ''} ${product ? ` AND ProductName='${product}'` : ''} ${version ? ` AND VersionName='${version}'` : ''}`, (err: Error, rows: any) => {
             resolve(rows);
         });
     });
     
    }
 
-   async GetMailBoxes(vendor:string){
-
-    let field= vendor === 'Fortra' ? 'Fortra_Notifications' : 'OPSW_Notifications';
-
+   async getProducts(vendor?:string, product?:string){
     return new Promise((resolve, reject) => {
-        this.db.all(`SELECT Email FROM User WHERE ${field}=1`, (err: Error, rows: any) => {
-
-            let mails= rows.map((row:any)=>row.Email).join(',');
-            console.log('mails', mails);
-            resolve(mails);
+        this.db.all(`SELECT * FROM Product ${vendor ? `WHERE VendorName='${vendor}'` : ''} ${product ? ` AND ProductName='${product}'` : ''}`, (err: Error, rows: any) => {
+            resolve(rows);
         });
     });
    }
 
-   async subscribe(vendor:string, email:string){
+   async GetUsersArray(product:string, vendor:string,version:string){
+
+    
+
+    return new Promise((resolve, reject) => {
+        try{
+            let query= `SELECT U.Email,UC.Last_Update, UC.Unit_of_time, UC.Frequency FROM User_Chosen_Products UC INNER JOIN User U ON UC.UserID=U.Id WHERE UC.ProductName='${product}' AND UC.VendorName='${vendor}'`;
+        this.db.all(query, (err: Error, rows: any) => {
+
+           if(err){
+            logger.error('Error getting users array', err.message);
+            reject(err);
+           }
+
+           console.log(rows);
+            let users_to_update= rows.map((row:any)=>{
+                return {
+                    Email: row.Email,
+                    Last_Update: row.Last_Update,
+                    Unit_of_time: row.Unit_of_time,
+                    Frequency: row.Frequency,
+                    UserID: row.UserID
+                }
+            });
+            resolve(users_to_update);
+        });
+    }
+    catch(err:any){
+        console.error('Error getting users array', err.message);
+        logger.error('Error getting users array', err.message);
+        reject(err);
+    }
+    });
+   }
+
+   async subscribe(userid:string, product:string, vendor:string, Unit_of_time:string, Frequency:string){
+
+    return new Promise((resolve, reject) => {
+        try{
+        this.db.run(`INSERT INTO User_Chosen_Products (UserID, ProductName, VendorName, Unit_of_time, Frequency, Last_Update) VALUES ("${userid}", "${product}", "${vendor}", "${Unit_of_time}", "${Frequency}", "${new Date().toISOString()}")`, (err: Error) => {
+            resolve(true);
+        });
+        }
+        catch(err:any){
+            try{
+            this.db.all(`SELECT * FROM User_Chosen_Products WHERE UserID='${userid}' AND ProductName='${product}' AND VendorName='${vendor}'`, (err: Error, rows: any) => {
+                if(rows.length > 0){
+                    resolve(true);
+                }
+                else{
+                    reject(false);
+                }
+            });
+        }
+        catch(err:any){
+            reject(false);
+        }
+
+    }
+    });
+   }
 
 
 
-    let field= vendor === 'Fortra' ? 'Fortra_Notifications' : vendor==='OPSWAT' ? 'OPSW_Notifications' : 'All';
-    let field_to_0= vendor==='Fortra' ? 'OPSW_Notifications' : 'Fortra_Notifications';
+
+   async registerUser( email:string,role?:string){
+
 
     let query='';
 
-        if(field==='All'){
-            query=`INSERT INTO User (Email, Fortra_Notifications, OPSW_Notifications) VALUES ("${email}", 1, 1)`;   
-        }
-        else{
-            query=`INSERT INTO User (Email, ${field}, ${field_to_0}) VALUES ("${email}", 1, 0)`;
-            console.log('query', query);
-        }
+            query=`INSERT INTO User (Email, ${role && 'Role'} ) VALUES ("${email}", ${role ? role : null})`;   
+        
+       
         return new Promise((resolve, reject) => {
 
             try{
@@ -383,10 +435,23 @@ class Database {
         });
     }
 
-   async checkUser(email:string){
+   async checkUserSubscription( product:string, vendor:string){
     return new Promise((resolve, reject) => {
-        this.db.all(`SELECT * FROM User WHERE Email = '${email}'`, (err: Error, rows: any) => {
+        this.db.all(`SELECT * FROM User U INNER JOIN User_Chosen_Products UC ON UC.UserID=U.Id WHERE UC.ProductName='${product}' AND UC.VendorName='${vendor}'`, (err: Error, rows: any) => {
             resolve(rows.length > 0);
+        });
+    });
+   }
+
+   async CheckUserExists(email:string){
+    return new Promise((resolve, reject) => {
+        this.db.all(`SELECT * FROM User WHERE Email='${email}'`, (err: Error, rows: any) => {
+            if(rows.length > 0){
+                resolve(rows[0].Id);
+            }
+            else{
+                resolve(false);
+            }
         });
     });
    }

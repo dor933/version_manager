@@ -4,11 +4,10 @@ import nodemailer from 'nodemailer';
 import { VersionData } from './types';
 import { createEmailTemplate } from './emailTemplate';
 import { Type1Products, Type2Products, version_extracted } from './types';
-import { logger,isinit } from './index';
-import { Version } from './Classes';
+import { isinit, logger } from './index';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
-import fs from 'fs';
+import { db } from './index';
 
 
 let identifier=0;
@@ -57,7 +56,7 @@ function parseDate(dateStr: string): Date | null {
     return null;
 }
 
-async function notify_on_end_of_support(versionData: VersionData , daysUntilEOS: number, daysUntilExtendedEOS?:number, mailboxes?: any) {
+async function notify_on_end_of_support(versionData: VersionData , daysUntilEOS: number, daysUntilExtendedEOS?:number, users_array?: any) {
     const product = versionData.ProductName;
     const version = versionData.VersionName;
     
@@ -127,7 +126,7 @@ async function notify_on_end_of_support(versionData: VersionData , daysUntilEOS:
         subject: `End of Support Alert: ${product} ${version}`,
         content: emailBody,
         vendor_name: versionData.VendorName,
-        to: mailboxes
+        users_array: users_array
     });
 }
 catch(error){
@@ -148,11 +147,7 @@ async function extract_fortra_versions_to_json(json_url:string):Promise<any> {
     try{
         const $= cheerio.load(listofVersions);
         let listoftd= $('td');
-        //write the listoftd to a file
-        fs.writeFileSync('listoftd.txt', listoftd.toString());
         
-    
-
 
     let listofVersions_ret:any={
 
@@ -203,13 +198,13 @@ async function extract_fortra_versions_to_json(json_url:string):Promise<any> {
     return listofVersions_ret;
 }
     catch(error){
-        console.error('error',error);
+        logger.error('error extracting fortra versions to json', error);
         return []
     }
 
 }
 
-async function notify_on_end_of_support_changes(product: string, vendor: string, version: string, oldDate?: Date, newDate?: Date, mailboxes?: any) {
+async function notify_on_end_of_support_changes(product: string, vendor: string, version: string, oldDate?: Date, newDate?: Date, users_array?: any) {
 
 
     const emailBody =
@@ -235,7 +230,7 @@ async function notify_on_end_of_support_changes(product: string, vendor: string,
             subject: `End of Support Date Change: ${product} ${version}`,
             content: emailBody,
             vendor_name: vendor,
-            to: mailboxes
+            users_array: users_array
         });
     }
     catch(error){
@@ -279,7 +274,6 @@ async function extract_JSON_URL(url:string){
             
         }
     }
-    console.log('identifier number of times relevant page was found', identifier);
 
     const concated_indexes:string[]= arrayofpages.map((element:any)=> element.id);
     return concated_indexes;
@@ -380,7 +374,7 @@ function isType1Product(productName: string): productName is Type1Products {
     return ['Metadefender_Core', 'OCMv7', 'Metadefender_Kiosk', 'Metadefender_Vault', 'Metadefender_Gateway_Email_Security', 'Metadefender_Icap_Server', 'Metadefender_MFT', 'Metadefender_Cloud'].includes(productName);
 }
 
-async function notify_new_version(newVersion: VersionData, mailboxes?: any) {
+async function notify_new_version(newVersion: VersionData, users_array?: any) {
     
     // Compare relevant fields
     
@@ -404,7 +398,7 @@ async function notify_new_version(newVersion: VersionData, mailboxes?: any) {
             subject: `Version Changes Detected: ${newVersion.ProductName}`,
             content: emailBody,
             vendor_name: newVersion.VendorName,
-            to: mailboxes
+            users_array: users_array
         });
     }
     catch(error){
@@ -413,13 +407,13 @@ async function notify_new_version(newVersion: VersionData, mailboxes?: any) {
     
 }
 
-async function sendEmail({ subject, content, vendor_name, to }: { subject: string, content: any, vendor_name:string, to?: string}) {
+async function sendEmail({ subject, content, vendor_name, users_array }: { subject: string, content: any, vendor_name:string, users_array?: any}) {
 
-    if(to===undefined || to==='' || isinit===true){
+    if(users_array===undefined || users_array==='' || isinit===true){
         return
     }
 
-    console.log('to', to);
+    console.log('users_array', users_array);
 
     const transporter = nodemailer.createTransport({
         host: "mail.bulwarx.local", // Exchange server address
@@ -433,17 +427,30 @@ async function sendEmail({ subject, content, vendor_name, to }: { subject: strin
     });
 
     try {
-        const info = await transporter.sendMail({
-            from: process.env.USER_EMAIL,
-            to: to,
-            subject: subject,
-            html: createEmailTemplate(content, vendor_name)
+
+        for(const mailbox of users_array){
+
+            if( (subject.includes('End of Support Date Change:') || subject.includes('Version Changes Detected:')) || new Date(mailbox.Last_Update).getTime() + mailbox.Unit_of_time * mailbox.Frequency * (mailbox.Frequency==='Hours'? 3600000 : mailbox.Frequency==='Days'? 86400000 : mailbox.Frequency==='Weeks'? 604800000 : mailbox.Frequency==='Months'? 2629746000 : 0) < new Date().getTime()){  
+
+                const info = await transporter.sendMail({
+                    from: process.env.USER_EMAIL,
+                    to: mailbox.Email,
+                    subject: subject,
+                    html: createEmailTemplate(content, vendor_name)
             
         });
 
+
         console.log('Email sent:', info.messageId);
+        logger.info('Email sent:', { info });
         return info;
-    } catch (error) {
+    }
+    else{
+        logger.info('Email not sent (last update is not old enough):', { mailbox });
+    }
+    }
+    }
+    catch (error) {
         console.error('Error sending email:', error);
         throw error;
     }
