@@ -19,7 +19,7 @@ const emailSchema = z.string().email();
 
 const customTextFieldStyle = {
   '& .MuiOutlinedInput-root': {
-    height: '50px',
+    height: '53.5px',
     fontFamily: 'Kumbh Sans',
     '& fieldset': {
       borderColor: '#E0E0E0',
