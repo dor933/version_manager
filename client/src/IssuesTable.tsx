@@ -13,7 +13,7 @@ interface IssuesTableProps {
   }
 
   interface Column {
-    id: 'VersionName' | 'ProductName' | 'VendorName' | 'Issue Description' | 'Issue Type' | 'Issue Status' | 'Issue Date' | 'Issue Resolution' 
+    id: 'VersionName' | 'Issue Description' | 'Photos' | 'Issue Type' | 'Issue Status' | 'Issue Date' | 'Issue Resolution' 
     label: string;
     minWidth?: number;
     align?: 'right' | 'left';
@@ -25,15 +25,7 @@ interface IssuesTableProps {
 
   const columns: readonly Column[] = [
     { id: 'VersionName', label: 'Version Name', minWidth: 140, format_product: (value: string) => value.replace(/_/g, ' ') },
-    { id: 'ProductName', label: 'Product Name', minWidth: 100, format_product: (value: string) => value.replace(/_/g, ' ') },
-    {
-      id: 'VendorName',
-      label: 'Vendor Name',
-      minWidth: 100,
-      
-      align: 'left',
-      format_product: (value: string) => value
-    },
+
     {
       id: 'Issue Description',
       label: 'Issue Description',
@@ -62,6 +54,21 @@ interface IssuesTableProps {
       align: 'right',
       format_date: (value: Date) => value.toLocaleString('he-IL').split(',')[0]
     },
+    {
+      id: 'Issue Resolution',
+      label: 'Issue Resolution',
+      minWidth: 140,
+      align: 'right',
+      format_product: (value: string) => value
+    },
+
+    {
+        id:'Photos',
+        label:'Photos',
+        minWidth:140,
+        align:'right',
+        format_product: (value: string) => value
+    }
   
   
   
