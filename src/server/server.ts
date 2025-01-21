@@ -37,7 +37,7 @@ app.post('/api/subscribe', async (req, res) => {
     }
   }
   else if(product==='All Products'){
-    let allproducts:any= await db.getVersions(vendor);
+    let allproducts:any= await db.getProducts(vendor);
     for(let product of allproducts){
       result= await db.subscribe(userid, product.ProductName, product.VendorName, Unit_of_time,Frequency);
     }
