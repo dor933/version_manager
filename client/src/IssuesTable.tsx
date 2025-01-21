@@ -13,7 +13,7 @@ interface IssuesTableProps {
   }
 
   interface Column {
-    id: 'VersionName' | 'Issue Description' | 'Photos' | 'Issue Type' | 'Issue Status' | 'Issue Date' | 'Issue Resolution' 
+    id: 'VersionName' | 'Issue Description' | 'Photos' | 'Issue Severity' | 'Issue Status' | 'Issue Date' | 'Issue Resolution' 
     label: string;
     minWidth?: number;
     align?: 'right' | 'left';
@@ -28,36 +28,30 @@ interface IssuesTableProps {
 
     {
       id: 'Issue Description',
-      label: 'Issue Description',
-      minWidth: 100,
+      label: 'Description',
+      minWidth: 140,
       align: 'right',
       format_product: (value: string) => value
     },
+
     {
-      id:'Issue Type',
-      label:'Issue Type',
-      minWidth:100,
-      align:'right',
-      format_product: (value: string) => value
-    },
-    {
-      id: 'Issue Status',
-          label: 'Issue Status',
-      minWidth: 100,
+      id: 'Issue Severity',
+          label: 'Severity',
+      minWidth: 140,
       align: 'right',
       format_product: (value: string) => value
     },
     {
       id: 'Issue Date',
-          label: 'Issue Date',
-      minWidth: 100,
+          label: 'Date',
+      minWidth: 140,
       align: 'right',
       format_date: (value: Date) => value.toLocaleString('he-IL').split(',')[0]
     },
     {
       id: 'Issue Resolution',
-      label: 'Issue Resolution',
-      minWidth: 100,
+      label: 'Resolution',
+      minWidth: 140,
       align: 'right',
       format_product: (value: string) => value
     },

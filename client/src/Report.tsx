@@ -8,6 +8,8 @@ import { useAuth } from './UseContext/MainAuth';
 import { Box, FormControl, Grid, InputLabel, MenuItem, Select, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 
+const severities = ['Low', 'Medium', 'High','Urgent'];
+
 interface ReportProps {
     versions: any;
 }
@@ -24,8 +26,9 @@ export default function FormDialog({versions}: ReportProps) {
   const [isversiondisabled, setIsVersionDisabled] = useState(true);
   const [fullName, setFullName] = useState('');
   const [rule, setRule] = useState('');
+  const [severity, setSeverity] = useState('');
   const [issueDescription, setIssueDescription] = useState('');
-
+  
   useEffect(() => {
 
     const distinctProducts: any = [...new Set(versions.filter((version: any) => version.VendorName === vendor).map((version: any) => version.ProductName))];
@@ -85,13 +88,12 @@ export default function FormDialog({versions}: ReportProps) {
         <DialogContent>
             <Box sx={{display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'column', paddingLeft:'100px', paddingRight:'100px', paddingTop:'100px', paddingBottom:'100px',}}>
             <Grid container style={{display:'flex', justifyContent:'flex-start', alignItems:'center', flexDirection:'row'}}>
-                <Grid item xs={4}>
-                    <Typography sx={{fontSize:'32px', fontWeight:'600', lineHeight:'28px', letterSpacing:'0.2px', textAlign:'left', fontFamily:'Kumbh Sans', color:'#4F4F4F'}}>Report Issue</Typography>
-
-                    <Typography sx={{fontSize:'14px', marginTop:'10px', fontWeight:'400', lineHeight:'28px', letterSpacing:'0.2px', textAlign:'left', fontFamily:'Kumbh Sans', color:'#4F4F4F'}}>Will be applicable soon</Typography>
+                <Grid container item xs={4} sx={{display:'flex', justifyContent:'flex-start', alignItems:'center', flexDirection:'row'}}>
+                    <Typography sx={{fontSize:'32px', fontWeight:'600', lineHeight:'28px',marginTop:'-30px' , letterSpacing:'0.2px', textAlign:'left', fontFamily:'Kumbh Sans', color:'#4F4F4F'}}>Report Issue</Typography>
+          
 
                 </Grid>
-                <Grid item xs={8} style={{display:'flex', justifyContent:'flex-end', alignItems:'center', flexDirection:'row'}}>
+                <Grid container item xs={8} style={{display:'flex', justifyContent:'flex-end', alignItems:'center', flexDirection:'row'}}>
                     <FormControl sx={{ display:'flex', justifyContent:'flex-end', alignItems:'center', flexDirection:'row', width: '50%'}}>
                         <InputLabel id="vendor-label">Vendor</InputLabel>
                         <Select 
@@ -114,6 +116,8 @@ export default function FormDialog({versions}: ReportProps) {
             </Grid>
             <Grid container style={{display:'flex', justifyContent:'flex-start', alignItems:'center', flexDirection:'row', marginTop:'20px'}}>
                 <Grid item xs={4}>
+                <Button variant="contained" color="primary" sx={{width:'100%', fontFamily:'Kumbh Sans', fontWeight:'500', fontSize:'14px', color:'#FFFFFF'}}>Upload Photos (Soon)</Button>
+
 
                 </Grid>
                 <Grid item xs={8} style={{display:'flex', justifyContent:'flex-end', alignItems:'center', flexDirection:'row'}}>
@@ -139,6 +143,23 @@ export default function FormDialog({versions}: ReportProps) {
             </Grid>
             <Grid container style={{display:'flex', justifyContent:'flex-start', alignItems:'center', flexDirection:'row', marginTop:'20px'}}>
                 <Grid item xs={4}>
+                <FormControl sx={{ display:'flex', justifyContent:'flex-end', alignItems:'center', flexDirection:'row', width: '50%'}}>
+                    <InputLabel id="Severity-label">Severity</InputLabel>
+                    <Select 
+                        labelId="Severity-label"
+                        label="Severity"
+                        value={severity}
+                        sx={{width:'100%', fontFamily:'Kumbh Sans', fontWeight:'500', fontSize:'14px', color:'#152259'}}
+                        required
+                        onChange={(e) => setSeverity(e.target.value)}
+                    >
+                        {
+                          severities.map((severity) => (
+                            <MenuItem value={severity}>{severity}</MenuItem>
+                          ))
+                        }
+                    </Select>
+                  </FormControl>
 
                 </Grid>
                 <Grid item xs={8} style={{display:'flex', justifyContent:'flex-end', alignItems:'center', flexDirection:'row'}}>
