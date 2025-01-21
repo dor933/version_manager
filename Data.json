@@ -10,104 +10,146 @@
                     "ProductName": "Metadefender_Core",
                     "ProductId": 1,
                     "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fmdcore%2Fknowledge-base",
-                    "BASE_URL": "https://api.developerhub.io/api/public/page/"
+                    "BASE_URL": "https://api.developerhub.io/api/public/page/",
+                    "modules":[],
+                    "issues":[]
 
                 },
                 {
                     "ProductName": "OCMv7",
                     "ProductId": 2,
                     "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Focm%2Fknowledgebase%2Fhow-long-is-the-support-lifecycle-for-a-specific-version-of-ocmv",
-                    "BASE_URL": "https://api.developerhub.io/api/public/page/"
+                    "BASE_URL": "https://api.developerhub.io/api/public/page/",
+                    "modules":[],
+                    "issues":[]
                 },
                 {
                     "ProductName": "Metadefender_Kiosk",
                     "ProductId": 3,
                     "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fmdkiosk%2Fknowledge-base",
-                    "BASE_URL": "https://api.developerhub.io/api/public/page/"
+                    "BASE_URL": "https://api.developerhub.io/api/public/page/",
+                    "modules":[],
+                    "issues":[]
                 },
                 {
                     "ProductName": "Metadefender_Vault",
                     "ProductId": 4,
                     "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fmdmft%2Fknowledge-base%2Fhow-long-is-the-support-lifecycle-for-a-specific-version-of-meta",
-                    "BASE_URL": "https://api.developerhub.io/api/public/page/"
+                    "BASE_URL": "https://api.developerhub.io/api/public/page/",
+                    "modules":[],
+                    "issues":[]
 
                 },
                 {
                     "ProductName": "Metadefender_Gateway_Email_Security",
                     "ProductId": 5,
                     "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fmdemail%2Fknowledge-base%2Fhow-long-is-the-support-life-cycle-for-a-specific-version-releas",
-                    "BASE_URL": "https://api.developerhub.io/api/public/page/"
+                    "BASE_URL": "https://api.developerhub.io/api/public/page/",
+                    "modules":[],
+                    "issues":[]
 
                 },
                 {
                     "ProductName": "Metadefender_Icap_Server",
                     "ProductId": 6,
                     "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fmdicap%2Fknowledge-base%2Fhow-long-is-the-support-life-cycle-for-a-specific-version-releas",
-                    "BASE_URL": "https://api.developerhub.io/api/public/page/"
+                    "BASE_URL": "https://api.developerhub.io/api/public/page/",
+                    "modules":[],
+                    "issues":[]
 
                 },
                 {
                     "ProductName": "Metadefender_MFT",
                     "ProductId": 7,
                     "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fmdmft%2Fknowledge-base%2Fhow-long-is-the-support-lifecycle-for-a-specific-version-of-meta",
-                    "BASE_URL": "https://api.developerhub.io/api/public/page/"
+                    "BASE_URL": "https://api.developerhub.io/api/public/page/",
+                    "modules":[],
+                    "issues":[]
 
                 },
           
                 {
                     "ProductName": "Metadefender_Sandbox",
                     "ProductId": 8,
-                    "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Ffilescan%2Frelease-notes"
+                    "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Ffilescan%2Frelease-notes",
+                    "modules":[],
+                    "issues":[]
+
                 },
                 {
                     "ProductName": "Metadefender_Cloud_Email_Security",
                     "ProductId": 9,
-                    "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fmdces%2Frelease-notes"
+                    "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fmdces%2Frelease-notes",
+                    "modules":[],
+                    "issues":[]
+
                 },
                         {
                     "ProductName": "Metadefender_Drive",
                     "ProductId": 10,
-                    "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fmddrive%2Frelease-notes"
+                    "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fmddrive%2Frelease-notes",
+                    "modules":[],
+                    "issues":[]
+
                 },
                 {
                     "ProductName": "Metadefender_Kiosk_Linux",
                     "ProductId": 11,
-                    "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fmdkiosk-linux%2Frelease-notes"
+                    "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fmdkiosk-linux%2Frelease-notes",
+                    "modules":[],
+                    "issues":[]
+
                 },
                 {
                     "ProductName": "Metadefender_Storage_Secuitry",
                     "ProductId": 12,
-                    "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fmdss%2Frelease-notes"
+                    "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fmdss%2Frelease-notes",
+                    "modules":[],
+                    "issues":[]
+
                 },
                 {
                     "ProductName": "Metadefender_Update_Downloader",
                     "ProductId": 13,
-                    "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fmddownloader%2Frelease-notes"
+                    "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fmddownloader%2Frelease-notes",
+                    "modules":[],
+                    "issues":[]
+
                 },
                 {
                     "ProductName": "Metadefender_Endpoint",
                     "ProductId": 14,
-                    "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fmdendpoint%2Frelease-notes"
+                    "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fmdendpoint%2Frelease-notes",
+                    "modules":[],
+                    "issues":[]
                 },
                 {
                     "ProductName": "Cloud_Secuirty_For_Salesforce",
                     "ProductId": 15,
-                    "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fcsfs%2Frelease-notes"
+                    "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fcsfs%2Frelease-notes",
+                    "modules":[],
+                    "issues":[]
                 },
                 {
                     "ProductName": "Metadefender_Secuirty_Gateway",
                     "ProductId": 16,
-                    "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fnetwall%2Frelease-notes"
+                    "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fnetwall%2Frelease-notes",
+                    "modules":[],
+                    "issues":[]
                 },
                 {
                     "ProductName": "Metadefender_Software_Supply_Chain",
                     "ProductId": 17,
-                    "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fsupply-chain%2Frelease-notes"
+                    "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fsupply-chain%2Frelease-notes",
+                    "modules":[],
+                    "issues":[]
                 },
                 {
                     "ProductName": "Metadefender_Central_Management",
                     "ProductId": 18,
-                    "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Focm%2Fknowledgebase"
+                    "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Focm%2Fknowledgebase",
+                    "modules":[],
+                    "issues":[]
                 }
 
             ] 
@@ -123,18 +165,24 @@
             "Products": [ 
                 {
                     "ProductName": "Goanywhere_MFT",
-                    "ProductId": 1
+                    "ProductId": 1,
+                    "modules":["Workflows","Secure Mail","Web Portal","SFTP","Secure Folders"],
+                    "issues":[]
                     
                 } ,
 
                 {
                     "ProductName": "Goanywhere_Gateway",
-                    "ProductId": 2
+                    "ProductId": 2,
+                    "modules":[],
+                    "issues":[]
                  
                 },
                 {
                     "ProductName": "Goanywhere_Agent",
-                    "ProductId": 3
+                    "ProductId": 3,
+                    "modules":[],
+                    "issues":[]
                     
                 }
 

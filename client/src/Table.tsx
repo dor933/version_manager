@@ -13,7 +13,9 @@ import Filter from './Filter';
 import CustomizedSelects from './CustomizeSelect';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-
+import { useAuth } from './UseContext/MainAuth';
+import CustomButton from './Button';
+import Issues from './Issues';
 console.log('rendered table')
 
 
@@ -77,14 +79,15 @@ const columns: readonly Column[] = [
 
 
 
-export default function StickyHeadTable({versions, distinctVendors, setDistinctVendors }: {versions: any[], distinctVendors: any[], setDistinctVendors: any}) {
+export default function StickyHeadTable({versions, distinctVendors, productsandmodules }: {versions: any[], distinctVendors: any[], productsandmodules: any[]}) {
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [filteredVersions, setFilteredVersions] = React.useState(versions);
   const [searchvalue, setSearchvalue] = React.useState('');
   const [chosenversion, setChosenversion] = React.useState<any>(versions? versions[0]: null);
   const [vendor, setVendor] = React.useState('');
   const [page, setPage] = React.useState(0);
-
+  const [issuesdialog, setIssuesDialog] = React.useState(false);
+  const [chosenproduct, setChosenProduct] = React.useState<any>(null);
 
   const prevVendorRef = React.useRef(vendor);
   const prevSearchRef = React.useRef(searchvalue);
@@ -123,6 +126,7 @@ export default function StickyHeadTable({versions, distinctVendors, setDistinctV
       let filtered_versions= versions.sort((a: any, b: any) => new Date(b.ReleaseDate).getTime() - new Date(a.ReleaseDate).getTime());  
       setFilteredVersions(filtered_versions);
       setChosenversion(filtered_versions[0])
+      setChosenProduct(productsandmodules?.find((product: any) => product.ProductName === filtered_versions[0].ProductName))
     }
   }, [searchvalue, vendor, versions]);
   
@@ -136,11 +140,16 @@ useEffect(() => {
   prevSearchRef.current = searchvalue;
 }, [vendor, searchvalue]);
 
+
+
   
   const handleRowClick = (row: any) => {
 
     setChosenversion(row);
-  
+     const product = productsandmodules?.find((product: any) => product.ProductName === row.ProductName);
+     if(product){
+      setChosenProduct(product);
+     }
   } 
 
 
@@ -164,6 +173,8 @@ useEffect(() => {
 
   return (
     <>
+    <Issues chosenproduct={chosenproduct} issuesdialog={issuesdialog} setIssuesDialog={setIssuesDialog} chosenversion={chosenversion} />
+    
               <Grid container item xs={9} style={{display:'flex', justifyContent:'flex-start', alignItems:'center', flexDirection:'row'}}>
 
     <Grid container item xs={12} style={{display:'flex', justifyContent:'flex-start', alignItems:'center', flexDirection:'row', marginBottom:'30px'}}>
@@ -379,7 +390,7 @@ null
   
 }}>
 
-  <Grid item xs={4} style={{display:'flex', justifyContent:'flex-start', alignItems:'flex-start', flexDirection:'column', gap:'10px'}}>
+  <Grid item xs={4} style={{display:'flex', justifyContent:'flex-start', alignItems:'flex-start', flexDirection:'column', gap:'10px', minHeight:'60px'}}>
     <Typography style={{color:"#424242", fontSize:'14px', fontWeight:'500', lineHeight:'16px', letterSpacing:'0.2px', fontFamily:'Kumbh Sans'}}>
       Stability
     </Typography>
@@ -387,14 +398,14 @@ null
       {/* {chosenversion?.Stability || ''} */}
     </Typography>
   </Grid>
-  <Grid item xs={4} style={{display:'flex', justifyContent:'flex-start', alignItems:'flex-start', flexDirection:'column', gap:'10px'}}>
-    <Typography style={{color:"#424242", fontSize:'14px', fontWeight:'500', lineHeight:'16px', letterSpacing:'0.2px', fontFamily:'Kumbh Sans'}}>
+  <Grid item xs={4} style={{display:'flex', justifyContent:'flex-start', alignItems:'center', flexDirection:'column', gap:'10px', minHeight:'60px'}}>
+    <Typography style={{color:"#424242", fontSize:'14px', fontWeight:'500', lineHeight:'16px', letterSpacing:'0.2px', fontFamily:'Kumbh Sans', minHeight:'20px'}}>
     Issues 
     </Typography>
-    <Typography style={{color:"#A7A7A7", fontSize:'14px', fontWeight:'500', lineHeight:'16px', letterSpacing:'0.2px', fontFamily:'Kumbh Sans'}}>  
-      {/* {chosenversion?.KnownIssues || ''} */}
-    </Typography>
+    <CustomButton label="Show Issues" onClick={() => {setIssuesDialog(true); }}/>
+
   </Grid>
+  
 
 
 </Grid>
