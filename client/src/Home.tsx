@@ -35,6 +35,7 @@ const [openNotification, setOpenNotification] = React.useState(false);
 const [readnotifications, setReadnotifications] = React.useState<boolean>(false);
 const [versions_near_eosl, setVersionsNearEosl] = React.useState<any[]>([]);
 const [openSubscribe, setOpenSubscribe] = React.useState<boolean>(false);
+const [productsandmodules, setProductsAndModules] = React.useState<any>(null);
 
 
 useEffect(() => {
@@ -42,8 +43,8 @@ useEffect(() => {
     })
     .then(response => response.data)
     .then(data => {setVersions(data.versions)
-      console.log('data',data.versions_near_eosl)
-      
+      setProductsAndModules(data.productsandmodules)
+      console.log('productsandmodules', data.productsandmodules)
   })
     .catch(error => console.error('Error fetching versions:', error));
 
@@ -83,6 +84,7 @@ useEffect(() => {
 }, [versions]);
 
 
+
 const handleSync = async () => {
   setIsSyncing(true);
   const response = await axios.get('http://localhost:3001/api/sync');
@@ -118,6 +120,8 @@ const onCloseSubscribe = () => {
   setOpenSubscribe(false);
 }
 
+
+
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
   open?: boolean;
 }>(({ theme }) => ({
@@ -139,6 +143,8 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
         marginLeft: 0,
       },
     },
+
+
   ],
 }));
 
@@ -149,7 +155,6 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
     <Box sx={{ display: 'flex' }}>
 
 <Report versions={versions? versions: []}/>
-
       <DrawerComponent open={open} setOpen={setOpen}/>
 
       <Main open={open}>
@@ -227,7 +232,7 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
       
         <Grid container xs={12} style={{display:'flex', justifyContent:'flex-start', alignItems:'center', flexDirection:'row', paddingLeft:'80px'}}>
 
-            <Table versions={versions? versions: []}  distinctVendors={distinctVendors} setDistinctVendors={setDistinctVendors} />
+            <Table versions={versions? versions: []}  distinctVendors={distinctVendors} productsandmodules={productsandmodules} />
        
        </Grid>
       </Grid>

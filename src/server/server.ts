@@ -62,7 +62,20 @@ app.get('/', (req, res) => {
 
 app.get('/api/versions', async (req, res) => {
    const versions = await db.getVersions();
-   res.json({versions});
+   let products:any= await db.getProducts();
+   let productsandmodules:any= [];
+
+   for(let product of products){
+    let modules= await db.getmodules(product.ProductName, product.VendorName);
+    let issues= await db.getissues(product.ProductName, product.VendorName);
+    productsandmodules.push({ProductName: product.ProductName, modules: modules, issues: issues});
+   }
+
+   console.log('productsandmodules',productsandmodules);
+   
+
+
+   res.json({versions, productsandmodules});
 });
 
 app.get('/api/sync', async (req, res) => {

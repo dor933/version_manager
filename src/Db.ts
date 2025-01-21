@@ -71,6 +71,29 @@ class Database {
                 'FOREIGN KEY (ProductName, VendorName) REFERENCES Product(ProductName, VendorName)'
             ]);
 
+            await this.createTable( 'Vendor', ['VendorName TEXT PRIMARY KEY', 'contactInfo TEXT', 'WebsiteUrl TEXT']);
+            await this.createTable('Product', [
+                'ProductName TEXT',
+                'VendorName TEXT NOT NULL',
+                'JSON_URL TEXT',
+                'PRIMARY KEY (ProductName, VendorName)',
+                'FOREIGN KEY (VendorName) REFERENCES Vendor(VendorName)'
+            ]);
+            await this.createTable('Module', [ 'ModuleName TEXT', 'ProductName TEXT', 'VendorName TEXT', 'PRIMARY KEY (ModuleName, ProductName, VendorName)', 'FOREIGN KEY (ProductName, VendorName) REFERENCES Product(ProductName, VendorName)']);
+            await this.createTable('Issues', [
+                'IssueId INTEGER PRIMARY KEY AUTOINCREMENT',
+                'ModuleName TEXT',
+                'ProductName TEXT',
+                'VendorName TEXT',
+                'VersionName TEXT',
+                'Issue TEXT',
+                'FOREIGN KEY (ModuleName) REFERENCES Module(ModuleName)',
+                'FOREIGN KEY (ProductName, VendorName) REFERENCES Product(ProductName, VendorName)',
+                'FOREIGN KEY (VersionName) REFERENCES Version(VersionName)'
+            ]);
+           
+
+
 
         for (const vendor of Data.Vendors) {
 
@@ -79,7 +102,6 @@ class Database {
 
             }
 
-            await this.createTable( 'Vendor', ['VendorName TEXT PRIMARY KEY', 'contactInfo TEXT', 'WebsiteUrl TEXT']);
           await this.insertData('Vendor', ['VendorName', 'contactInfo', 'WebsiteUrl'], [ vendor.VendorName, vendor.contactInfo, vendor.WebsiteUrl]);
 
          
@@ -89,14 +111,14 @@ class Database {
 
 
 
-                await this.createTable('Product', [
-                    'ProductName TEXT',
-                    'VendorName TEXT NOT NULL',
-                    'JSON_URL TEXT',
-                    'PRIMARY KEY (ProductName, VendorName)',
-                    'FOREIGN KEY (VendorName) REFERENCES Vendor(VendorName)'
-                ]);
+            
                 await this.insertData('Product', [ 'ProductName', 'VendorName', 'JSON_URL'], [ product.ProductName, vendor.VendorName, product.JSON_URL!]);
+
+
+
+                for(const module of product?.modules || []){
+                    await this.insertData('Module', [ 'ModuleName', 'ProductName', 'VendorName'], [ module, product.ProductName, vendor.VendorName]);
+                }
 
                 let listofversions:version_extracted[]=[]
 
@@ -195,6 +217,8 @@ class Database {
                 }
             }
         }
+
+  
         logger.info('Successfully completed version check');
         return true;
     }
@@ -363,8 +387,6 @@ class Database {
 
    async GetUsersArray(product:string, vendor:string,version:string){
 
-    
-
     return new Promise((resolve, reject) => {
         try{
             let query= `SELECT U.Email,UC.Last_Update, UC.Unit_of_time, UC.Frequency FROM User_Chosen_Products UC INNER JOIN User U ON UC.UserID=U.Id WHERE UC.ProductName='${product}' AND UC.VendorName='${vendor}'`;
@@ -393,6 +415,22 @@ class Database {
         logger.error('Error getting users array', err.message);
         reject(err);
     }
+    });
+   }
+
+   async getmodules(product:string, vendor:string){
+    return new Promise((resolve, reject) => {
+        this.db.all(`SELECT * FROM Module WHERE ProductName='${product}' AND VendorName='${vendor}'`, (err: Error, rows: any) => {
+            resolve(rows);
+        });
+    });
+   }
+
+   async getissues(product:string, vendor:string){
+    return new Promise((resolve, reject) => {
+        this.db.all(`SELECT * FROM Issues WHERE ProductName='${product}' AND VendorName='${vendor}'`, (err: Error, rows: any) => {
+            resolve(rows);
+        });
     });
    }
 
