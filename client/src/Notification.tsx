@@ -19,7 +19,7 @@ const emailSchema = z.string().email();
 
 const customTextFieldStyle = {
   '& .MuiOutlinedInput-root': {
-    height: '50px',
+    height: '53.5px',
     fontFamily: 'Kumbh Sans',
     '& fieldset': {
       borderColor: '#E0E0E0',
@@ -169,7 +169,7 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_nea
             return;
         }
 
-        axios.post('http://localhost:3001/api/subscribe', {
+        axios.post('http://192.168.27.42:3001/api/subscribe', {
               vendor: vendor,
             email: email,
             product: singleproduct,

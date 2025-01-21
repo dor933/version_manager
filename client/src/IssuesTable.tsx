@@ -29,35 +29,35 @@ interface IssuesTableProps {
     {
       id: 'Issue Description',
       label: 'Issue Description',
-      minWidth: 140,
+      minWidth: 100,
       align: 'right',
       format_product: (value: string) => value
     },
     {
       id:'Issue Type',
       label:'Issue Type',
-      minWidth:140,
+      minWidth:100,
       align:'right',
       format_product: (value: string) => value
     },
     {
       id: 'Issue Status',
           label: 'Issue Status',
-      minWidth: 140,
+      minWidth: 100,
       align: 'right',
       format_product: (value: string) => value
     },
     {
       id: 'Issue Date',
           label: 'Issue Date',
-      minWidth: 140,
+      minWidth: 100,
       align: 'right',
       format_date: (value: Date) => value.toLocaleString('he-IL').split(',')[0]
     },
     {
       id: 'Issue Resolution',
       label: 'Issue Resolution',
-      minWidth: 140,
+      minWidth: 100,
       align: 'right',
       format_product: (value: string) => value
     },
@@ -65,7 +65,7 @@ interface IssuesTableProps {
     {
         id:'Photos',
         label:'Photos',
-        minWidth:140,
+        minWidth:100,
         align:'right',
         format_product: (value: string) => value
     }
@@ -110,7 +110,7 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
 
     <Paper sx={{ width: '100%', overflow: 'hidden', boxShadow: 'none' }}>
         <MyTabs chosenmodule={chosenmodule} setChosenModule={setChosenModule} modules={chosenproduct.modules}/>
-    <TableContainer sx={{ minHeight: 550,marginTop:'20px' }}>
+    <TableContainer sx={{ minHeight: 600,marginTop:'20px' }}>
       <Table 
         stickyHeader 
         aria-label="sticky table"
