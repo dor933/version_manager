@@ -166,7 +166,7 @@
                 {
                     "ProductName": "Goanywhere_MFT",
                     "ProductId": 1,
-                    "modules":["Workflows","Secure Mail","Web Portal","SFTP","Secure Folders"],
+                    "modules":["General","Workflows","Secure Mail","Web Portal","SFTP","Secure Folders"],
                     "issues":[]
                     
                 } ,

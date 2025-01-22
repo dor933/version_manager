@@ -13,7 +13,7 @@ interface IssuesTableProps {
   }
 
   interface Column {
-    id: 'VersionName' | 'Issue Description' | 'Photos' | 'Issue Severity' | 'Issue Status' | 'Issue Date' | 'Issue Resolution' 
+    id: 'VersionName' | 'Issue' | 'Photos' | 'Severity' | 'Issue Status' | 'Date_field' | 'Issue Resolution' 
     label: string;
     minWidth?: number;
     align?: 'right' | 'left';
@@ -27,7 +27,7 @@ interface IssuesTableProps {
     { id: 'VersionName', label: 'Version Name', minWidth: 140, format_product: (value: string) => value.replace(/_/g, ' ') },
 
     {
-      id: 'Issue Description',
+      id: 'Issue',
       label: 'Description',
       minWidth: 140,
       align: 'right',
@@ -35,14 +35,14 @@ interface IssuesTableProps {
     },
 
     {
-      id: 'Issue Severity',
+      id: 'Severity',
           label: 'Severity',
       minWidth: 140,
       align: 'right',
       format_product: (value: string) => value
     },
     {
-      id: 'Issue Date',
+      id: 'Date_field',
           label: 'Date',
       minWidth: 140,
       align: 'right',
@@ -72,19 +72,29 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
 
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
-    const [chosenmodule, setChosenModule] = React.useState(0);
+    const [chosenmodule, setChosenModule] = React.useState('');
     const [filteredIssues, setFilteredIssues] = React.useState<any[]>([]);
     const { versions } = useAuth();
 
     useEffect(() => {
-        const relevantversion = versions?.filter((version: any) => version.ProductName === chosenproduct.ProductName && version.VersionName === chosenversion.VersionName)
-        const issues = relevantversion?.map((version: any) => version?.Issues ? version.Issues : [])
-        if(issues){
-            console.log('issues', issues)
-            setFilteredIssues(issues);
-        }
+     
+        setFilteredIssues(chosenproduct.issues);
         console.log('chosenproduct', chosenproduct)
     }, [versions, chosenproduct]);
+
+    useEffect(() => {
+
+        if(chosenmodule==='All'){
+            setFilteredIssues(chosenproduct.issues);
+        }
+        else{
+
+        const filteredIssues = chosenproduct.issues.filter((issue: any) => issue.ModuleName === chosenmodule);
+        console.log('chosenmodule', chosenmodule)
+        console.log('filteredIssues', filteredIssues)
+        setFilteredIssues(filteredIssues);
+        }
+    }, [chosenmodule])
 
 
 
@@ -145,7 +155,7 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
                   hover 
                   role="checkbox" 
                   tabIndex={-1} 
-                  key={row.version_name}
+                  key={index}
                   sx={{
                     '&:hover': {
                       backgroundColor: '#F5F5F5',
@@ -154,25 +164,27 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
                   }}
                   onClick={() => { handleRowClick(row); }}
                 >
-
+                  {columns.map((column) => {
+                    const value = row[column.id];
+                    console.log(value)
+                    return (
                       <TableCell 
-                        key={index} 
-                        align='left'
+                        key={column.id} 
+                        align={column.align}
                         sx={{
                           fontFamily: 'Kumbh Sans',
                           fontSize: '14px',
                           color: '#4B4B4B',
-                          paddingY: '25px',  // Vertical padding
+                          paddingY: '25px',
                         }}
                       >
-
-                        {row[index]}
-
-                        
-                    
-
-                          
+                        {column.format_date && value ? column.format_date(new Date(value))
+                          : column.format_product && value ? column.format_product(value)
+                          : column.format_number && value ? column.format_number(value)
+                          : value}
                       </TableCell>
+                    );
+                  })}
                 </TableRow>
               );
             })}

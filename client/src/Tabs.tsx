@@ -3,6 +3,7 @@ import { styled } from '@mui/material/styles';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
+import { useEffect, useState } from 'react';
 
 
 
@@ -10,8 +11,8 @@ import Box from '@mui/material/Box';
 
 interface StyledTabsProps {
   children?: React.ReactNode;
-  value: number;
-  onChange: (event: React.SyntheticEvent, newValue: number) => void;
+  value: string;
+  onChange: (event: React.SyntheticEvent, newValue: string) => void;
 }
 
 const StyledTabs = styled((props: StyledTabsProps) => (
@@ -35,6 +36,7 @@ const StyledTabs = styled((props: StyledTabsProps) => (
 
 interface StyledTabProps {
   label: string;
+  value: string;
 }
 
 const StyledTab = styled((props: StyledTabProps) => (
@@ -57,23 +59,34 @@ const StyledTab = styled((props: StyledTabProps) => (
   },
 }));
 
-export default function MyTabs({chosenmodule, setChosenModule, modules}: {chosenmodule: number, setChosenModule: (newValue: number) => void, modules: any[]}) {
+export default function MyTabs({chosenmodule, setChosenModule, modules}: {chosenmodule: string, setChosenModule: (newValue: string) => void, modules: any[]}) {
 
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    setChosenModule(newValue);
-  };
+   useEffect(() => {
+    setChosenModule('All');
+   }, [])
 
-  return (
+    const handleChange = (event: React.SyntheticEvent, newValue: string) => {
+        setChosenModule(newValue);
+    };
 
+    return (
         <StyledTabs
-          value={chosenmodule}
-          onChange={handleChange}
-          aria-label="styled tabs example"
+            value={chosenmodule}
+            onChange={handleChange}
+            aria-label="styled tabs example"
         >
-          {modules.map((module, index) => (
-            <StyledTab key={index} label={module.ModuleName} />
-          ))}
+            <StyledTab 
+                    key={0} 
+                    label={'All'} 
+                    value={'All'}  // Use ModuleName as value instead of index
+                />
+            {modules.map((module, index) => (
+                <StyledTab 
+                    key={index} 
+                    label={module.ModuleName} 
+                    value={module.ModuleName}  // Use ModuleName as value instead of index
+                />
+            ))}
         </StyledTabs>
-  
-  );
+    );
 }

@@ -154,7 +154,7 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
     
     <Box sx={{ display: 'flex' }}>
 
-<Report versions={versions? versions: []}/>
+<Report versions={versions? versions: []} productsandmodules={productsandmodules} />
       <DrawerComponent open={open} setOpen={setOpen}/>
 
       <Main open={open}>

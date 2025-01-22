@@ -56,9 +56,31 @@ app.post('/api/subscribe', async (req, res) => {
 
 });
 
-app.get('/', (req, res) => {
-  res.send('Hello World');
+app.post('/api/report', async (req, res) => {
+
+  try{
+  const { vendor, product, version, module, email, severity, issueDescription, rule } = req.body;
+  console.log(vendor, product, version, module, email, severity, issueDescription, rule? rule : null);
+  let userid= await db.CheckUserExists(email);
+  if(!userid){
+    await db.registerUser(email);
+    userid= await db.CheckUserExists(email);
+  }
+  if(userid){
+    const report= await db.report(vendor, product, version, module, email, severity, issueDescription, userid, rule? rule : null);
+    res.json({report});
+  }
+  else{
+    res.json({report:false});
+  }
+  }
+  catch(err:any){
+    logger.error(err);
+    res.json({report:false});
+  }
 });
+
+
 
 app.get('/api/versions', async (req, res) => {
    const versions = await db.getVersions();
