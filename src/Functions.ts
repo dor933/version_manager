@@ -69,11 +69,11 @@ async function notify_on_end_of_support(versionData: VersionData , daysUntilEOS:
         
         emailBody = {
             name:'Team',
-            subject: `End of Extended Support Alert: ${product} ${version}`,
+            subject: `End of Extended Support Alert: ${product.replace('_', ' ')} ${version}`,
             row1: `Hey Team`,
-            row2: `The end of extended support date for ${product} ${version} is approaching.`,
+            row2: `The end of extended support date for ${product.replace('_', ' ')} ${version} is approaching.`,
             row3: `End of Support Date:`,
-            row4: `The end of extended support date for ${product} ${version} is:`,
+            row4: `The end of extended support date for ${product.replace('_', ' ')} ${version} is:`,
             row5: `${versionData.Extended_Support_End_Date?.toDateString()} ,`,
             row6: `Number of days remaining:`,
             row7: `${daysUntilEOS}`
@@ -90,9 +90,9 @@ async function notify_on_end_of_support(versionData: VersionData , daysUntilEOS:
             name:'Team',
             subject: `Critical: End of Support Approaching - 7 days or less remaining`,
             row1: `Hey Team`,
-            row2: `The end of support date for ${product} ${version} is approaching.`,
+            row2: `The end of support date for ${product.replace('_', ' ')} ${version} is approaching.`,
             row3: `End of Support Date:`,
-            row4: `The end of support date for ${product} ${version} is:`,
+            row4: `The end of support date for ${product.replace('_', ' ')} ${version} is:`,
             row5: `${versionData.EndOfSupportDate?.toDateString()} ,`,
             row6: `Number of days remaining:`,
             row7: `${daysUntilEOS}`
@@ -105,11 +105,11 @@ async function notify_on_end_of_support(versionData: VersionData , daysUntilEOS:
     else if (daysUntilEOS <= 30) {
         emailBody = {
             name:'Team',
-            subject: `End of Support Alert: ${product} ${version}`,
+            subject: `End of Support Alert: ${product.replace('_', ' ')} ${version}`,
             row1: `Hey Team`,
-            row2: `The end of support date for ${product} ${version} is approaching.`,
+            row2: `The end of support date for ${product.replace('_', ' ')} ${version} is approaching.`,
             row3: `End of Support Date:`,
-            row4: `The end of support date for ${product} ${version} is:`,
+            row4: `The end of support date for ${product.replace('_', ' ')} ${version} is:`,
             row5: `${versionData.EndOfSupportDate?.toDateString()} ,`,
             row6: `Number of days remaining:`,
             row7: `${daysUntilEOS}`
@@ -211,9 +211,9 @@ async function notify_on_end_of_support_changes(product: string, vendor: string,
         
         {
             name:'Team',
-            subject: `End of Support Date Change: ${product} ${version}`,
+            subject: `End of Support Date Change: ${product.replace('_', ' ')} ${version}`,
             row1: `Hey Team`,
-            row2: `The end of support date for ${product} ${version} has been changed.`,
+            row2: `The end of support date for ${product.replace('_', ' ')} ${version} has been changed.`,
             row3: `Changes Detected:`,
             row4: `End of Support Date changed from `,
             row5: `${oldDate ? oldDate.toDateString() : 'No old date'}`,
@@ -227,7 +227,7 @@ async function notify_on_end_of_support_changes(product: string, vendor: string,
         try{
 
         await sendEmail({
-            subject: `End of Support Date Change: ${product} ${version}`,
+            subject: `End of Support Date Change: ${product.replace('_', ' ')} ${version}`,
             content: emailBody,
             vendor_name: vendor,
             users_array: users_array
@@ -381,9 +381,9 @@ async function notify_new_version(newVersion: VersionData, users_array?: any) {
     
         const emailBody = {
             name:'Team',
-            subject: `Version Changes Detected: ${newVersion.ProductName}`,
+            subject: `Version Changes Detected: ${newVersion.ProductName.replace('_', ' ')}`,
             row1: `Hey Team`,
-            row2: `A new version has been detected for ${newVersion.ProductName}`,
+            row2: `A new version has been detected for ${newVersion.ProductName.replace('_', ' ')}`,
             row3: `Version:`,
             row4: ``,
             row5: `${newVersion.VersionName}`,
@@ -395,7 +395,7 @@ async function notify_new_version(newVersion: VersionData, users_array?: any) {
         try{
 
         await sendEmail({
-            subject: `Version Changes Detected: ${newVersion.ProductName}`,
+            subject: `Version Changes Detected: ${newVersion.ProductName.replace('_', ' ')}`,
             content: emailBody,
             vendor_name: newVersion.VendorName,
             users_array: users_array

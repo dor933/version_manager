@@ -544,6 +544,19 @@ class Database {
     });
    }
 
+   async report(vendor:string, product:string, version:string, module:string, email:string, severity:string,issueDescription:string,userid:number, rule?:string){
+    return new Promise((resolve, reject) => {
+        try{
+            this.db.run(`INSERT INTO Issues (VendorName, ProductName, VersionName, ModuleName, Email, ${rule? 'Rule, ' : ''} Severity, Issue, Date_field, UserId,ratification) VALUES ('${vendor}', '${product}', '${version}', '${module}', '${email}', ${rule? `'${rule}',` : ''} '${severity}', '${issueDescription}', '${new Date().toISOString()}', '${userid}',1)`, (err: Error) => {
+            resolve(true);
+        });
+        }
+        catch(err:any){
+            reject(false);
+        }
+    });
+   }
+
 
     
 
