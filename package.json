@@ -49,6 +49,7 @@
     "nodemailer": "^6.9.16",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
+    "react-router-dom": "^7.1.3",
     "sqlite3": "^5.1.7",
     "winston": "^3.17.0",
     "winston-daily-rotate-file": "^5.0.0"

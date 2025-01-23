@@ -2,6 +2,7 @@ export interface ProductData {
     ProductName: string;
     VendorId: number;
     Versions: VersionData[];
+    release_notes:string
     JSON_URL?: string;
     BASE_URL?:string;
     modules?:any[]
@@ -30,6 +31,7 @@ export interface VersionData {
     LevelOfSupport?:string;
     Extended_Support_End_Date?:Date
     EOSL_Start_Date?:Date
+    release_notes?:string
 
 }
 
