@@ -78,21 +78,26 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
 
     useEffect(() => {
      
-        setFilteredIssues(chosenproduct.issues);
         console.log('chosenproduct', chosenproduct)
-    }, [versions, chosenproduct]);
+        console.log('chosenversion', chosenversion)
+        const issuesrelevnetversion= chosenproduct.issues.filter((issue: any) => issue.VersionName === chosenversion.VersionName);
+        console.log('issuesrelevnetversion', issuesrelevnetversion)
+        setFilteredIssues(issuesrelevnetversion);
+    }, [chosenproduct]);
 
     useEffect(() => {
 
+        const issuesrelevnetversion= chosenproduct.issues.filter((issue: any) => issue.VersionName === chosenversion.VersionName);
+
+
         if(chosenmodule==='All'){
-            setFilteredIssues(chosenproduct.issues);
+            setFilteredIssues(issuesrelevnetversion);
         }
         else{
 
-        const filteredIssues = chosenproduct.issues.filter((issue: any) => issue.ModuleName === chosenmodule);
-        console.log('chosenmodule', chosenmodule)
-        console.log('filteredIssues', filteredIssues)
-        setFilteredIssues(filteredIssues);
+
+            const filteredIssues= issuesrelevnetversion.filter((issue: any) => issue.ModuleName === chosenmodule);
+            setFilteredIssues(filteredIssues);
         }
     }, [chosenmodule])
 
