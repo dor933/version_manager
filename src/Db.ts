@@ -80,6 +80,10 @@ class Database {
                 'PRIMARY KEY (ProductName, VendorName)',
                 'FOREIGN KEY (VendorName) REFERENCES Vendor(VendorName)'
             ]);
+
+            await this.createTable('Version');              
+
+
             await this.createTable('Module', [ 'ModuleName TEXT', 'ProductName TEXT', 'VendorName TEXT', 'PRIMARY KEY (ModuleName, ProductName, VendorName)', 'FOREIGN KEY (ProductName, VendorName) REFERENCES Product(ProductName, VendorName)']);
             await this.createTable('Issues', [
                 'IssueId INTEGER PRIMARY KEY AUTOINCREMENT',
@@ -95,6 +99,7 @@ class Database {
                 'FOREIGN KEY (VersionName) REFERENCES Version(VersionName)'
             ]);
            
+
 
 
 
@@ -203,7 +208,6 @@ class Database {
 
 
 
-                    await this.createTable('Version');              
                     await this.insertData('Version', 
                         [ 'VersionName', 'ProductName', 'VendorName', 'ReleaseDate', 'EndOfSupportDate', 'LevelOfSupport', 'Extended_Support_End_Date','EOSL_Start_Date','full_release_notes'], 
                         [
@@ -577,6 +581,8 @@ class Database {
         });
         }
         catch(err:any){
+            logger.error('Cant Write the Issue to the db', err)
+            
             reject(false);
         }
     });
