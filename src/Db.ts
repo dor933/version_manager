@@ -326,7 +326,7 @@ class Database {
                             //try to parse the EndOfSupportDate and values[3] to date   
                             const EndOfSupportDate_DateTime = parseDate(rows[0]?.EndOfSupportDate)
                             const EndOfSupportDate_DateTime_new = parseDate(values[4]);
-                            this.UpdateRecord('Version', ['full_release_notes'], [values[6]], 'VersionName', rows[0].VersionName);
+                            this.UpdateRecord('Version', ['full_release_notes'], [values[8]], 'VersionName', rows[0].VersionName);
                             logger.info('updated full_release_notes successfully');
 
 

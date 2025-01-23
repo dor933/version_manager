@@ -39,7 +39,7 @@ const [productsandmodules, setProductsAndModules] = React.useState<any>(null);
 
 
 useEffect(() => {
-    axios.get('http://localhost:3001/api/versions',{
+    axios.get('http://192.168.27.42:3001/api/versions',{
     })
     .then(response => response.data)
     .then(data => {setVersions(data.versions)
