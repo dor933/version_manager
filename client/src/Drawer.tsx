@@ -126,7 +126,7 @@ export default function DrawerComponent({ open, setOpen }: DrawerProps) {
         </DrawerHeader>
         <Divider />
         <List>
-          {['Dashboard', 'Vendors', 'Reports', 'Drafts'].map((text, index) => (
+          {['Dashboard'].map((text, index) => (
             <ListItem key={text} disablePadding>
               <ListItemButton>
                 <ListItemIcon>
@@ -138,7 +138,7 @@ export default function DrawerComponent({ open, setOpen }: DrawerProps) {
           ))}
         </List>
         <Divider />
-        <List>
+        {/* <List>
           {['All mail', 'Trash', 'Spam'].map((text, index) => (
             <ListItem key={text} disablePadding>
               <ListItemButton>
@@ -149,7 +149,7 @@ export default function DrawerComponent({ open, setOpen }: DrawerProps) {
               </ListItemButton>
             </ListItem>
           ))}
-        </List>
+        </List> */}
       </Drawer>
       <DrawerHeader />           
     </>

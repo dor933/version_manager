@@ -57,7 +57,7 @@ class Database {
         let listoffortraversions:version_extracted[]=[]
         try{
 
-           await  this.createTable('User', ['Id INTEGER PRIMARY KEY AUTOINCREMENT', 'Email TEXT', 'Role TEXT']);
+           await  this.createTable('User', ['Id INTEGER PRIMARY KEY AUTOINCREMENT', 'Email TEXT UNIQUE', 'Role TEXT']);
 
             await this.createTable('User_Chosen_Products', [
                 'UserID INTEGER',
@@ -94,9 +94,15 @@ class Database {
                 'Issue TEXT',
                 'Date_field DATE',
                 'Ratification INTEGER',
+                'Resolution TEXT',
+                'UserId INTEGER',
+                'Email TEXT',
+                'Severity TEXT',
                 'FOREIGN KEY (ModuleName) REFERENCES Module(ModuleName)',
                 'FOREIGN KEY (ProductName, VendorName) REFERENCES Product(ProductName, VendorName)',
-                'FOREIGN KEY (VersionName) REFERENCES Version(VersionName)'
+                'FOREIGN KEY (VersionName) REFERENCES Version(VersionName)',
+                'FOREIGN KEY (UserId) REFERENCES User(Id)',
+                'FOREIGN KEY (Email) REFERENCES User(Email)'
             ]);
            
 
