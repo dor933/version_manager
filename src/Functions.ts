@@ -180,6 +180,7 @@ async function extract_fortra_versions_to_json(json_url:string):Promise<any> {
                     level_of_support: cheerio.load(listofVersions)(listoftd[i+2]).text(),
                     extended_support_end_date: cheerio.load(listofVersions)(listoftd[i+5]).text(),
                     eosl_start_date: cheerio.load(listofVersions)(listoftd[i+4]).text(),
+
                 });
                 break;
             case 'agents':

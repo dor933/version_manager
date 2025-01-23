@@ -64,7 +64,7 @@ class Database {
                 'ProductName TEXT',
                 'VendorName TEXT',
                 'Unit_of_time TEXT CHECK(Unit_of_time IN ("Days", "Months", "Hours"))',
-                'Interval_of_time INTEGER',
+                'Frequency TEXT',
                 'Last_Update TEXT',
                 'PRIMARY KEY (UserID, ProductName, VendorName)',
                 'FOREIGN KEY (UserID) REFERENCES User(Id)',
@@ -76,6 +76,7 @@ class Database {
                 'ProductName TEXT',
                 'VendorName TEXT NOT NULL',
                 'JSON_URL TEXT',
+                'release_notes TEXT',
                 'PRIMARY KEY (ProductName, VendorName)',
                 'FOREIGN KEY (VendorName) REFERENCES Vendor(VendorName)'
             ]);
@@ -87,6 +88,8 @@ class Database {
                 'VendorName TEXT',
                 'VersionName TEXT',
                 'Issue TEXT',
+                'Date_field DATE',
+                'Ratification INTEGER',
                 'FOREIGN KEY (ModuleName) REFERENCES Module(ModuleName)',
                 'FOREIGN KEY (ProductName, VendorName) REFERENCES Product(ProductName, VendorName)',
                 'FOREIGN KEY (VersionName) REFERENCES Version(VersionName)'
@@ -112,7 +115,7 @@ class Database {
 
 
             
-                await this.insertData('Product', [ 'ProductName', 'VendorName', 'JSON_URL'], [ product.ProductName, vendor.VendorName, product.JSON_URL!]);
+                await this.insertData('Product', [ 'ProductName', 'VendorName', 'JSON_URL', 'release_notes'], [ product.ProductName, vendor.VendorName, product.JSON_URL!, product.release_notes]);
 
 
 
@@ -157,18 +160,33 @@ class Database {
             
                 }
         
+                let index=0;
 
 
                 for(const version of listofversions){
                     
                     let UsersArray= await this.GetUsersArray(product.ProductName, vendor.VendorName, version[0]);
-                   
-
                     let ReleaseDate_DateTime = parseDate(version[1]!);
                     let EndOfSupportDate_DateTime = parseDate(version[2]!) 
                     let LevelOfSupport= version[3]
                     let ExtendedEndOfSupportDate= parseDate(version[4]!);
                     let EOSL_Start_Date= parseDate(version[5]!);
+
+                    let release_notes:string|undefined;
+
+                    if(vendor.VendorName==='OPSWAT'){
+                        if(index!==0){
+                            release_notes = product.release_notes + '/archived-release-notes#version-v' + 
+                                version[0].replace(/Version |[Vv]|\./g, '')
+                                console.log('release_notes', release_notes);
+                        }
+                        else{
+                            release_notes= product.release_notes
+                        }
+                    }
+                    else if(vendor.VendorName==='Fortra'){
+                        release_notes= product.release_notes
+                    }
 
 
                     const Version:VersionData= {
@@ -179,14 +197,15 @@ class Database {
                         EndOfSupportDate: EndOfSupportDate_DateTime ? EndOfSupportDate_DateTime : undefined ,
                         LevelOfSupport: LevelOfSupport? LevelOfSupport:undefined,
                         Extended_Support_End_Date: ExtendedEndOfSupportDate? ExtendedEndOfSupportDate:undefined,
-                        EOSL_Start_Date: EOSL_Start_Date? EOSL_Start_Date:undefined
+                        EOSL_Start_Date: EOSL_Start_Date? EOSL_Start_Date:undefined,
+                        release_notes: release_notes
                     }
 
 
 
                     await this.createTable('Version');              
                     await this.insertData('Version', 
-                        [ 'VersionName', 'ProductName', 'VendorName', 'ReleaseDate', 'EndOfSupportDate', 'LevelOfSupport', 'Extended_Support_End_Date','EOSL_Start_Date'], 
+                        [ 'VersionName', 'ProductName', 'VendorName', 'ReleaseDate', 'EndOfSupportDate', 'LevelOfSupport', 'Extended_Support_End_Date','EOSL_Start_Date','full_release_notes'], 
                         [
                             Version.VersionName, 
                             Version.ProductName!,
@@ -195,7 +214,8 @@ class Database {
                             Version.EndOfSupportDate ? Version.EndOfSupportDate.toISOString() : 'NULL',
                             Version.LevelOfSupport? Version.LevelOfSupport : 'NULL',
                             Version.Extended_Support_End_Date? Version.Extended_Support_End_Date.toISOString() : 'NULL',
-                            Version.EOSL_Start_Date? Version.EOSL_Start_Date.toISOString() : 'NULL'
+                            Version.EOSL_Start_Date? Version.EOSL_Start_Date.toISOString() : 'NULL',
+                            Version.release_notes? Version.release_notes : 'NULL'
                         ] , 
                         Version,
                         UsersArray
@@ -214,6 +234,7 @@ class Database {
                          notify_on_end_of_support(Version, daysUntilEOS, daysUntilExtendedEOS && daysUntilExtendedEOS, UsersArray);
                         }
                     }
+                    index++;
                 }
             }
         }
@@ -244,6 +265,7 @@ class Database {
                         LevelOfSupport TEXT,
                         Extended_Support_End_Date DATE,
                         EOSL_Start_Date DATE,
+                        full_release_notes TEXT,
                         FOREIGN KEY (ProductName) REFERENCES Product(ProductName),
                         FOREIGN KEY (VendorName) REFERENCES Vendor(VendorName),
                         PRIMARY KEY (VersionName, ProductName, VendorName)
@@ -294,6 +316,8 @@ class Database {
                             //try to parse the EndOfSupportDate and values[3] to date   
                             const EndOfSupportDate_DateTime = parseDate(rows[0]?.EndOfSupportDate)
                             const EndOfSupportDate_DateTime_new = parseDate(values[4]);
+                            this.UpdateRecord('Version', ['full_release_notes'], [values[6]], 'VersionName', rows[0].VersionName);
+                            logger.info('updated full_release_notes successfully');
 
 
                             if(!EndOfSupportDate_DateTime && !EndOfSupportDate_DateTime_new){
@@ -343,6 +367,7 @@ class Database {
                 
             
             } catch(err: any) {
+                logger.error('Error inserting data', err.message);
                 reject(err);
             }
         });
@@ -547,7 +572,7 @@ class Database {
    async report(vendor:string, product:string, version:string, module:string, email:string, severity:string,issueDescription:string,userid:number, rule?:string){
     return new Promise((resolve, reject) => {
         try{
-            this.db.run(`INSERT INTO Issues (VendorName, ProductName, VersionName, ModuleName, Email, ${rule? 'Rule, ' : ''} Severity, Issue, Date_field, UserId,ratification) VALUES ('${vendor}', '${product}', '${version}', '${module}', '${email}', ${rule? `'${rule}',` : ''} '${severity}', '${issueDescription}', '${new Date().toISOString()}', '${userid}',1)`, (err: Error) => {
+            this.db.run(`INSERT INTO Issues (VendorName, ProductName, VersionName, ModuleName, Email, ${rule? 'Rule, ' : ''} Severity, Issue, Date_field, UserId,Ratification) VALUES ('${vendor}', '${product}', '${version}', '${module}', '${email}', ${rule? `'${rule}',` : ''} '${severity}', '${issueDescription}', '${new Date().toISOString()}', '${userid}',1)`, (err: Error) => {
             resolve(true);
         });
         }
