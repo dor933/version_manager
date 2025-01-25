@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { notify_on_end_of_support, notify_on_end_of_support_changes, notify_new_version, extract_versions_from_json,extract_fortra_versions_to_json, extract_JSON_URL } from './Functions';
 import { parseDate } from './Functions';
-import { DataStructure, VersionData, version_extracted} from './types';
+import { DataStructure, VersionData, version_extracted } from './types';
 const path = require('path');
 const Data=require('../Data.json') as DataStructure;
 import { logger } from './index';
@@ -187,9 +187,18 @@ class Database {
 
                     if(vendor.VendorName==='OPSWAT'){
                         if(index!==0){
-                            release_notes = product.release_notes + '/archived-release-notes#version-v' + 
+
+                            if(product.ProductName==='Metadefender_Core'){
+                                release_notes = product.release_notes + '/archived-release-notes#version-v' + 
                                 version[0].replace(/Version |[Vv]|\./g, '')
                                 console.log('release_notes', release_notes);
+
+                            }
+                            else{
+                                release_notes= product.archive_release_notes
+                            }
+
+                           
                         }
                         else{
                             release_notes= product.release_notes
@@ -283,7 +292,6 @@ class Database {
                 } else {
                     const columnsString = columns!.join(',');
                     sql = `CREATE TABLE IF NOT EXISTS ${table} (${columnsString})`;
-                    console.log(sql);
                 }
                 this.db.run(sql, (err: Error) => {
                     if (err) {
@@ -327,7 +335,6 @@ class Database {
                             const EndOfSupportDate_DateTime = parseDate(rows[0]?.EndOfSupportDate)
                             const EndOfSupportDate_DateTime_new = parseDate(values[4]);
                             this.UpdateRecord('Version', ['full_release_notes'], [values[8]], 'VersionName', rows[0].VersionName);
-                            logger.info('updated full_release_notes successfully');
 
 
                             if(!EndOfSupportDate_DateTime && !EndOfSupportDate_DateTime_new){
@@ -432,7 +439,6 @@ class Database {
             reject(err);
            }
 
-           console.log(rows);
             let users_to_update= rows.map((row:any)=>{
                 return {
                     Email: row.Email,

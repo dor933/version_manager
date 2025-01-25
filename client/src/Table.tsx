@@ -13,7 +13,6 @@ import Filter from './Filter';
 import CustomizedSelects from './CustomizeSelect';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { useAuth } from './UseContext/MainAuth';
 import CustomButton from './Button';
 import Issues from './Issues';
 import { HomeSVG } from './svg/HomeSVG';
@@ -90,7 +89,6 @@ export default function StickyHeadTable({versions, distinctVendors, productsandm
   const [page, setPage] = React.useState(0);
   const [issuesdialog, setIssuesDialog] = React.useState(false);
   const [chosenproduct, setChosenProduct] = React.useState<any>(null);
-
   const prevVendorRef = React.useRef(vendor);
   const prevSearchRef = React.useRef(searchvalue);
  
@@ -397,10 +395,10 @@ null
 
   <Grid item xs={4} style={{display:'flex', justifyContent:'flex-start', alignItems:'flex-start', flexDirection:'column', gap:'10px', minHeight:'60px'}}>
     <Typography style={{color:"#424242", fontSize:'14px', fontWeight:'500', lineHeight:'16px', letterSpacing:'0.2px', fontFamily:'Kumbh Sans'}}>
-      Stability
+      Known Issues
     </Typography>
-    <Typography style={{color:"#A7A7A7", fontSize:'14px', fontWeight:'500', lineHeight:'16px', letterSpacing:'0.2px', fontFamily:'Kumbh Sans'}}>  
-      {/* {chosenversion?.Stability || ''} */}
+    <Typography style={{color:"#A7A7A7", fontSize:'16px', fontWeight:'500', lineHeight:'16px', letterSpacing:'0.2px', fontFamily:'Kumbh Sans',alignSelf:'center',marginTop:'5px'}}>  
+      {productsandmodules?.find((product: any) => product.ProductName === chosenversion?.ProductName)?.issues?.length}
     </Typography>
   </Grid>
   <Grid item xs={4} style={{display:'flex', justifyContent:'flex-start', alignItems:'center', flexDirection:'column', gap:'10px', minHeight:'60px'}}>

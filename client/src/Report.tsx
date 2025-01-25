@@ -30,7 +30,6 @@ export default function FormDialog({versions, productsandmodules}: ReportProps) 
   const [modules, setModules] = useState([]);
   const [chosenmodule, setChosenModule] = useState('');
   const [isversiondisabled, setIsVersionDisabled] = useState(true);
-  const [ismoduledisabled, setIsModuleDisabled] = useState(true);
   const [email, setEmail] = useState('');
   const [severity, setSeverity] = useState('');
   const [issueDescription, setIssueDescription] = useState('');
@@ -83,7 +82,7 @@ export default function FormDialog({versions, productsandmodules}: ReportProps) 
 
     console.log(vendor, singleproduct, singleversion, chosenmodule, email, severity, issueDescription);
 
-    let report= await axios.post('http://192.168.27.42:3001/api/report', {
+    let report= await axios.post('http://localhost:3001/api/report', {
       vendor: vendor,
       product: singleproduct,
       version: singleversion,

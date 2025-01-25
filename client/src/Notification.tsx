@@ -1,5 +1,5 @@
 import React, {  useEffect, useState } from 'react';
-import { Box, Typography, Paper, Grid, TextField, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import { Box, Typography, Paper, Grid, TextField, FormControl } from '@mui/material';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { z } from 'zod';
 import axios from 'axios';
@@ -92,9 +92,7 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_nea
   const [vendor, setVendor] = useState('');
   const [products, setProducts] = useState([]);
   const [singleproduct, setSingleProduct] = useState('');
-  const [productVersions, setProductVersions] = useState([]);
   const [isproductsdisabled, setIsProductsDisabled] = useState(true);
-  const [isversiondisabled, setIsVersionDisabled] = useState(true);
   const [Unit, setUnit] = useState('');
   const [Interval, setInterval] = useState('');
 
@@ -105,7 +103,6 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_nea
       if(vendor==='All Vendors'){
        setSingleProduct('All Products');
        setIsProductsDisabled(true);
-       setIsVersionDisabled(true);
        return;
       }
       else{
@@ -115,25 +112,12 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_nea
       }
      
       setIsProductsDisabled(false);
-      setIsVersionDisabled(true);
       setSingleProduct('');
 
 
   }, [vendor,versions]);
 
-  useEffect(() => {
-    if(singleproduct===''){
-      return
-    }
-    else if(singleproduct==='All Products'){
-      setIsVersionDisabled(true);
-    }
-    else{
-      let allVersions:any = [...new Set(versions.filter((version: any) => version.ProductName === singleproduct).map((version: any) => version.VersionName))];
-      setProductVersions(allVersions);
-      setIsVersionDisabled(false);
-    }
-  }, [singleproduct,versions]);
+ 
 
 
 
@@ -169,7 +153,7 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_nea
             return;
         }
 
-        axios.post('http://192.168.27.42:3001/api/subscribe', {
+        axios.post('http://localhost:3001/api/subscribe', {
               vendor: vendor,
             email: email,
             product: singleproduct,

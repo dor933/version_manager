@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { styled, useTheme } from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
@@ -18,12 +18,9 @@ import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsAc
 
 export default function Home() {
 
-  console.log('home re rendered')
-
   
   
-  const { versions, setVersions, setOpenDialog } = useAuth();
-
+const { versions, setVersions, setOpenDialog } = useAuth();
 const drawerWidth = 240;
 const [open, setOpen] = React.useState(false);
 const [distinctVendors, setDistinctVendors] = React.useState<string[]>([]);
@@ -39,7 +36,7 @@ const [productsandmodules, setProductsAndModules] = React.useState<any>(null);
 
 
 useEffect(() => {
-    axios.get('http://192.168.27.42:3001/api/versions',{
+    axios.get('http://localhost:3001/api/versions',{
     })
     .then(response => response.data)
     .then(data => {setVersions(data.versions)
@@ -87,7 +84,7 @@ useEffect(() => {
 
 const handleSync = async () => {
   setIsSyncing(true);
-  const response = await axios.get('http://192.168.27.42:3001/api/sync');
+  const response = await axios.get('http://localhost:3001/api/sync');
   console.log('response', response);
   setVersions(response.data.versions);
   //take now date and time

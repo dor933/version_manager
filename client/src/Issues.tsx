@@ -1,7 +1,6 @@
 import * as React from 'react';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
-import { useAuth } from './UseContext/MainAuth';
 import { Box, Grid } from '@mui/material';
 import CancelIcon from '@mui/icons-material/Cancel';
 import IssuesTable from './IssuesTable';

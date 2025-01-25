@@ -2,10 +2,11 @@
 
 import * as React from 'react';
 import { createContext, useContext, useState } from 'react';
+import { VersionData } from '../types';
 
 const AuthContext = createContext<{
-  versions: any[] | null;
-  setVersions: React.Dispatch<React.SetStateAction<any[] | null>>;
+  versions: VersionData[] | null;
+  setVersions: React.Dispatch<React.SetStateAction<VersionData[] | null>>;
   opendialog: boolean;
   setOpenDialog: React.Dispatch<React.SetStateAction<boolean>>;
   chosenproduct: any;
@@ -29,7 +30,7 @@ const AuthContext = createContext<{
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [versions, setVersions] = useState<any[] | null>(null);
+  const [versions, setVersions] = useState<VersionData[] | null>(null);
   const [opendialog, setOpenDialog] = useState<boolean>(false);
   const [productsandmodules, setProductsAndModules] = useState<any>(null);
   const [chosenproduct, setChosenProduct] = useState<any>(null);

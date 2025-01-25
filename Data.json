@@ -24,7 +24,8 @@
                     "BASE_URL": "https://api.developerhub.io/api/public/page/",
                     "modules":["General"],
                     "issues":[],
-                    "release_notes":"https://www.opswat.com/docs/ocm/release-notes"
+                    "release_notes":"https://www.opswat.com/docs/ocm/release-notes",
+                    "archive_release_notes":"https://www.opswat.com/docs/mdmft/release-notes/changelog"
 
                 },
                 {
@@ -34,7 +35,8 @@
                     "BASE_URL": "https://api.developerhub.io/api/public/page/",
                     "modules":["General"],
                     "issues":[],
-                    "release_notes":"https://www.opswat.com/docs/mdkiosk/release-notes"
+                    "release_notes":"https://www.opswat.com/docs/mdkiosk/release-notes",
+                    "archive_release_notes":"https://www.opswat.com/docs/mdkiosk/release-notes/archived-release-notes"
 
                 },
                 {
@@ -44,7 +46,8 @@
                     "BASE_URL": "https://api.developerhub.io/api/public/page/",
                     "modules":["General"],
                     "issues":[],
-                    "release_notes":"https://www.opswat.com/docs/mdmft/release-notes"
+                    "release_notes":"https://www.opswat.com/docs/mdmft/release-notes",
+                    "archive_release_notes":"https://www.opswat.com/docs/mdmft/release-notes/changelog"
 
 
                 },
@@ -55,7 +58,8 @@
                     "BASE_URL": "https://api.developerhub.io/api/public/page/",
                     "modules":["General"],
                     "issues":[],
-                    "release_notes":"https://www.opswat.com/docs/mdemail/release-notes"
+                    "release_notes":"https://www.opswat.com/docs/mdemail/release-notes",
+                    "archive_release_notes":"https://www.opswat.com/docs/mdemail/release-notes"
 
 
                 },
@@ -66,7 +70,8 @@
                     "BASE_URL": "https://api.developerhub.io/api/public/page/",
                     "modules":["General"],
                     "issues":[],
-                    "release_notes":"https://www.opswat.com/docs/mdicap/release-notes"
+                    "release_notes":"https://www.opswat.com/docs/mdicap/release-notes",
+                    "archive_release_notes":"https://www.opswat.com/docs/mdicap/release-notes/changelog"
 
 
                 },
@@ -78,7 +83,8 @@
                     "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Ffilescan%2Frelease-notes",
                     "modules":["General"],
                     "issues":[],
-                    "release_notes":"https://www.opswat.com/docs/filescan/release-notes"
+                    "release_notes":"https://www.opswat.com/docs/filescan/release-notes",
+                    "archive_release_notes":"https://www.opswat.com/docs/filescan/release-notes/previous-change-logs"
 
 
                 },
@@ -88,7 +94,8 @@
                     "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fmdces%2Frelease-notes",
                     "modules":["General"],
                     "issues":[],
-                    "release_notes":"https://www.opswat.com/docs/mdces/release-notes"
+                    "release_notes":"https://www.opswat.com/docs/mdces/release-notes",
+                    "archive_release_notes":"https://www.opswat.com/docs/mdces/release-notes"
 
 
                 },
@@ -98,7 +105,8 @@
                     "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fmddrive%2Frelease-notes",
                     "modules":["General"],
                     "issues":[],
-                    "release_notes":"https://www.opswat.com/docs/mddrive/release-notes"
+                    "release_notes":"https://www.opswat.com/docs/mddrive/release-notes",
+                    "archive_release_notes":"https://www.opswat.com/docs/mddrive/release-notes"
 
 
                 },
@@ -108,7 +116,8 @@
                     "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fmdkiosk-linux%2Frelease-notes",
                     "modules":["General"],
                     "issues":[],
-                    "release_notes":"https://www.opswat.com/docs/mdkiosk-linux/release-notes"
+                    "release_notes":"https://www.opswat.com/docs/mdkiosk-linux/release-notes",
+                    "archive_release_notes":"https://www.opswat.com/docs/mdkiosk-linux/release-notes"
 
 
                 },
@@ -118,7 +127,8 @@
                     "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fmdss%2Frelease-notes",
                     "modules":["General"],
                     "issues":[],
-                    "release_notes":"https://www.opswat.com/docs/mdss/release-notes"
+                    "release_notes":"https://www.opswat.com/docs/mdss/release-notes",
+                    "archive_release_notes":"https://www.opswat.com/docs/mdss/release-notes/changelog"
 
 
                 },
@@ -128,7 +138,8 @@
                     "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fmddownloader%2Frelease-notes",
                     "modules":["General"],
                     "issues":[],
-                    "release_notes":"https://www.opswat.com/docs/mddownloader/release-notes"
+                    "release_notes":"https://www.opswat.com/docs/mddownloader/release-notes",
+                    "archive_release_notes":"https://www.opswat.com/docs/mddownloader/release-notes"
 
                 },
                 {
@@ -137,7 +148,9 @@
                     "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fmdendpoint%2Frelease-notes",
                     "modules":["General"],
                     "issues":[],
-                    "release_notes":"https://www.opswat.com/docs/mdendpoint/release-notes"
+                    "release_notes":"https://www.opswat.com/docs/mdendpoint/release-notes",
+                    "archive_release_notes":"https://www.opswat.com/docs/mdendpoint/release-notes/archived-release-notes"
+
                 },
                 {
                     "ProductName": "Cloud_Secuirty_For_Salesforce",
@@ -145,7 +158,8 @@
                     "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fcsfs%2Frelease-notes",
                     "modules":["General"],
                     "issues":[],
-                    "release_notes":"https://www.opswat.com/docs/csfs/release-notes"
+                    "release_notes":"https://www.opswat.com/docs/csfs/release-notes",
+                    "archive_release_notes":"https://www.opswat.com/docs/csfs/release-notes"
                 },
                 {
                     "ProductName": "Metadefender_Secuirty_Gateway",
@@ -153,7 +167,8 @@
                     "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fnetwall%2Frelease-notes",
                     "modules":["General"],
                     "issues":[],
-                    "release_notes":"https://www.opswat.com/docs/netwall/release-notes"
+                    "release_notes":"https://www.opswat.com/docs/netwall/release-notes",
+                    "archive_release_notes":"https://www.opswat.com/docs/netwall/release-notes"
                 },
                 {
                     "ProductName": "Metadefender_Software_Supply_Chain",
@@ -161,7 +176,8 @@
                     "JSON_URL": "https://api.developerhub.io/api/public/project/www.opswat.com?path=%2Fdocs%2Fsupply-chain%2Frelease-notes",
                     "modules":["General"],
                     "issues":[],
-                    "release_notes":"https://www.opswat.com/docs/supply-chain/release-notes"
+                    "release_notes":"https://www.opswat.com/docs/supply-chain/release-notes",
+                    "archive_release_notes":"https://www.opswat.com/docs/supply-chain/release-notes/changelog"
 
                 }
            

@@ -6,7 +6,7 @@ export interface ProductData {
     JSON_URL?: string;
     BASE_URL?:string;
     modules?:any[]
-    issues?:any[],
+    issues?:any[]
     archive_release_notes?:string
 }
 
