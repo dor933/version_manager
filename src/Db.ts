@@ -111,10 +111,7 @@ class Database {
 
         for (const vendor of Data.Vendors) {
 
-            if(vendor.VendorName==='Fortra'){
-                listoffortraversions=await extract_fortra_versions_to_json(vendor.JSON_URL!);
-
-            }
+           
 
           await this.insertData('Vendor', ['VendorName', 'contactInfo', 'WebsiteUrl'], [ vendor.VendorName, vendor.contactInfo, vendor.WebsiteUrl]);
 

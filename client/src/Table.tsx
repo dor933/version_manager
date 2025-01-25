@@ -332,7 +332,7 @@ vendor===''?
 <Box sx={{display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'100px', paddingLeft:'25px', paddingRight:'25px', paddingTop:'25px', paddingBottom:'25px', backgroundColor:'#FFFFFF', width:'80px', height:'80px', marginLeft:'-30px',zIndex:'1'}}>
 
   
-<img src='https://cybersecurity-excellence-awards.com/wp-content/uploads/2022/01/507133.png' style={{width:'90px', height:'15px'}}/>
+<img alt='opswat' src='https://cybersecurity-excellence-awards.com/wp-content/uploads/2022/01/507133.png' style={{width:'90px', height:'15px'}}/>
 
 </Box>
 </Box>:
@@ -365,7 +365,7 @@ null
     <HomeSVG />
   </Grid>
   <Grid item xs={2} style={{display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'row', cursor:'pointer'}} onClick={() => {
-      window.open(chosenversion?.full_release_notes, '_blank');
+      window.open(chosenversion?.full_release_notes, '_blank', 'noreferrer');
   }}>
   
   <InfoSVG />
@@ -422,12 +422,12 @@ null
   
 <Box  sx={{display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'50px', paddingLeft:'25px', paddingRight:'25px',zIndex:'0', paddingTop:'25px', paddingBottom:'25px', backgroundColor:'#F5F5F5', width:'50px', height:'50px', cursor:'pointer'}} onClick={() => {setVendor('Fortra'); setSearchvalue(''); setPage(0);}}>
 
-<img src='https://static.fortra.com/hs-logo.png' style={{width:'80px', height:'20px'}}/>
+<img alt='fortra' src='https://static.fortra.com/hs-logo.png' style={{width:'80px', height:'20px'}}/>
 
 </Box>
 <Box sx={{display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'50px', paddingLeft:'25px', paddingRight:'25px', paddingTop:'25px', paddingBottom:'25px', backgroundColor:'#F5F5F5', width:'50px', height:'50px',marginLeft:'-30px',zIndex:'0', cursor:'pointer'}} onClick={() => {setVendor('OPSWAT'); setSearchvalue(''); setPage(0);}}>
 
-<img src='https://cybersecurity-excellence-awards.com/wp-content/uploads/2022/01/507133.png' style={{width:'85px', height:'15px'}}/>
+<img alt='opswat' src='https://cybersecurity-excellence-awards.com/wp-content/uploads/2022/01/507133.png' style={{width:'85px', height:'15px'}}/>
 
 </Box>
 
