@@ -13,7 +13,23 @@ const AuthContext = createContext<{
   setChosenProduct: React.Dispatch<React.SetStateAction<any>>;
   productsandmodules: any;
   setProductsAndModules: React.Dispatch<React.SetStateAction<any>>;
-}>({
+  ispopupopen: boolean;
+  setIsPopupOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  issucceeded: boolean;
+  setIssucceeded: React.Dispatch<React.SetStateAction<boolean>>;
+  message: string;
+  setMessage: React.Dispatch<React.SetStateAction<string>>;
+  title: string;
+  setTitle: React.Dispatch<React.SetStateAction<string>>;
+  mainMessage: string;
+  setMainMessage: React.Dispatch<React.SetStateAction<string>>;
+  subMessage: string;
+  setSubMessage: React.Dispatch<React.SetStateAction<string>>;
+  buttonText: string;
+  setButtonText: React.Dispatch<React.SetStateAction<string>>;
+
+
+   }>({
   versions: null,
   setVersions: () => null,
   opendialog: false,
@@ -21,7 +37,22 @@ const AuthContext = createContext<{
   chosenproduct: null,
   setChosenProduct: () => null,
   productsandmodules: null,
-  setProductsAndModules: () => null
+  setProductsAndModules: () => null,
+  ispopupopen: false,
+  setIsPopupOpen: () => null,
+  issucceeded: false,
+  setIssucceeded: () => null,
+  message: '',
+  setMessage: () => null,
+  title: '',
+  setTitle: () => null,
+  mainMessage: '',
+  setMainMessage: () => null,
+  subMessage: '',
+  setSubMessage: () => null,
+  buttonText: '',
+  setButtonText: () => null,
+
 
 
 
@@ -34,6 +65,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [opendialog, setOpenDialog] = useState<boolean>(false);
   const [productsandmodules, setProductsAndModules] = useState<any>(null);
   const [chosenproduct, setChosenProduct] = useState<any>(null);
+  const [ispopupopen, setIsPopupOpen] = useState<boolean>(false);
+  const [issucceeded, setIssucceeded] = useState<boolean>(false);
+  const [message, setMessage] = useState<string>('');
+  const [title, setTitle] = useState<string>('');
+  const [mainMessage, setMainMessage] = useState<string>('');
+  const [subMessage, setSubMessage] = useState<string>('');
+  const [buttonText, setButtonText] = useState<string>('');
 
   return <AuthContext.Provider value={{ 
     versions, 
@@ -45,6 +83,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setProductsAndModules,
     chosenproduct,
     setChosenProduct,
+    ispopupopen,
+    setIsPopupOpen,
+    issucceeded,
+    setIssucceeded,
+    message,
+    setMessage,
+    title,
+    setTitle,
+    mainMessage,
+    setMainMessage,
+    subMessage,
+    setSubMessage,
+    buttonText,
+    setButtonText,
+
+
+
 
 
   }}>{children}</AuthContext.Provider>;

@@ -33,7 +33,8 @@ export default function FormDialog({versions, productsandmodules}: ReportProps) 
   const [email, setEmail] = useState('');
   const [severity, setSeverity] = useState('');
   const [issueDescription, setIssueDescription] = useState('');
-  
+  const { setIsPopupOpen, setTitle, setMainMessage, setButtonText, setIssucceeded } = useAuth();
+
   useEffect(() => {
 
     const distinctProducts: any = [...new Set(versions.filter((version: any) => version.VendorName === vendor).map((version: any) => version.ProductName))];
@@ -62,21 +63,33 @@ export default function FormDialog({versions, productsandmodules}: ReportProps) 
     console.log(vendor, singleproduct, singleversion, email, severity, issueDescription, chosenmodule);
     const emailSchema = z.string().email();
     if(!emailSchema.safeParse(email).success){
-      alert('Please enter a valid email address');
+      setIsPopupOpen(true);
+      setTitle('Error');
+      setMainMessage('Please enter a valid email address');
+      setButtonText('OK');
       return;
     }
     if(!severities.includes(severity)){
-      alert('Please select a valid severity');
+      setIsPopupOpen(true);
+      setTitle('Error');
+      setMainMessage('Please select a valid severity');
+      setButtonText('OK');
       return;
     }
   
     if(issueDescription.length < 10 || issueDescription.length > 1000){
-      alert('Please enter a valid issue description (Min 10 characters and Max 1000 characters)');
+      setIsPopupOpen(true);
+      setTitle('Error');
+      setMainMessage('Please enter a valid issue description (Min 10 characters and Max 1000 characters)');
+      setButtonText('OK');
       return;
     }
 
     if(vendor.length < 1 || singleproduct.length < 1 || singleversion.length < 1 || chosenmodule.length < 1){
-      alert('Please select a valid vendor, product, version and module');
+      setIsPopupOpen(true);
+      setTitle('Error');
+      setMainMessage('Please select a valid vendor, product, version and module');
+      setButtonText('OK');
       return;
     }
 
@@ -91,12 +104,18 @@ export default function FormDialog({versions, productsandmodules}: ReportProps) 
       severity: severity,
       issueDescription: issueDescription,
     });
-    console.log(report);
     if(report.data.report){
-      alert('Report submitted successfully');
+      setIsPopupOpen(true);
+      setTitle('Success');
+      setIssucceeded(true);
+      setMainMessage('Report submitted successfully');
+      setButtonText('OK');
     }
     else{
-      alert('Report submission failed');
+      setIsPopupOpen(true);
+      setTitle('Error');
+      setMainMessage('Report submission failed');
+      setButtonText('OK');
     }
   }
 

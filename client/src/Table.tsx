@@ -393,7 +393,7 @@ null
   
 }}>
 
-  <Grid item xs={4} style={{display:'flex', justifyContent:'flex-start', alignItems:'flex-start', flexDirection:'column', gap:'10px', minHeight:'60px'}}>
+  <Grid item xs={4} style={{display:'flex', justifyContent:'flex-start', alignItems:'flex-start', flexDirection:'column', gap:'10px', minHeight:'100px'}}>
     <Typography style={{color:"#424242", fontSize:'14px', fontWeight:'500', lineHeight:'16px', letterSpacing:'0.2px', fontFamily:'Kumbh Sans'}}>
       Known Issues
     </Typography>
@@ -401,7 +401,7 @@ null
       {productsandmodules?.find((product: any) => product.ProductName === chosenversion?.ProductName)?.issues?.length}
     </Typography>
   </Grid>
-  <Grid item xs={4} style={{display:'flex', justifyContent:'flex-start', alignItems:'center', flexDirection:'column', gap:'10px', minHeight:'60px'}}>
+  <Grid item xs={4} style={{display:'flex', justifyContent:'flex-start', alignItems:'center', flexDirection:'column', gap:'10px', minHeight:'100px'}}>
     <Typography style={{color:"#424242", fontSize:'14px', fontWeight:'500', lineHeight:'16px', letterSpacing:'0.2px', fontFamily:'Kumbh Sans', minHeight:'20px'}}>
     Issues 
     </Typography>

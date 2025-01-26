@@ -4,6 +4,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import { z } from 'zod';
 import axios from 'axios';
 import FormControlSelect from './NotificationSelect';
+import { useAuth } from './UseContext/MainAuth';
 
 
 interface NotificationProps {
@@ -95,6 +96,7 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_nea
   const [isproductsdisabled, setIsProductsDisabled] = useState(true);
   const [Unit, setUnit] = useState('');
   const [Interval, setInterval] = useState('');
+  const { setIsPopupOpen, setIssucceeded, setMessage, setTitle, setMainMessage, setSubMessage, setButtonText } = useAuth();
 
   useEffect(() => {
 
@@ -130,27 +132,42 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_nea
 
     const handleSubscribe = () => {
         if(vendor === '') {
-            alert('Please select a vendor');
-            return;
+           setIsPopupOpen(true);
+           setTitle('Error');
+           setMainMessage('Please select a vendor');
+           setButtonText('OK');
+           return;
         }
         else if(singleproduct === ''){
-            alert('Please select a product');
-            return;
+           setIsPopupOpen(true);
+           setTitle('Error');
+           setMainMessage('Please select a product');
+           setButtonText('OK');
+           return;
         }
       
         else if(Unit === ''){
-            alert('Please select a unit');
-            return;
+           setIsPopupOpen(true);
+           setTitle('Error');
+           setMainMessage('Please select a unit');
+           setButtonText('OK');
+           return;
         }
         else if(Interval === ''){
-            alert('Please select an interval');
-            return;
+           setIsPopupOpen(true);
+           setTitle('Error');
+           setMainMessage('Please select an interval');
+           setButtonText('OK');
+           return;
         }
    
         const emailValidation = emailSchema.safeParse(email);
         if (!emailValidation.success) {
-            alert('Please enter a valid email address');
-            return;
+           setIsPopupOpen(true);
+           setTitle('Error');
+           setMainMessage('Please enter a valid email address');
+           setButtonText('OK');
+           return;
         }
 
         axios.post('http://localhost:3001/api/subscribe', {
@@ -167,13 +184,23 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_nea
         .then(data => {
             console.log(data);
             if(data.subscribe==='Already Subscribed'){
-                alert('You are already subscribed to notifications');
+                setIsPopupOpen(true);
+                setTitle('Error');
+                setMainMessage('You are already subscribed to notifications');
+                setButtonText('OK');
             }
             else if(data.subscribe){
-                alert('You are now subscribed to notifications');
+                setIsPopupOpen(true);
+                setTitle('Success');
+                setIssucceeded(true);
+                setMainMessage('You are now subscribed to notifications');
+                setButtonText('OK');
             }
             else{
-                alert('Error subscribing');
+                setIsPopupOpen(true);
+                setTitle('Error');
+                setMainMessage('Error subscribing');
+                setButtonText('OK');
             }
         })
         .catch(error => console.error('Error subscribing:', error));
