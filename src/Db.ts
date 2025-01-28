@@ -582,19 +582,28 @@ class Database {
     });
    }
 
-   async report(vendor:string, product:string, version:string, module:string, email:string, severity:string,issueDescription:string,userid:number, rule?:string){
+   async report(vendor:string, product:string, version:string, module:string, email:string, severity:string, issueDescription:string, userid:number, rule?:string) {
     return new Promise((resolve, reject) => {
-            this.db.run(`INSERT INTO Issues (VendorName, ProductName, VersionName, ModuleName, Email, ${rule? 'Rule, ' : ''} Severity, Issue, Date_field, UserId,Ratification) VALUES ('${vendor}', '${product}', '${version}', '${module}', '${email}', ${rule? `'${rule}',` : ''} '${severity}', '${issueDescription}', '${new Date().toISOString()}', '${userid}',1)`, (err: Error) => {
-                if(err){
+        this.db.run(
+            `INSERT INTO Issues (VendorName, ProductName, VersionName, ModuleName, Email, ${rule? 'Rule, ' : ''} Severity, Issue, Date_field, UserId, Ratification) 
+             VALUES (?, ?, ?, ?, ?, ${rule? '?,' : ''} ?, ?, ?, ?, 1)`,
+            [
+                vendor, product, version, module, email, 
+                ...(rule ? [rule] : []), 
+                severity, issueDescription, 
+                new Date().toISOString(), userid
+            ],
+            function(this: { lastID: number }, err: Error) {
+                if(err) {
                     console.error('Error reporting issue', err.message);
                     reject(false);
+                } else {
+                    resolve(this.lastID);
                 }
-                else{
-                    resolve(true);
-                }
-            });
-        });
-    }
+            }
+        );
+    });
+}
 
 
     

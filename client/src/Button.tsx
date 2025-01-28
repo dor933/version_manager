@@ -6,6 +6,8 @@ export default function CustomButton({label, onClick}: {label: string, onClick: 
         <Box 
         sx={{
           display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
           backgroundColor: '#509CDB',
           borderRadius: '4px',
           padding: '5px',

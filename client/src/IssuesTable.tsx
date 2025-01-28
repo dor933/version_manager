@@ -6,6 +6,8 @@ import { TableCell } from '@mui/material';
 import { TableHead } from '@mui/material';
 import MyTabs from './Tabs';
 import { useAuth } from './UseContext/MainAuth';
+import axios from 'axios';
+import CustomButton from './Button';
     
 interface IssuesTableProps {
     chosenproduct: any;
@@ -16,7 +18,7 @@ interface IssuesTableProps {
     id: 'VersionName' | 'Issue' | 'Photos' | 'Severity' | 'Issue Status' | 'Date_field' | 'Issue Resolution' 
     label: string;
     minWidth?: number;
-    align?: 'right' | 'left';
+    align?: 'right' | 'left' | 'center';
     format_number?: (value: number) => string;
     format_date?: (value: Date) => string;
     format_product?: (value: string) => string;
@@ -30,7 +32,7 @@ interface IssuesTableProps {
       id: 'Issue',
       label: 'Description',
       minWidth: 140,
-      align: 'right',
+      align: 'center',
       format_product: (value: string) => value
     },
 
@@ -38,21 +40,21 @@ interface IssuesTableProps {
       id: 'Severity',
           label: 'Severity',
       minWidth: 140,
-      align: 'right',
+      align: 'center',
       format_product: (value: string) => value
     },
     {
       id: 'Date_field',
           label: 'Date',
       minWidth: 140,
-      align: 'right',
+      align: 'center',
       format_date: (value: Date) => value.toLocaleString('he-IL').split(',')[0]
     },
     {
       id: 'Issue Resolution',
       label: 'Resolution',
       minWidth: 140,
-      align: 'right',
+      align: 'center',
       format_product: (value: string) => value
     },
 
@@ -60,7 +62,7 @@ interface IssuesTableProps {
         id:'Photos',
         label:'Photos',
         minWidth:100,
-        align:'right',
+        align:'center',
         format_product: (value: string) => value
     }
   
@@ -74,7 +76,6 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
     const [chosenmodule, setChosenModule] = React.useState('');
     const [filteredIssues, setFilteredIssues] = React.useState<any[]>([]);
-    const { versions } = useAuth();
 
     useEffect(() => {
      
@@ -84,6 +85,8 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
         console.log('issuesrelevnetversion', issuesrelevnetversion)
         setFilteredIssues(issuesrelevnetversion);
     }, [chosenproduct]);
+
+
 
     useEffect(() => {
 
@@ -101,6 +104,13 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
         }
     }, [chosenmodule])
 
+    const getissuephotos= async (issueId: number) => {
+        console.log('issueId', issueId)
+            const response = await axios.get(`http://localhost:3001/api/issues/${issueId}/photos`);
+        const data = response.data;
+        console.log('data', data)
+        return data.photos;
+    }
 
 
     const handleChangePage = (event: unknown, newPage: number) => {
@@ -113,7 +123,6 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
       };
 
       const handleRowClick = (row: any) => {
-        console.log(row);
       };
   return (
 
@@ -145,6 +154,7 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
                   color: '#152259',
                   paddingY: '12px',  // Vertical padding
                 }}
+
               >
                 {column.label}
               </TableCell>
@@ -181,12 +191,14 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
                           fontSize: '14px',
                           color: '#4B4B4B',
                           paddingY: '25px',
+                          cursor: column.id==='Photos' ? 'pointer' : 'default',
                         }}
+                        onClick={() => column.id==='Photos' ? getissuephotos(row.IssueId) : null}
                       >
                         {column.format_date && value ? column.format_date(new Date(value))
                           : column.format_product && value ? column.format_product(value)
-                          : column.format_number && value ? column.format_number(value)
-                          : value}
+                          : column.format_number && value ? column.format_number(value) :
+                          column.id==='Photos' ? <CustomButton label="View Photos" onClick={() => getissuephotos(row.IssueId)} /> : value}
                       </TableCell>
                     );
                   })}

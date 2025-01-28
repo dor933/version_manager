@@ -398,7 +398,7 @@ null
       Known Issues
     </Typography>
     <Typography style={{color:"#A7A7A7", fontSize:'16px', fontWeight:'500', lineHeight:'16px', letterSpacing:'0.2px', fontFamily:'Kumbh Sans',alignSelf:'center',marginTop:'5px'}}>  
-      {productsandmodules?.find((product: any) => product.ProductName === chosenversion?.ProductName)?.issues?.length}
+      {productsandmodules?.find((product: any) => product.ProductName === chosenversion?.ProductName)?.issues?.filter((issue: any) => issue.VersionName === chosenversion?.VersionName).length}
     </Typography>
   </Grid>
   <Grid item xs={4} style={{display:'flex', justifyContent:'flex-start', alignItems:'center', flexDirection:'column', gap:'10px', minHeight:'100px'}}>

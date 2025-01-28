@@ -10,6 +10,8 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { z } from 'zod';
 import CancelIcon from '@mui/icons-material/Cancel';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import { styled } from '@mui/material/styles';
 
 const severities = ['Low', 'Medium', 'High','Urgent'];
 
@@ -18,6 +20,17 @@ interface ReportProps {
     productsandmodules: any;
 }
 
+const VisuallyHiddenInput = styled('input')({
+  clip: 'rect(0 0 0 0)',
+  clipPath: 'inset(50%)',
+  height: 1,
+  overflow: 'hidden',
+  position: 'absolute',
+  bottom: 0,
+  left: 0,
+  whiteSpace: 'nowrap',
+  width: 1,
+});
 
 export default function FormDialog({versions, productsandmodules}: ReportProps) {
   const { opendialog, setOpenDialog } = useAuth();
@@ -34,6 +47,8 @@ export default function FormDialog({versions, productsandmodules}: ReportProps) 
   const [severity, setSeverity] = useState('');
   const [issueDescription, setIssueDescription] = useState('');
   const { setIsPopupOpen, setTitle, setMainMessage, setButtonText, setIssucceeded } = useAuth();
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
 
   useEffect(() => {
 
@@ -58,6 +73,22 @@ export default function FormDialog({versions, productsandmodules}: ReportProps) 
     }
   }, [singleproduct, productsandmodules]);
 
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files) {
+      const newFiles = Array.from(files);
+      setSelectedFiles(prev => [...prev, ...newFiles]);
+      
+      // Create previews
+      newFiles.forEach(file => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setPreviews(prev => [...prev, reader.result as string]);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  };
 
   const handleSubmit = async () => {
     console.log(vendor, singleproduct, singleversion, email, severity, issueDescription, chosenmodule);
@@ -95,32 +126,52 @@ export default function FormDialog({versions, productsandmodules}: ReportProps) 
 
     console.log(vendor, singleproduct, singleversion, chosenmodule, email, severity, issueDescription);
 
-    let report= await axios.post('http://localhost:3001/api/report', {
-      vendor: vendor,
-      product: singleproduct,
-      version: singleversion,
-      module: chosenmodule,
-      email: email,
-      severity: severity,
-      issueDescription: issueDescription,
+    const formData = new FormData();
+    formData.append('vendor', vendor);
+    formData.append('product', singleproduct);
+    formData.append('version', singleversion);
+    formData.append('module', chosenmodule);
+    formData.append('email', email);
+    formData.append('severity', severity);
+    formData.append('issueDescription', issueDescription);
+    
+    // Append each file to formData
+    selectedFiles.forEach((file, index) => {
+      formData.append('photos', file);
     });
-    if(report.data.report){
-      setIsPopupOpen(true);
-      setTitle('Success');
-      setIssucceeded(true);
-      setMainMessage('Report submitted successfully');
-      setButtonText('OK');
-    }
-    else{
+
+    try {
+      const report = await axios.post('http://localhost:3001/api/report', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      
+      if(report.data.report) {
+        const issueId = report.data.issueId;
+        setIsPopupOpen(true);
+        setTitle('Success');
+        setIssucceeded(true);
+        setMainMessage('Report submitted successfully');
+        setButtonText('OK');
+        // Clear files after successful upload
+        setSelectedFiles([]);
+        setPreviews([]);
+      }
+      else{
+        setIsPopupOpen(true);
+        setTitle('Error');
+        setMainMessage('Report submission failed');
+        setButtonText('OK');
+      }
+    } catch (error) {
+      console.error('Error uploading:', error);
       setIsPopupOpen(true);
       setTitle('Error');
-      setMainMessage('Report submission failed');
+      setMainMessage('Failed to upload files');
       setButtonText('OK');
     }
   }
-
-
-
 
   return (
     <React.Fragment>
@@ -278,9 +329,37 @@ export default function FormDialog({versions, productsandmodules}: ReportProps) 
                 </Grid>
                 <Grid container style={{display:'flex', justifyContent:'flex-start', alignItems:'center', flexDirection:'row', marginTop:'20px'}}>
                 <Grid item xs={4}>
-               
-               <Button variant="contained" color="primary" sx={{width:'100%', fontFamily:'Kumbh Sans', fontWeight:'500', fontSize:'14px', color:'#FFFFFF'}}>Upload Photos (Soon)</Button>
-
+                  <Button
+                    component="label"
+                    variant="contained"
+                    startIcon={<CloudUploadIcon />}
+                    sx={{
+                      width: '100%', 
+                      fontFamily: 'Kumbh Sans', 
+                      fontWeight: '500', 
+                      fontSize: '14px'
+                    }}
+                  >
+                    Upload Photos
+                    <VisuallyHiddenInput type="file" multiple onChange={handleFileSelect} accept="image/*"/>
+                  </Button>
+                  {previews.length > 0 && (
+                    <Box sx={{ mt: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                      {previews.map((preview, index) => (
+                        <Box
+                          key={index}
+                          component="img"
+                          src={preview}
+                          sx={{
+                            width: 60,
+                            height: 60,
+                            objectFit: 'cover',
+                            borderRadius: 1
+                          }}
+                        />
+                      ))}
+                    </Box>
+                  )}
                 </Grid>
                 <Grid item xs={8} style={{display:'flex', justifyContent:'flex-end', alignItems:'center', flexDirection:'row'}}>
   

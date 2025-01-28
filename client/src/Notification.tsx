@@ -260,7 +260,7 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_nea
           sx={{
             position: 'absolute',
             right: '45px',
-            top: '75px',
+            top: '80px',
             width: '400px',
             backgroundColor: 'white',
             borderRadius: '8px',

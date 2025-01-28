@@ -42,7 +42,7 @@ const Popup: React.FC = ({
                             />
                         </Box>
                     )}
-                    <Box position="absolute" top={isSmall ? 3.7 : 22} left={issucceeded ? 26 : 3}>
+                    <Box position="absolute" top={isSmall ? 3.7 : 22} left={issucceeded ? 26 : 0}>
                         {issucceeded ? 
                             <CheckIcon fontSize={isSmall ? 'small' : 'large'} sx={{ color: 'green' }} /> :
                             <ErrorIcon fontSize={isSmall ? 'small' : 'large'} sx={{ color: 'red' }} />
