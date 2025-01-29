@@ -27,6 +27,9 @@ const AuthContext = createContext<{
   setSubMessage: React.Dispatch<React.SetStateAction<string>>;
   buttonText: string;
   setButtonText: React.Dispatch<React.SetStateAction<string>>;
+  isphotosopen: boolean;
+  setIsPhotosOpen: React.Dispatch<React.SetStateAction<boolean>>;
+
 
 
    }>({
@@ -52,6 +55,9 @@ const AuthContext = createContext<{
   setSubMessage: () => null,
   buttonText: '',
   setButtonText: () => null,
+  isphotosopen: false,
+  setIsPhotosOpen: () => null,
+
 
 
 
@@ -72,6 +78,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [mainMessage, setMainMessage] = useState<string>('');
   const [subMessage, setSubMessage] = useState<string>('');
   const [buttonText, setButtonText] = useState<string>('');
+  const [isphotosopen, setIsPhotosOpen] = useState<boolean>(false);
 
   return <AuthContext.Provider value={{ 
     versions, 
@@ -97,6 +104,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setSubMessage,
     buttonText,
     setButtonText,
+    isphotosopen,
+    setIsPhotosOpen,
+
 
 
 

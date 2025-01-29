@@ -1,13 +1,14 @@
 import { Table, TableBody, TableRow } from '@mui/material';
 import { TableContainer, TablePagination } from '@mui/material';
 import { Paper } from '@mui/material';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { TableCell } from '@mui/material';
 import { TableHead } from '@mui/material';
 import MyTabs from './Tabs';
 import { useAuth } from './UseContext/MainAuth';
 import axios from 'axios';
 import CustomButton from './Button';
+import { PhotosComp } from './PhotosComp';
     
 interface IssuesTableProps {
     chosenproduct: any;
@@ -76,6 +77,9 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
     const [chosenmodule, setChosenModule] = React.useState('');
     const [filteredIssues, setFilteredIssues] = React.useState<any[]>([]);
+    const [isphotosopen, setIsPhotosOpen] = useState(false);
+    const [photos, setPhotos] = React.useState<string[]>([]);
+
 
     useEffect(() => {
      
@@ -109,7 +113,16 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
             const response = await axios.get(`http://localhost:3001/api/issues/${issueId}/photos`);
         const data = response.data;
         console.log('data', data)
+        if(data.photos.length>0){
+            setPhotos(data.photos);
+            setIsPhotosOpen(true);
+        }
+
+
+
         return data.photos;
+
+
     }
 
 
@@ -127,8 +140,11 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
   return (
 
     <Paper sx={{ width: '100%', overflow: 'hidden', boxShadow: 'none' }}>
+          <PhotosComp photos={photos} isphotosopen={isphotosopen} setIsPhotosOpen={setIsPhotosOpen} />
+
         <MyTabs chosenmodule={chosenmodule} setChosenModule={setChosenModule} modules={chosenproduct.modules}/>
     <TableContainer sx={{ minHeight: 600,marginTop:'20px' }}>
+
       <Table 
         stickyHeader 
         aria-label="sticky table"
