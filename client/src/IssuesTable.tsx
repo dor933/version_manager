@@ -79,6 +79,8 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
     const [filteredIssues, setFilteredIssues] = React.useState<any[]>([]);
     const [isphotosopen, setIsPhotosOpen] = useState(false);
     const [photos, setPhotos] = React.useState<string[]>([]);
+      const { setIsPopupOpen, setTitle, setMainMessage, setButtonText } = useAuth();
+
 
 
     useEffect(() => {
@@ -116,6 +118,12 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
         if(data.photos.length>0){
             setPhotos(data.photos);
             setIsPhotosOpen(true);
+        }
+        else{
+          setIsPopupOpen(true);
+          setTitle('Error');
+          setMainMessage('There are not photos for this issue');
+          setButtonText('OK');
         }
 
 
