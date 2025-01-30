@@ -221,7 +221,7 @@ class Database {
 
 
                     await this.insertData('Version', 
-                        [ 'VersionName', 'ProductName', 'VendorName', 'ReleaseDate', 'EndOfSupportDate', 'LevelOfSupport', 'Extended_Support_End_Date','EOSL_Start_Date','full_release_notes'], 
+                        [ 'VersionName', 'ProductName', 'VendorName', 'ReleaseDate', 'EndOfSupportDate', 'LevelOfSupport', 'Extended_Support_End_Date','EOSL_Start_Date','full_release_notes', 'Timestamp'], 
                         [
                             Version.VersionName, 
                             Version.ProductName!,
@@ -231,7 +231,8 @@ class Database {
                             Version.LevelOfSupport? Version.LevelOfSupport : 'NULL',
                             Version.Extended_Support_End_Date? Version.Extended_Support_End_Date.toISOString() : 'NULL',
                             Version.EOSL_Start_Date? Version.EOSL_Start_Date.toISOString() : 'NULL',
-                            Version.release_notes? Version.release_notes : 'NULL'
+                            Version.release_notes? Version.release_notes : 'NULL',
+                            new Date(new Date().setDate(new Date().getDate() - 3)).toISOString()
                         ] , 
                         Version,
                         UsersArray
@@ -282,6 +283,7 @@ class Database {
                         Extended_Support_End_Date DATE,
                         EOSL_Start_Date DATE,
                         full_release_notes TEXT,
+                        Timestamp DATE,
                         FOREIGN KEY (ProductName) REFERENCES Product(ProductName),
                         FOREIGN KEY (VendorName) REFERENCES Vendor(VendorName),
                         PRIMARY KEY (VersionName, ProductName, VendorName)

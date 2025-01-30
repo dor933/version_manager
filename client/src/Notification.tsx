@@ -10,7 +10,7 @@ import { useAuth } from './UseContext/MainAuth';
 interface NotificationProps {
   open: boolean;
   onClose: () => void;
-  versions_near_eosl: any[];
+  versions_to_notify: any[];
   type: string;
   distinctVendors?: string[];
   versions: any[];
@@ -86,7 +86,7 @@ const customSelectStyle = {
   }
 };
 
-const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_near_eosl,type, distinctVendors, versions }) => {
+const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_to_notify,type, distinctVendors, versions }) => {
 
 
   const [email, setEmail] = useState<string>('');
@@ -236,16 +236,19 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_nea
             <CancelIcon sx={{color:'#152259', cursor:'pointer', fontSize:'20px'}} onClick={onClose}/>
             </Grid>
             <Box sx={{ maxHeight: '300px', overflowY: 'auto' }}>
-              {versions_near_eosl.map((version) => (
+              {versions_to_notify.map((version) => (
                 <Box 
                   key={`${version.ProductName}-${version.VersionName}`} 
                   sx={{ p: 1, borderBottom: '1px solid #eee' }}
                 >
                   <Typography sx={{ fontSize: '12px', color: '#424242', fontFamily: 'Kumbh Sans' }}>
-                    {version.ProductName} {version.VersionName} is nearing end of support life
+                    {version.is_new ? `New Version! ${version.ProductName} ${version.VersionName}` : `${version.ProductName} ${version.VersionName} is nearing end of support life`} 
+                  
                   </Typography>
                   <Typography sx={{ fontSize: '10px', color: '#666', mt: 0.5, fontFamily: 'Kumbh Sans' }}>
-                    End of support life: {new Date(version.EndOfSupportDate).toLocaleString('he-IL').split(',')[0]}
+                    { !version.is_new &&
+                    `End of support life: ${new Date(version.EndOfSupportDate).toLocaleString('he-IL').split(',')[0]}`
+                    } 
                   </Typography>
                 </Box>
               ))}

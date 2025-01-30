@@ -33,6 +33,8 @@ export interface VersionData {
     Extended_Support_End_Date?:Date
     EOSL_Start_Date?:Date
     release_notes?:string
+    Timestamp?:Date
+    is_new?:boolean
 
 }
 

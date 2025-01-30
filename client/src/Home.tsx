@@ -30,7 +30,7 @@ const [failedSyncing, setFailedSyncing] = React.useState(false);
 const [isSyncing, setIsSyncing] = React.useState(false);
 const [openNotification, setOpenNotification] = React.useState(false);
 const [readnotifications, setReadnotifications] = React.useState<boolean>(false);
-const [versions_near_eosl, setVersionsNearEosl] = React.useState<any[]>([]);
+const [versions_to_notify, setVersionsToNotify] = React.useState<any[]>([]);
 const [openSubscribe, setOpenSubscribe] = React.useState<boolean>(false);
 const [productsandmodules, setProductsAndModules] = React.useState<any>(null);
 
@@ -68,14 +68,32 @@ useEffect(() => {
     setDistinctVendors(distinctVendors);
     const versions_near_eosl = versions.filter((version: any) => {
       const endDate = new Date(version.EndOfSupportDate);
-      endDate.setDate(endDate.getDate() + 1);
       
       return endDate <= new Date(new Date().setDate(new Date().getDate() + 30)) 
           && endDate >= new Date();
     });
-    
-    console.log('versions_near_eosl', versions_near_eosl);
-    setVersionsNearEosl(versions_near_eosl);
+
+    const versions_newer_than_2_days = versions.filter((version: any) => {
+
+      if(versions_near_eosl.some((v: any) => v.VersionName === version.VersionName && v.ProductName === version.ProductName)){
+        return false;
+      }
+
+      const timestamp = new Date(version.Timestamp);
+      return timestamp >= new Date(new Date().setDate(new Date().getDate() - 2));
+    });
+
+    versions_near_eosl.forEach((version) => {
+      version.is_new = false;
+    });
+
+    versions_newer_than_2_days.forEach((version) => {
+      version.is_new = true;
+    });
+
+    const merged_versions = [...versions_near_eosl, ...versions_newer_than_2_days];
+    console.log('merged_versions', merged_versions);
+    setVersionsToNotify(merged_versions);
     setReadnotifications(false);
   }
 }, [versions]);
@@ -197,7 +215,7 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
              <Notification 
                open={openNotification} 
                onClose={onCloseNotification}    
-               versions_near_eosl={versions_near_eosl}
+               versions_to_notify={versions_to_notify}
                type='notifications'
                versions={versions? versions: []}
              />
@@ -216,7 +234,7 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
                  <Notification
                  open={openSubscribe}
                  onClose={onCloseSubscribe}
-                 versions_near_eosl={versions_near_eosl}
+                 versions_to_notify={versions_to_notify}
                  type='subscribe'
                  distinctVendors={distinctVendors}
                  versions={versions? versions: []}
