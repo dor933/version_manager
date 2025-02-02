@@ -141,7 +141,7 @@ export default function FormDialog({versions, productsandmodules}: ReportProps) 
     });
 
     try {
-      const report = await axios.post('http://192.168.27.42:3001/api/report', formData, {
+      const report = await axios.post('http://localhost:3001/api/report', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }

@@ -71,6 +71,12 @@ interface IssuesTableProps {
   
   ];
 
+const isHebrewText = (text: string) => {
+  // Hebrew Unicode range
+  const hebrewPattern = /[\u0590-\u05FF]/;
+  return hebrewPattern.test(text);
+};
+
 const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
 
     const [page, setPage] = React.useState(0);
@@ -211,18 +217,20 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
                         key={column.id} 
                         align={column.align}
                         sx={{
-                          fontFamily: 'Kumbh Sans',
+                          fontFamily: column.id === 'Issue' && isHebrewText(value) ? 'Assistant' : 'Kumbh Sans',
                           fontSize: '14px',
                           color: '#4B4B4B',
                           paddingY: '25px',
-                          cursor: column.id==='Photos' ? 'pointer' : 'default',
+                          cursor: column.id === 'Photos' ? 'pointer' : 'default',
+                          direction: column.id === 'Issue' && isHebrewText(value) ? 'rtl' : 'ltr',
                         }}
-                        onClick={() => column.id==='Photos' ? getissuephotos(row.IssueId) : null}
+                        onClick={() => column.id === 'Photos' ? getissuephotos(row.IssueId) : null}
                       >
                         {column.format_date && value ? column.format_date(new Date(value))
                           : column.format_product && value ? column.format_product(value)
-                          : column.format_number && value ? column.format_number(value) :
-                          column.id==='Photos' ? <CustomButton label="View Photos" onClick={() => getissuephotos(row.IssueId)} /> : value}
+                          : column.format_number && value ? column.format_number(value)
+                          : column.id === 'Photos' ? <CustomButton label="View Photos" onClick={() => getissuephotos(row.IssueId)} />
+                          : value}
                       </TableCell>
                     );
                   })}

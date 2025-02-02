@@ -46,7 +46,7 @@ export const PhotosComp = ({ photos, isphotosopen, setIsPhotosOpen }: PhotosComp
             {photos.map((photo, index) => (
               <Grid item xs={12} sm={6} md={4} key={index} style={{borderRight:'1px solid #E0E0E0',paddingLeft:'10px',paddingRight:'10px'}}>
                 <img
-                  src={'http://192.168.27.42:3001'+photo}
+                  src={'http://localhost:3001'+photo}
                   alt={`Issue photo ${index + 1}`}
                   style={{
                     width: '100%',
@@ -90,7 +90,7 @@ export const PhotosComp = ({ photos, isphotosopen, setIsPhotosOpen }: PhotosComp
         <DialogContent sx={{ p: 0 }}>
           {selectedPhoto && (
             <img
-              src={'http://192.168.27.42:3001'+selectedPhoto}
+              src={'http://localhost:3001'+selectedPhoto}
               alt="Full size"
               style={{
                 width: '100%',
