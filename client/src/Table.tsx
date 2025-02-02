@@ -18,6 +18,7 @@ import Issues from './Issues';
 import { HomeSVG } from './svg/HomeSVG';
 import { EmailSVG } from './svg/EmailSVG';
 import { InfoSVG } from './svg/InfoSVG';
+import { VersionData } from './types';
 
 
 interface Column {
@@ -80,7 +81,7 @@ const columns: readonly Column[] = [
 
 
 
-export default function StickyHeadTable({versions, distinctVendors, productsandmodules }: {versions: any[], distinctVendors: any[], productsandmodules: any[]}) {
+export default function StickyHeadTable({versions, distinctVendors, productsandmodules }: {versions: VersionData[], distinctVendors: string[], productsandmodules: any[]}) {
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [filteredVersions, setFilteredVersions] = React.useState(versions);
   const [searchvalue, setSearchvalue] = React.useState('');
@@ -111,13 +112,11 @@ export default function StickyHeadTable({versions, distinctVendors, productsandm
     newFiltered=newFiltered.sort((a: any, b: any) => new Date(b.ReleaseDate).getTime() - new Date(a.ReleaseDate).getTime());
       setFilteredVersions(newFiltered);
     } else if (vendor) {
-      console.log('entered vendor')
       // No search, but vendor chosen
       let filtered_versions= versions.filter((v) => v.VendorName === vendor);
       filtered_versions=filtered_versions.sort((a: any, b: any) => new Date(b.ReleaseDate).getTime() - new Date(a.ReleaseDate).getTime());  
       setFilteredVersions(filtered_versions);
       if(chosenversion?.VendorName!==vendor){
-        console.log('entered vendor not the same')
         setChosenversion(filtered_versions[0])
         setPage(0)
       }

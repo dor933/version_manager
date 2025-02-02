@@ -3,54 +3,13 @@ import { Database } from './Db';
 import { sendEmail } from './Functions';
 import winston from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
-import yargs from 'yargs';
-import { hideBin } from 'yargs/helpers';
 import { startServer } from './server/server';
 let errorCount=0;
 let croninterval:any= process.env.CRON_INTERVAL;
 let unit=process.env.UNIT;
-let isinit=true;
-
-async function getEmails(){
-
-const argv = await yargs(hideBin(process.argv))
-    .option('emails', {
-        alias: 'e',
-        type: 'string',
-        description: 'Email addresses to send notifications (comma-separated)',
-        default: process.env.NOTIFICATION_EMAILS || ''
-    })
-    .option('interval', {
-        alias: 'i',
-        type: 'number',
-        description: 'Cron job interval in minutes',
-        default: process.env.CRON_INTERVAL || 1
-    })
-    .option('unit', {
-        alias: 'u',
-        type: 'string',
-        description: 'Interval time unit',
-        default: process.env.UNIT || 'months'
-    })
-    .argv;
+let isinit=false;
 
 
-
-
-    
-
-
-
-
-croninterval= argv.interval? argv.interval: parseInt(process.env.CRON_INTERVAL!)
-unit= argv.unit!==''? argv.unit : process.env.NOTIFICATION_EMAILS;
-
-console.log('Interval is:', croninterval)
-isinit=false;
-
-
-    startCronJob();
-}
 
 // Configure logger with new file for each day
 
@@ -218,28 +177,13 @@ process.on('unhandledRejection', (reason) => {
     console.log('Initiate version manager...')
     await db.HandleData();
     console.log('Initiation finished successfully')
-    getEmails();
-
-    //create table that will store the users and the products they are interested in
-    // await db.createTable('Users_Chosen_Products', [
-    //     'UserID TEXT',
-    //     'ProductName TEXT',
-    //     'VendorName TEXT',
-    //     'Unit_of_time TEXT CHECK(Unit_of_time IN ("hours", "days", "months"))',
-    //     'Interval_of_time INTEGER',
-    //     'PRIMARY KEY (UserID, ProductName, VendorName)',
-    //     'FOREIGN KEY (UserID) REFERENCES User(Id)',
-    //     'FOREIGN KEY (ProductName, VendorName) REFERENCES Product(ProductName, VendorName)'
-    // ]);
-
+    startCronJob();
 
  
 
 })();
 
-async function addKnownIssue(issue:any){
-await db.insertData('Known_Issues',['VersionName','ProductName','VendorName','IssueName','IssueDescription','IssueDate','IssueStatus','IssueSeverity','IssueResolution'],[issue.VersionName,issue.ProductName,issue.VendorName,issue.IssueName,issue.IssueDescription,issue.IssueDate,issue.IssueStatus,issue.IssueSeverity,issue.IssueResolution]);
-}
+
 
 
 

@@ -2,7 +2,6 @@ import axios from 'axios';
 import { notify_on_end_of_support, notify_on_end_of_support_changes, notify_new_version, extract_versions_from_json,extract_fortra_versions_to_json, extract_JSON_URL } from './Functions';
 import { parseDate } from './Functions';
 import { DataStructure, VersionData, version_extracted } from './types';
-const path = require('path');
 const Data=require('../Data.json') as DataStructure;
 import { logger } from './index';
 
@@ -54,7 +53,6 @@ class Database {
 
     async HandleData(isinit?:boolean) : Promise<boolean | any> {
 
-        let listoffortraversions:version_extracted[]=[]
         try{
 
            await  this.createTable('User', ['Id INTEGER PRIMARY KEY AUTOINCREMENT', 'Email TEXT UNIQUE', 'Role TEXT']);

@@ -118,7 +118,7 @@ export const createEmailTemplate = (content: Content, vendorname:string) => `
                                     </tr>
                                     
                                     <!-- Button -->
-                                             <tr style="max-width:500px;">
+                                             <tr style="max-width:700px;">
                                         <td style="text-align: center; padding: 20px 0;">
                                             <a 
                                                 href="http://192.168.27.42:3000" 

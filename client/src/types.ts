@@ -35,6 +35,7 @@ export interface VersionData {
     release_notes?:string
     Timestamp?:Date
     is_new?:boolean
+    full_release_notes?:string
 
 }
 
