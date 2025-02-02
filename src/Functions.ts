@@ -408,61 +408,83 @@ async function notify_new_version(newVersion: VersionData, users_array?: any) {
     
 }
 
-async function sendEmail({ subject, content, vendor_name, users_array }: { subject: string, content: any, vendor_name:string, users_array?: any}) {
+async function sendEmail({ 
+  subject, 
+  content, 
+  vendor_name, 
+  users_array 
+}: { 
+  subject: string, 
+  content: any, 
+  vendor_name: string, 
+  users_array?: any
+}) {
+  // Early return if no users or initialization
+  if (users_array === undefined || users_array === '' || isinit === true) {
+    return;
+  }
 
-    if(users_array===undefined || users_array==='' || isinit===true){
-        return
+  console.log('users_array', users_array);
+
+  const transporter = nodemailer.createTransport({
+    host: "mail.bulwarx.local",
+    port: 25,
+    secure: false,
+    tls: {
+      ciphers: 'SSLv3:TLSv1:TLSv1.1:TLSv1.2:TLSv1.3',
+      rejectUnauthorized: false
     }
+  });
 
-    console.log('users_array', users_array);
+  try {
+    if (users_array && users_array.length > 0) {
+      for (const mailbox of users_array) {
+        // Calculate next update time based on frequency
+        const getMilliseconds = (frequency: string) => ({
+          'Hours': 3600000,
+          'Days': 86400000,
+          'Weeks': 604800000,
+          'Months': 2629746000
+        })[frequency] || 0;
 
-    const transporter = nodemailer.createTransport({
-        host: "mail.bulwarx.local", // Exchange server address
-        port: 25,                  // Standard secure SMTP port
-        secure: false,              // true for 465, false for other ports
-   
-        tls: {
-            ciphers: 'SSLv3:TLSv1:TLSv1.1:TLSv1.2:TLSv1.3',  // Supports multiple cipher suites
-            rejectUnauthorized: false
+        const nextUpdateTime = new Date(mailbox.Last_Update).getTime() + 
+          mailbox.Unit_of_time * mailbox.Frequency * getMilliseconds(mailbox.Frequency);
+
+        // Check if it's time to send an email
+        const shouldSendEmail = 
+          subject.includes('End of Support Date Change:') || 
+          subject.includes('Version Changes Detected:') || 
+          nextUpdateTime < new Date().getTime();
+
+        if (shouldSendEmail) {
+          const info = await transporter.sendMail({
+            from: process.env.USER_EMAIL,
+            to: mailbox.Email,
+            subject: subject,
+            html: createEmailTemplate(content, vendor_name)
+          });
+
+          // Update the last_update field in the database
+          await db.updateLastUpdate(
+            mailbox.UserID,
+            mailbox.ProductName,
+            mailbox.VendorName
+          );
+
+          console.log('Email sent:', info.messageId);
+          logger.info('Email sent and last_update updated:', { info, mailbox });
+        } else {
+          logger.info('Email not sent (last update is not old enough):', { mailbox });
         }
-    });
-
-    try {
-
-        if(users_array && users_array?.length>0){
-          
-        
-
-        for(const mailbox of users_array){
-
-            if( (subject.includes('End of Support Date Change:') || subject.includes('Version Changes Detected:')) || new Date(mailbox.Last_Update).getTime() + mailbox.Unit_of_time * mailbox.Frequency * (mailbox.Frequency==='Hours'? 3600000 : mailbox.Frequency==='Days'? 86400000 : mailbox.Frequency==='Weeks'? 604800000 : mailbox.Frequency==='Months'? 2629746000 : 0) < new Date().getTime()){  
-
-                const info = await transporter.sendMail({
-                    from: process.env.USER_EMAIL,
-                    to: mailbox.Email,
-                    subject: subject,
-                    html: createEmailTemplate(content, vendor_name)
-            
-        });
-
-
-        console.log('Email sent:', info.messageId);
-        logger.info('Email sent:', { info });
-        return info;
+      }
+    } else {
+      logger.info('No users to send email to');
     }
-    else{
-        logger.info('Email not sent (last update is not old enough):', { mailbox });
-    }
-    }
-}
-else{
-    //here will be other type of emails
-}
-    }
-    catch (error) {
-        console.error('Error sending email:', error);
-        throw error;
-    }
+  } catch (error) {
+    console.error('Error sending email:', error);
+    logger.error('Error sending email:', { error });
+    throw error;
+  }
 }
 
 export { notify_on_end_of_support, notify_new_version, sendEmail, parseDate, notify_on_end_of_support_changes, extract_versions_from_json,extract_fortra_versions_to_json,extract_JSON_URL };

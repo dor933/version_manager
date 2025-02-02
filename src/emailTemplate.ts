@@ -118,17 +118,19 @@ export const createEmailTemplate = (content: Content, vendorname:string) => `
                                     </tr>
                                     
                                     <!-- Button -->
-                                        <tr style="max-width:500px;">
-                                        <td align="center" style="padding-top: 25px;">
-                                            <table cellpadding="0" cellspacing="0" width="300px">
-                                                <tr style="max-width:500px;">
-                                                    <td style="background: #3490EC; border-radius: 60px; padding: 20px 40px; width: 100%;">
-                                                        <span style="color: #FFFFFF; font-size: 18px; font-weight: bold; text-decoration: none; display: block; text-align: center; width: 100%;">
-                                                           Stay tuned for updates
-                                                        </span>
-                                                    </td>
-                                                </tr>
-                                            </table>
+                                    <tr style="max-width:500px;">
+                                        <td>
+                                            <a 
+                                                href="http://192.168.27.42:3000" 
+                                                target="_blank" 
+                                                style="
+                                                    text-decoration: none;
+                                                    color: #0066cc;
+                                                    cursor: pointer;
+                                                "
+                                            >
+                                                Stay tuned for updates
+                                            </a>
                                         </td>
                                     </tr>
                                 </table>

@@ -54,7 +54,6 @@ class Database {
 
     async HandleData(isinit?:boolean) : Promise<boolean | any> {
 
-        let listoffortraversions:version_extracted[]=[]
         try{
 
            await  this.createTable('User', ['Id INTEGER PRIMARY KEY AUTOINCREMENT', 'Email TEXT UNIQUE', 'Role TEXT']);
@@ -232,7 +231,7 @@ class Database {
                             Version.Extended_Support_End_Date? Version.Extended_Support_End_Date.toISOString() : 'NULL',
                             Version.EOSL_Start_Date? Version.EOSL_Start_Date.toISOString() : 'NULL',
                             Version.release_notes? Version.release_notes : 'NULL',
-                            new Date(new Date().setDate(new Date().getDate() - 3)).toISOString()
+                            new Date().toISOString()
                         ] , 
                         Version,
                         UsersArray
@@ -430,7 +429,7 @@ class Database {
 
     return new Promise((resolve, reject) => {
         try{
-            let query= `SELECT U.Email,UC.Last_Update, UC.Unit_of_time, UC.Frequency FROM User_Chosen_Products UC INNER JOIN User U ON UC.UserID=U.Id WHERE UC.ProductName='${product}' AND UC.VendorName='${vendor}'`;
+            let query= `SELECT U.Email,UC.Last_Update, UC.Unit_of_time, UC.Frequency, UC.UserID, UC.ProductName, UC.VendorName FROM User_Chosen_Products UC INNER JOIN User U ON UC.UserID=U.Id WHERE UC.ProductName='${product}' AND UC.VendorName='${vendor}'`;
         this.db.all(query, (err: Error, rows: any) => {
 
            if(err){
@@ -444,7 +443,9 @@ class Database {
                     Last_Update: row.Last_Update,
                     Unit_of_time: row.Unit_of_time,
                     Frequency: row.Frequency,
-                    UserID: row.UserID
+                    UserID: row.UserID,
+                    ProductName: row.ProductName,
+                    VendorName: row.VendorName
                 }
             });
             resolve(users_to_update);
