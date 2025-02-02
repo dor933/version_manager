@@ -118,15 +118,23 @@ export const createEmailTemplate = (content: Content, vendorname:string) => `
                                     </tr>
                                     
                                     <!-- Button -->
-                                    <tr style="max-width:500px;">
-                                        <td>
+                                             <tr style="max-width:500px;">
+                                        <td style="text-align: center; padding: 20px 0;">
                                             <a 
                                                 href="http://192.168.27.42:3000" 
                                                 target="_blank" 
                                                 style="
+                                                    display: inline-block;
+                                                    background-color: #0066cc;
+                                                    color: white;
                                                     text-decoration: none;
-                                                    color: #0066cc;
+                                                    padding: 15px 30px;
+                                                    border-radius: 25px;
+                                                    font-weight: bold;
                                                     cursor: pointer;
+                                                    text-align: center;
+                                                    margin: 0 auto;
+                                                    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
                                                 "
                                             >
                                                 Stay tuned for updates

@@ -54,6 +54,7 @@ class Database {
 
     async HandleData(isinit?:boolean) : Promise<boolean | any> {
 
+        let listoffortraversions:version_extracted[]=[]
         try{
 
            await  this.createTable('User', ['Id INTEGER PRIMARY KEY AUTOINCREMENT', 'Email TEXT UNIQUE', 'Role TEXT']);
@@ -80,7 +81,7 @@ class Database {
                 'FOREIGN KEY (VendorName) REFERENCES Vendor(VendorName)'
             ]);
 
-            await this.createTable('Version');              
+            await this.createTable('Version',['VersionName TEXT', 'ProductName TEXT', 'VendorName TEXT', 'ReleaseDate DATE', 'EndOfSupportDate DATE', 'LevelOfSupport TEXT', 'Extended_Support_End_Date DATE', 'EOSL_Start_Date DATE', 'full_release_notes TEXT', 'Timestamp DATE', 'FOREIGN KEY (ProductName) REFERENCES Product(ProductName)', 'FOREIGN KEY (VendorName) REFERENCES Vendor(VendorName)', 'PRIMARY KEY (VersionName, ProductName, VendorName)'] );              
 
 
             await this.createTable('Module', [ 'ModuleName TEXT', 'ProductName TEXT', 'VendorName TEXT', 'PRIMARY KEY (ModuleName, ProductName, VendorName)', 'FOREIGN KEY (ProductName, VendorName) REFERENCES Product(ProductName, VendorName)']);
@@ -271,26 +272,10 @@ class Database {
         return new Promise((resolve, reject) => {
             try {
                 let sql;
-                if (table === 'Version') {
-                    sql = `CREATE TABLE IF NOT EXISTS Version (
-                        VersionName TEXT,
-                        ProductName TEXT,
-                        VendorName TEXT,
-                        ReleaseDate DATE,
-                        EndOfSupportDate DATE,
-                        LevelOfSupport TEXT,
-                        Extended_Support_End_Date DATE,
-                        EOSL_Start_Date DATE,
-                        full_release_notes TEXT,
-                        Timestamp DATE,
-                        FOREIGN KEY (ProductName) REFERENCES Product(ProductName),
-                        FOREIGN KEY (VendorName) REFERENCES Vendor(VendorName),
-                        PRIMARY KEY (VersionName, ProductName, VendorName)
-                    )`;
-                } else {
+     
                     const columnsString = columns!.join(',');
                     sql = `CREATE TABLE IF NOT EXISTS ${table} (${columnsString})`;
-                }
+                
                 this.db.run(sql, (err: Error) => {
                     if (err) {
                         reject(err);
@@ -329,7 +314,7 @@ class Database {
                                     
                         if(table === 'Version' && rows.length > 0){
 
-                            //try to parse the EndOfSupportDate and values[3] to date   
+                            //parse the EndOfSupportDate and values[3] to date   
                             const EndOfSupportDate_DateTime = parseDate(rows[0]?.EndOfSupportDate)
                             const EndOfSupportDate_DateTime_new = parseDate(values[4]);
                             this.UpdateRecord('Version', ['full_release_notes'], [values[8]], 'VersionName', rows[0].VersionName);
@@ -509,9 +494,13 @@ class Database {
                 const insertQuery = `INSERT INTO User_Chosen_Products 
                     (UserID, ProductName, VendorName, Unit_of_time, Frequency, Last_Update) 
                     VALUES (?, ?, ?, ?, ?, ?)`;
+
+                    const oneYearAgo = new Date();
+                    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+                    const oneYearAgoISO = oneYearAgo.toISOString();
                     
                 this.db.run(insertQuery, 
-                    [userid, product, vendor, Unit_of_time, Frequency, new Date().toISOString()], 
+                    [userid, product, vendor, Unit_of_time, Frequency, oneYearAgoISO], 
                     (err: Error) => {
                         if (err) {
                             logger.error('Error inserting subscription:', err);
@@ -608,7 +597,9 @@ class Database {
     });
 }
 
-
+async updateLastUpdate(userid:number, product:string, vendor:string){
+    this.db.run(`UPDATE User_Chosen_Products SET Last_Update=? WHERE UserID=? AND ProductName=? AND VendorName=?`, [new Date().toISOString(), userid, product, vendor]);
+   }
     
 
     public async close(): Promise<void> {

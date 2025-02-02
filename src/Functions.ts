@@ -8,6 +8,8 @@ import { isinit, logger } from './index';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 import { db } from './index';
+import { Logger } from 'concurrently';
+import { Console } from 'console';
 
 
 let identifier=0;
@@ -408,83 +410,113 @@ async function notify_new_version(newVersion: VersionData, users_array?: any) {
     
 }
 
+
 async function sendEmail({ 
-  subject, 
-  content, 
-  vendor_name, 
-  users_array 
-}: { 
-  subject: string, 
-  content: any, 
-  vendor_name: string, 
-  users_array?: any
-}) {
-  // Early return if no users or initialization
-  if (users_array === undefined || users_array === '' || isinit === true) {
-    return;
-  }
-
-  console.log('users_array', users_array);
-
-  const transporter = nodemailer.createTransport({
-    host: "mail.bulwarx.local",
-    port: 25,
-    secure: false,
-    tls: {
-      ciphers: 'SSLv3:TLSv1:TLSv1.1:TLSv1.2:TLSv1.3',
-      rejectUnauthorized: false
+    subject, 
+    content, 
+    vendor_name, 
+    users_array 
+  }: { 
+    subject: string, 
+    content: any, 
+    vendor_name: string, 
+    users_array?: any
+  }) {
+    // Early return if no users or initialization
+    if (users_array === undefined || users_array === '' || isinit === true) {
+      return;
     }
-  });
-
-  try {
-    if (users_array && users_array.length > 0) {
-      for (const mailbox of users_array) {
-        // Calculate next update time based on frequency
-        const getMilliseconds = (frequency: string) => ({
-          'Hours': 3600000,
-          'Days': 86400000,
-          'Weeks': 604800000,
-          'Months': 2629746000
-        })[frequency] || 0;
-
-        const nextUpdateTime = new Date(mailbox.Last_Update).getTime() + 
-          mailbox.Unit_of_time * mailbox.Frequency * getMilliseconds(mailbox.Frequency);
-
-        // Check if it's time to send an email
-        const shouldSendEmail = 
-          subject.includes('End of Support Date Change:') || 
-          subject.includes('Version Changes Detected:') || 
-          nextUpdateTime < new Date().getTime();
-
-        if (shouldSendEmail) {
-          const info = await transporter.sendMail({
-            from: process.env.USER_EMAIL,
-            to: mailbox.Email,
-            subject: subject,
-            html: createEmailTemplate(content, vendor_name)
-          });
-
-          // Update the last_update field in the database
-          await db.updateLastUpdate(
-            mailbox.UserID,
-            mailbox.ProductName,
-            mailbox.VendorName
-          );
-
-          console.log('Email sent:', info.messageId);
-          logger.info('Email sent and last_update updated:', { info, mailbox });
-        } else {
-          logger.info('Email not sent (last update is not old enough):', { mailbox });
-        }
+  
+    console.log('users_array', users_array);
+  
+    const transporter = nodemailer.createTransport({
+      host: "mail.bulwarx.local",
+      port: 25,
+      secure: false,
+      tls: {
+        ciphers: 'SSLv3:TLSv1:TLSv1.1:TLSv1.2:TLSv1.3',
+        rejectUnauthorized: false
       }
-    } else {
-      logger.info('No users to send email to');
+    });
+  
+    try {
+      if (users_array && users_array.length > 0) {
+        for (const mailbox of users_array) {
+          // Add debug logs
+          console.log('Last_Update:', mailbox.Last_Update);
+          console.log('Unit_of_time:', mailbox.Unit_of_time);
+          console.log('Frequency:', mailbox.Frequency);
+          console.log('Milliseconds for frequency:', getMilliseconds(mailbox.Unit_of_time));
+  
+          // Calculate each part separately for better debugging
+          const lastUpdateMs = new Date(mailbox.Last_Update).getTime();
+          console.log('Last Update in ms:', lastUpdateMs);
+  
+          const frequencyMs = getMilliseconds(mailbox.Unit_of_time);
+          const totalOffset = mailbox.Frequency * frequencyMs;
+          console.log('Total time offset:', totalOffset);
+  
+          const nextUpdateTime = lastUpdateMs + totalOffset;
+
+          logger.info(nextUpdateTime)
+          logger.info(new Date().getTime())
+  
+          // Check if it's time to send an email
+          const shouldSendEmail = 
+            subject.includes('End of Support Date Change:') || 
+            subject.includes('Version Changes Detected:') || 
+            nextUpdateTime < new Date().getTime();
+  
+          if (shouldSendEmail) {
+            const info = await transporter.sendMail({
+              from: process.env.USER_EMAIL,
+              to: mailbox.Email,
+              subject: subject,
+              html: createEmailTemplate(content, vendor_name)
+            });
+  
+            // Update the last_update field in the database
+            await db.updateLastUpdate(
+              mailbox.UserID,
+              mailbox.ProductName,
+              mailbox.VendorName
+            );
+  
+            console.log('Email sent:', info.messageId);
+            logger.info('Email sent and last_update updated:', { info, mailbox });
+          } else {
+            logger.info('Email not sent (last update is not old enough):', { mailbox });
+          }
+        }
+      } else {
+        logger.info('No users to send email to');
+      }
+    } catch (error) {
+      console.error('Error sending email:', error);
+      logger.error('Error sending email:', { error });
+      throw error;
     }
-  } catch (error) {
-    console.error('Error sending email:', error);
-    logger.error('Error sending email:', { error });
-    throw error;
   }
-}
+  
+  // Modify the getMilliseconds function to handle case-sensitivity
+  const getMilliseconds = (frequency: string) => {
+    const conversions = {
+      'HOURS': 3600000,
+      'DAYS': 86400000,
+      'MONTHS': 2629746000,
+      'Hours': 3600000,
+      'Days': 86400000,
+      'Months': 604800000,
+    };
+    
+    const result = conversions[frequency as keyof typeof conversions];
+    if (!result) {
+      console.error('Invalid frequency:', frequency);
+      return 0;
+    }
+    return result;
+  };
+
+
 
 export { notify_on_end_of_support, notify_new_version, sendEmail, parseDate, notify_on_end_of_support_changes, extract_versions_from_json,extract_fortra_versions_to_json,extract_JSON_URL };

@@ -112,7 +112,7 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
 
     const getissuephotos= async (issueId: number) => {
         console.log('issueId', issueId)
-            const response = await axios.get(`http://localhost:3001/api/issues/${issueId}/photos`);
+            const response = await axios.get(`http://192.168.27.42:3001/api/issues/${issueId}/photos`);
         const data = response.data;
         console.log('data', data)
         if(data.photos.length>0){
