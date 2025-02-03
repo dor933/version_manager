@@ -45,16 +45,11 @@ useEffect(() => {
   })
     .catch(error => console.error('Error fetching versions:', error));
 
-    console.log('fetching versions', versions);
     const now = new Date();
     setLastSync(now.toLocaleString('he-IL'));
     
-  
+    
 
-    //create distinct vendors
-  
-    
-    
 }, []);
 
 

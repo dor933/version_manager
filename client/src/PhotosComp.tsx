@@ -41,10 +41,11 @@ export const PhotosComp = ({ photos, isphotosopen, setIsPhotosOpen }: PhotosComp
         >
           <CloseIcon />
         </IconButton>
+        
         <DialogContent sx={{ p: 3 }}>
-          <Grid container spacing={2}>
+          <Grid container item xs={10} sx={{display:'flex',justifyContent:'center',flexDirection:'row',alignItems:'center',margin:'0 auto'}}>
             {photos.map((photo, index) => (
-              <Grid item xs={12} sm={6} md={4} key={index} style={{borderRight:'1px solid #E0E0E0',paddingLeft:'10px',paddingRight:'10px'}}>
+              <Grid item xs={12} sm={6} md={4} key={index} style={{borderRight: index !== photos.length - 1 ? '1px solid #E0E0E0' : 'none',paddingLeft:'10px',paddingRight:'10px',marginBottom:'10px',alignItems:'center',justifyContent:'center'}}>
                 <img
                   src={'http://localhost:3001'+photo}
                   alt={`Issue photo ${index + 1}`}

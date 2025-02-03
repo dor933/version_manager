@@ -10,8 +10,8 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { z } from 'zod';
 import CancelIcon from '@mui/icons-material/Cancel';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { styled } from '@mui/material/styles';
+import ImageHandler from './ImageHandler';
 
 const severities = ['Low', 'Medium', 'High','Urgent'];
 
@@ -20,17 +20,7 @@ interface ReportProps {
     productsandmodules: any;
 }
 
-const VisuallyHiddenInput = styled('input')({
-  clip: 'rect(0 0 0 0)',
-  clipPath: 'inset(50%)',
-  height: 1,
-  overflow: 'hidden',
-  position: 'absolute',
-  bottom: 0,
-  left: 0,
-  whiteSpace: 'nowrap',
-  width: 1,
-});
+
 
 export default function FormDialog({versions, productsandmodules}: ReportProps) {
   const { opendialog, setOpenDialog } = useAuth();
@@ -73,22 +63,7 @@ export default function FormDialog({versions, productsandmodules}: ReportProps) 
     }
   }, [singleproduct, productsandmodules]);
 
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files) {
-      const newFiles = Array.from(files);
-      setSelectedFiles(prev => [...prev, ...newFiles]);
-      
-      // Create previews
-      newFiles.forEach(file => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setPreviews(prev => [...prev, reader.result as string]);
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-  };
+
 
   const handleSubmit = async () => {
     console.log(vendor, singleproduct, singleversion, email, severity, issueDescription, chosenmodule);
@@ -329,20 +304,9 @@ export default function FormDialog({versions, productsandmodules}: ReportProps) 
                 </Grid>
                 <Grid container style={{display:'flex', justifyContent:'flex-start', alignItems:'center', flexDirection:'row', marginTop:'20px'}}>
                 <Grid item xs={4}>
-                  <Button
-                    component="label"
-                    variant="contained"
-                    startIcon={<CloudUploadIcon />}
-                    sx={{
-                      width: '100%', 
-                      fontFamily: 'Kumbh Sans', 
-                      fontWeight: '500', 
-                      fontSize: '14px'
-                    }}
-                  >
-                    Upload Photos
-                    <VisuallyHiddenInput type="file" multiple onChange={handleFileSelect} accept="image/*"/>
-                  </Button>
+         
+         <ImageHandler setImages={setSelectedFiles}/>
+
                   {previews.length > 0 && (
                     <Box sx={{ mt: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                       {previews.map((preview, index) => (

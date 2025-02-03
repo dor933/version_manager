@@ -9,14 +9,18 @@ import { useAuth } from './UseContext/MainAuth';
 import axios from 'axios';
 import CustomButton from './Button';
 import { PhotosComp } from './PhotosComp';
-    
+import { TextField } from '@mui/material';
+import { IconButton } from '@mui/material';
+import CheckIcon from '@mui/icons-material/Check';
+import ImageHandler from './ImageHandler';
+
 interface IssuesTableProps {
     chosenproduct: any;
     chosenversion: any;
   }
 
   interface Column {
-    id: 'VersionName' | 'Issue' | 'Photos' | 'Severity' | 'Issue Status' | 'Date_field' | 'Issue Resolution' 
+    id: 'VersionName' | 'Issue' | 'Photos' | 'Severity' | 'Issue Status' | 'Date_field' | 'Resolution' | 'Workaround' | 'Add Photos'
     label: string;
     minWidth?: number;
     align?: 'right' | 'left' | 'center';
@@ -52,7 +56,7 @@ interface IssuesTableProps {
       format_date: (value: Date) => value.toLocaleString('he-IL').split(',')[0]
     },
     {
-      id: 'Issue Resolution',
+      id: 'Resolution',
       label: 'Resolution',
       minWidth: 140,
       align: 'center',
@@ -62,20 +66,26 @@ interface IssuesTableProps {
     {
         id:'Photos',
         label:'Photos',
-        minWidth:100,
+        minWidth:140,
         align:'center',
         format_product: (value: string) => value
-    }
-  
-  
+    },
+    {
+        id:'Workaround',
+        label:'Workaround',
+        minWidth:140,
+        align:'center',
+        format_product: (value: string) => value
+    },
+    {
+        id:'Add Photos',
+        label:'Add Photos',
+        minWidth:140,
+        align:'center',
+        format_product: (value: string) => value
+    } 
   
   ];
-
-const isHebrewText = (text: string) => {
-  // Hebrew Unicode range
-  const hebrewPattern = /[\u0590-\u05FF]/;
-  return hebrewPattern.test(text);
-};
 
 const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
 
@@ -85,10 +95,10 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
     const [filteredIssues, setFilteredIssues] = React.useState<any[]>([]);
     const [isphotosopen, setIsPhotosOpen] = useState(false);
     const [photos, setPhotos] = React.useState<string[]>([]);
-      const { setIsPopupOpen, setTitle, setMainMessage, setButtonText } = useAuth();
-
-
-
+    const { setIsPopupOpen, setTitle, setMainMessage, setButtonText, setIssucceeded } = useAuth();
+    const [editingCell, setEditingCell] = useState<{ rowId: number; column: string; value: string }>({ rowId: -1, column: '', value: '' });
+    const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+    
     useEffect(() => {
      
         console.log('chosenproduct', chosenproduct)
@@ -118,7 +128,7 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
 
     const getissuephotos= async (issueId: number) => {
         console.log('issueId', issueId)
-            const response = await axios.get(`http://192.168.27.42:3001/api/issues/${issueId}/photos`);
+            const response = await axios.get(`http://localhost:3001/api/issues/${issueId}/photos`);
         const data = response.data;
         console.log('data', data)
         if(data.photos.length>0){
@@ -151,108 +161,256 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
 
       const handleRowClick = (row: any) => {
       };
+
+    const handleEditStart = (issueId: number, column: string, value: string) => {
+        setEditingCell({ rowId: issueId, column, value });
+    };
+
+    const handleEditChange = (newValue: string) => {
+        setEditingCell(prev => ({ ...prev, value: newValue }));
+    };
+
+    const handleEditSubmit = async (issueId: number) => {
+        // Implement the logic to update the issue in the backend
+        let response;
+        if(editingCell.column==='Workaround'){
+            response = await axios.post(`http://localhost:3001/api/issues/${issueId}/addworkaround`, {workaround: editingCell.value} , {
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            });
+        }
+        else if(editingCell.column==='Issue Resolution'){
+            response =  await axios.post(`http://localhost:3001/api/issues/${issueId}/addresolution`, {resolution: editingCell.value}, {
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            });
+        }
+        console.log('response', response)
+        if(response?.data?.success){
+          //update the issue in the table
+          setFilteredIssues(prevIssues => prevIssues.map(issue => issue.IssueId === issueId ? { ...issue, [editingCell.column]: editingCell.value } : issue));
+            setIssucceeded(true);
+            setEditingCell({ rowId: -1, column: '', value: '' });
+            setIsPopupOpen(true);
+            setTitle('Success');
+            setMainMessage('Issue updated successfully');
+            setButtonText('OK');
+        }
+        else{
+            setIsPopupOpen(true);
+            setTitle('Error');
+            setMainMessage('Failed to update issue');
+            setButtonText('OK');
+        }
+    };
+
+    const isHebrewText = (text: string): boolean => {
+        if (!text) return false;
+        const hebrewPattern = /[\u0590-\u05FF]/;
+        return hebrewPattern.test(text);
+    };
+
+
+    const handleAddPhotos = async (issueId: number | undefined) => {
+      try {
+        const formData = new FormData();
+        // Make sure to append each file with the field name 'photos'
+        // This must match the field name expected by multer.array('photos')
+        selectedFiles.forEach((file) => {
+          formData.append('photos', file);  // 'photos' must match server's upload.array('photos')
+        });
+
+        const response = await axios.post(
+          `http://localhost:3001/api/issues/${issueId}/addphotos`,
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          }
+        );
+
+        if (response?.data?.success) {
+          setIssucceeded(true);
+          setIsPopupOpen(true);
+          setTitle('Success');
+          setMainMessage('Photos added successfully');
+          setButtonText('OK');
+        } else {
+          setIsPopupOpen(true);
+          setTitle('Error');
+          setMainMessage('Failed to add photos');
+          setButtonText('OK');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        setIsPopupOpen(true);
+        setTitle('Error');
+        setMainMessage('Failed to add photos');
+        setButtonText('OK');
+      }
+    };
+
+    
+
   return (
 
-    <Paper sx={{ width: '100%', overflow: 'hidden', boxShadow: 'none' }}>
-          <PhotosComp photos={photos} isphotosopen={isphotosopen} setIsPhotosOpen={setIsPhotosOpen} />
-
-        <MyTabs chosenmodule={chosenmodule} setChosenModule={setChosenModule} modules={chosenproduct.modules}/>
-    <TableContainer sx={{ minHeight: 600,marginTop:'20px' }}>
-
-      <Table 
-        stickyHeader 
-        aria-label="sticky table"
-        sx={{
-          '& .MuiTableCell-root': {  // Remove borders from all cells
-            border: 'none',
-            paddingLeft:'10px'
-          },
-        }}
-      >
-        <TableHead>
-          <TableRow>
-            {columns.map((column) => (
-              <TableCell
-                key={column.id}
-                align={column.align}
-                style={{ minWidth: column.minWidth }}
-                sx={{
-                  backgroundColor: '#fff',
-                  fontFamily: 'Kumbh Sans',
-                  fontWeight: 600,
-                  fontSize: '14px',
-                  color: '#152259',
-                  paddingY: '12px',  // Vertical padding
-                }}
-
-              >
-                {column.label}
-              </TableCell>
-            ))}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {filteredIssues && filteredIssues
-            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-            .map((row: any, index: any) => {
-              return (
-                <TableRow 
-                  hover 
-                  role="checkbox" 
-                  tabIndex={-1} 
-                  key={index}
+    <Paper sx={{ 
+      width: '100%', 
+      overflow: 'hidden', 
+      boxShadow: 'none',
+    }}>
+      <PhotosComp photos={photos} isphotosopen={isphotosopen} setIsPhotosOpen={setIsPhotosOpen} />
+      <MyTabs chosenmodule={chosenmodule} setChosenModule={setChosenModule} modules={chosenproduct.modules}/>
+      <TableContainer sx={{ 
+        minHeight: '60vh',
+        maxHeight: '70vh', // Add max height to enable scrolling
+        marginTop: '20px',
+        overflow: 'auto', // Enable scrolling
+      }}>
+        <Table 
+          stickyHeader 
+          aria-label="sticky table"
+          sx={{
+            '& .MuiTableCell-root': {
+              border: 'none',
+              paddingLeft: '10px',
+              minWidth: '150px', // Ensure minimum width for cells
+            },
+            tableLayout: 'auto', // Allow table to expand based on content
+          }}
+        >
+          <TableHead>
+            <TableRow>
+              {columns.map((column) => (
+                <TableCell
+                  key={column.id}
+                  align={column.align}
+                  style={{ minWidth: column.minWidth }}
                   sx={{
-                    '&:hover': {
-                      backgroundColor: '#F5F5F5',
-                    },
-                    backgroundColor: index % 2 === 0 ? 'rgba(235, 246, 255, 0.50)' : '#FFFFFF',
+                    backgroundColor: '#fff',
+                    fontFamily: 'Kumbh Sans',
+                    fontWeight: 600,
+                    fontSize: '14px',
+                    color: '#152259',
+                    paddingY: '12px',  // Vertical padding
                   }}
-                  onClick={() => { handleRowClick(row); }}
+
                 >
-                  {columns.map((column) => {
-                    const value = row[column.id];
-                    console.log(value)
-                    return (
-                      <TableCell 
-                        key={column.id} 
-                        align={column.align}
-                        sx={{
-                          fontFamily: column.id === 'Issue' && isHebrewText(value) ? 'Assistant' : 'Kumbh Sans',
-                          fontSize: '14px',
-                          color: '#4B4B4B',
-                          paddingY: '25px',
-                          cursor: column.id === 'Photos' ? 'pointer' : 'default',
-                          direction: column.id === 'Issue' && isHebrewText(value) ? 'rtl' : 'ltr',
-                        }}
-                        onClick={() => column.id === 'Photos' ? getissuephotos(row.IssueId) : null}
-                      >
-                        {column.format_date && value ? column.format_date(new Date(value))
-                          : column.format_product && value ? column.format_product(value)
-                          : column.format_number && value ? column.format_number(value)
-                          : column.id === 'Photos' ? <CustomButton label="View Photos" onClick={() => getissuephotos(row.IssueId)} />
-                          : value}
-                      </TableCell>
-                    );
-                  })}
-                </TableRow>
-              );
-            })}
-        </TableBody>
-      </Table>
-    </TableContainer>
-    <TablePagination
-      rowsPerPageOptions={[10, 25, 100]}
-      component="div"
-      count={filteredIssues!=null ? filteredIssues.length : 0}
-      rowsPerPage={rowsPerPage}
-      page={page}
-      onPageChange={handleChangePage}
-      onRowsPerPageChange={handleChangeRowsPerPage}
-      sx={{
-        fontFamily: 'Kumbh Sans',
-      }}
-    />
-  </Paper>      
+                  {column.label}
+                </TableCell>
+              ))}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {filteredIssues && filteredIssues
+              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+              .map((row: any, index: any) => {
+                return (
+                  <TableRow 
+                    hover 
+                    role="checkbox" 
+                    tabIndex={-1} 
+                    key={index}
+                    sx={{
+                      '&:hover': {
+                        backgroundColor: '#F5F5F5',
+                      },
+                      backgroundColor: index % 2 === 0 ? 'rgba(235, 246, 255, 0.50)' : '#FFFFFF',
+                    }}
+                    onClick={() => { handleRowClick(row); }}
+                  >
+                    {columns.map((column) => {
+                      const value = row[column.id];
+                      return (
+                        <TableCell 
+                          key={column.id} 
+                          align={column.align}
+                          sx={{
+                            fontFamily: column.id === 'Issue' && isHebrewText(value?.toString()) ? '"Assistant", sans-serif' : '"Kumbh Sans", sans-serif',
+                            fontSize: '14px',
+                            color: '#4B4B4B',
+                            paddingY: '25px',
+                            cursor: ['Workaround', 'Resolution'].includes(column.id) ? 'pointer' : 'default',
+                            direction: column.id === 'Issue' && isHebrewText(value?.toString()) ? 'rtl' : 'ltr',
+                            textAlign: 'center'
+                          }}
+                          onClick={() => {
+                            if (['Workaround', 'Resolution'].includes(column.id)) {
+                              handleEditStart(row.IssueId, column.id, value || '');
+                            }
+                          }}
+                          //when the user clicks outside the cell, clear the editing cell
+                          onBlur={() => {
+                            
+                            setEditingCell({ rowId: -1, column: '', value: '' });
+                          }}
+                        >
+                          {['Workaround', 'Resolution'].includes(column.id) && editingCell.rowId === row.IssueId && editingCell.column === column.id ? (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <TextField
+                                value={editingCell.value}
+                                onChange={(e) => handleEditChange(e.target.value)}
+                                variant="standard"
+                                size="small"
+                                fullWidth
+                                autoFocus
+                              />
+                              <IconButton 
+                                size="small" 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEditSubmit(row.IssueId);
+                                }}
+                                sx={{ 
+                                  backgroundColor: '#4CAF50',
+                                  color: 'white',
+                                  '&:hover': {
+                                    backgroundColor: '#45a049'
+                                  },
+                                  width: '24px',
+                                  height: '24px'
+                                }}
+                              >
+                                <CheckIcon fontSize='small' />
+                              </IconButton>
+                            </div>
+                          ) : (
+                            column.format_date && value ? column.format_date(new Date(value))
+                            : column.format_product && value ? column.format_product(value)
+                            : column.format_number && value ? column.format_number(value)
+                            : column.id === 'Photos' ? <CustomButton label="View Photos" onClick={() => getissuephotos(row.IssueId)} />
+                            : ['Workaround', 'Resolution'].includes(column.id) ? (value || 'Click to edit')
+                            : column.id === 'Add Photos' ? 
+                            <ImageHandler setImages={setSelectedFiles} handleAddPhotos={() => handleAddPhotos(row.IssueId)}/> 
+                            
+                            : value
+
+                          )}
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                );
+              })}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[10, 25, 100]}
+        component="div"
+        count={filteredIssues!=null ? filteredIssues.length : 0}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+        sx={{
+          fontFamily: 'Kumbh Sans',
+        }}
+      />
+    </Paper>      
   );
 };
 

@@ -115,7 +115,68 @@ app.post('/api/report', upload.array('photos'), async (req, res) => {
   }
 });
 
+app.post('/api/issues/:IssueId/addresolution', async (req, res) => {
+  try {
+    const { IssueId } = req.params;
+    const { resolution } = req.body;
+    console.log('Adding resolution for issue:', IssueId, resolution);
+    
+    await db.UpdateRecord(
+      'Issues',
+      ['Resolution'],
+      [resolution],
+      'IssueId',
+      IssueId
+    );
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error adding resolution:', error);
+    res.status(500).json({ success: false });
+  }
+});
 
+app.post('/api/issues/:IssueId/addworkaround', async (req, res) => {
+  try {
+    const { IssueId } = req.params;
+    const { workaround } = req.body;
+    console.log('Adding workaround for issue:', IssueId, workaround);
+    
+        await db.UpdateRecord(
+      'Issues',
+      ['Workaround'],
+      [workaround],
+      'IssueId',
+      IssueId
+    );
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error adding workaround:', error);
+    res.status(500).json({ success: false });
+  }
+});
+
+app.post('/api/issues/:issueId/addphotos', upload.array('photos'), async (req, res) => {
+
+  try{
+
+  const issueId = req.params.issueId;
+  const photos = req.files;
+  const issueDir = `uploads/issues/${issueId}`;
+  if(photos && Array.isArray(photos) && photos.length > 0){
+    for(let photo of photos as Express.Multer.File[]){
+      const newPath = `${issueDir}/${photo.filename}`;
+      fs.renameSync(photo.path, newPath);
+    }
+  }
+  res.json({success:true, issueId, photos})
+  }
+  catch(err:any){
+    logger.error(err);
+    res.json({success:false});
+  }
+})
 
 app.get('/api/versions', async (req, res) => {
    const versions = await db.getVersions();
@@ -159,8 +220,15 @@ app.get('/api/issues/:issueId/photos', (req, res) => {
   }
 });
 
+// Error handling middleware should be last
+app.use((err: any, req: any, res: any, next: any) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Something broke!' });
+});
+
 export function startServer() {
     app.listen(port, () => {
         console.log(`Server is running on port ${port}`);
     });
 }
+
