@@ -5,9 +5,9 @@ export default function CustomButton({label, onClick, opacity=1}: {label: string
     return (
         <Box 
         sx={{
-          display: 'inline-flex',
+          display: label=='View Photos'? 'inline-flex':'flex',
           alignItems: 'center',
-          justifyContent: 'flex-start',
+          justifyContent: 'center',
           backgroundColor: '#509CDB',
           borderRadius: '4px',
           opacity: opacity,
@@ -16,7 +16,7 @@ export default function CustomButton({label, onClick, opacity=1}: {label: string
           '&:hover': {
             backgroundColor: '#4084C2'
           },
-          minWidth: 'fit-content'
+          minWidth: label=='View Photos'? 'fit-content' : '100%'
         }} 
         onClick={onClick}
       >

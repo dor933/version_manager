@@ -31,7 +31,7 @@ interface IssuesTableProps {
   }
 
   const columns: readonly Column[] = [
-    { id: 'VersionName', label: 'Version Name', minWidth: 60, format_product: (value: string) => value.replace(/_/g, ' ') },
+    { id: 'VersionName', label: 'Version Name', minWidth: 120, format_product: (value: string) => value.replace(/_/g, ' ') },
 
     {
       id: 'Issue',
@@ -44,14 +44,14 @@ interface IssuesTableProps {
     {
       id: 'Severity',
           label: 'Severity',
-      minWidth: 60,
+      minWidth: 100,
       align: 'left',
       format_product: (value: string) => value
     },
     {
       id: 'Date_field',
           label: 'Date',
-      minWidth: 140,
+      minWidth: 100,
       align: 'left',
       format_date: (value: Date) => value.toLocaleString('he-IL').split(',')[0]
     },
@@ -136,7 +136,7 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
             setIsPhotosOpen(true);
         }
         else{
-          showError('There are not photos for this issue');
+          showError('There are no photos for this issue');
         }
 
 
@@ -229,17 +229,17 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
   return (
 
     <Paper sx={{ 
-      width: '100%', 
+      width: '85%', 
       overflow: 'hidden', 
       boxShadow: 'none',
+      margin:'0 auto'
     }}>
       <PhotosComp photos={photos} isphotosopen={isphotosopen} setIsPhotosOpen={setIsPhotosOpen} />
       <MyTabs chosenmodule={chosenmodule} setChosenModule={setChosenModule} modules={chosenproduct.modules}/>
       <TableContainer sx={{ 
         minHeight: '65vh',
         maxHeight: '70vh', // Add max height to enable scrolling
-        marginTop: '20px',
-        overflow: 'auto', // Enable scrolling
+        marginTop: '30px',
       }}>
         <Table 
           stickyHeader 
@@ -299,17 +299,14 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
                           key={column.id} 
                           align={column.align}
                           sx={{
-                            fontFamily: column.id === 'Issue' && isHebrewText(value?.toString()) ? '"Assistant", sans-serif' : '"Kumbh Sans", sans-serif',
+                            fontFamily: (column.id === 'Issue' || column.id==='Workaround' || column.id==='Resolution') && isHebrewText(value?.toString()) ? '"Assistant", sans-serif' : '"Kumbh Sans", sans-serif',
                             fontSize: '14px',
                             color: '#4B4B4B',
                             paddingY: '25px',
                             cursor: ['Workaround', 'Resolution'].includes(column.id) ? 'pointer' : 'default',
-                            direction: column.id === 'Issue' && isHebrewText(value?.toString()) ? 'rtl' : 'ltr',
+                            direction:  (column.id === 'Issue' || column.id==='Workaround' || column.id==='Resolution')  && isHebrewText(value?.toString()) ? 'rtl' : 'ltr',
                             textAlign: 'left',
-                            '& > *': {
-                              justifyContent: 'flex-start',
-                              display: 'flex'
-                            },
+                        
                             padding: '8px 16px',
                           }}
                           onClick={() => {
@@ -329,6 +326,7 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
                                 size="small"
                                 fullWidth
                                 autoFocus
+                                multiline
                               />
                               <IconButton 
                                 size="small" 

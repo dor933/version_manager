@@ -11,7 +11,7 @@ export default function Issues({chosenproduct, issuesdialog, setIssuesDialog, ch
       <Dialog
         open={issuesdialog}
         onClose={() => setIssuesDialog(false)}
-        maxWidth="xl"
+        maxWidth="lg"
         fullWidth={true}
         BackdropProps={{
           sx: {
@@ -21,18 +21,17 @@ export default function Issues({chosenproduct, issuesdialog, setIssuesDialog, ch
         }}
         PaperProps={{
           sx: {
-            width: '95vw',
+            width: '90vw',
             height: '90vh',
             maxWidth: 'none',
             margin: '20px',
           }
         }}
       >
-        <DialogContent sx={{ p: 0 }}>
+        <DialogContent sx={{ p: 0}}>
           <Box sx={{
             width: '100%',
             height: '100%',
-            p: 3,
           }}>
             <Grid container spacing={2}>
               <Grid item xs={12}>

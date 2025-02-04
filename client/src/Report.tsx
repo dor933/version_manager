@@ -299,7 +299,7 @@ export default function FormDialog({versions, productsandmodules}: ReportProps) 
                 <Grid container style={{display:'flex', justifyContent:'flex-start', alignItems:'center', flexDirection:'row', marginTop:'20px'}}>
                 <Grid item xs={4}>
          
-         <ImageHandler setImages={setSelectedFiles}/>
+         <ImageHandler setImages={setSelectedFiles} isreport={true}/>
 
                   {previews.length > 0 && (
                     <Box sx={{ mt: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>

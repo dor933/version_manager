@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:3001/api';
-const BASE_URL_LOCAL = 'http://localhost:3001';
+const BASE_URL = 'http://192.168.27.42:3001/api';
+const BASE_URL_LOCAL = 'http://192.168.27.42:3001';
 
 export const apiService = {
   // Versions
@@ -75,7 +75,7 @@ export const apiService = {
 
   // Reports
   submitReport: (formData: FormData) => {
-    return axios.post('http://localhost:3001/api/report', formData, {
+    return axios.post(`${BASE_URL}/report`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
