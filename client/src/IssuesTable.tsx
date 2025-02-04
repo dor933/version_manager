@@ -305,7 +305,12 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
                             paddingY: '25px',
                             cursor: ['Workaround', 'Resolution'].includes(column.id) ? 'pointer' : 'default',
                             direction: column.id === 'Issue' && isHebrewText(value?.toString()) ? 'rtl' : 'ltr',
-                            textAlign: 'left'
+                            textAlign: 'left',
+                            '& > *': {
+                              justifyContent: 'flex-start',
+                              display: 'flex'
+                            },
+                            padding: '8px 16px',
                           }}
                           onClick={() => {
                             if (['Workaround', 'Resolution'].includes(column.id)) {
