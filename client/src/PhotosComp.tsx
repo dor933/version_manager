@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, {  useState } from "react";
 import { Dialog, DialogContent, Grid, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { useAuth } from "./UseContext/MainAuth";
+import { apiService } from "./API/apiService";
+
 
 interface PhotosCompProps {
   photos: string[];
@@ -47,7 +48,7 @@ export const PhotosComp = ({ photos, isphotosopen, setIsPhotosOpen }: PhotosComp
             {photos.map((photo, index) => (
               <Grid item xs={12} sm={6} md={4} key={index} style={{borderRight: index !== photos.length - 1 ? '1px solid #E0E0E0' : 'none',paddingLeft:'10px',paddingRight:'10px',marginBottom:'10px',alignItems:'center',justifyContent:'center'}}>
                 <img
-                  src={'http://localhost:3001'+photo}
+                  src={apiService.photoUrl(photo)}
                   alt={`Issue photo ${index + 1}`}
                   style={{
                     width: '100%',
@@ -91,7 +92,7 @@ export const PhotosComp = ({ photos, isphotosopen, setIsPhotosOpen }: PhotosComp
         <DialogContent sx={{ p: 0 }}>
           {selectedPhoto && (
             <img
-              src={'http://localhost:3001'+selectedPhoto}
+              src={apiService.photoUrl(selectedPhoto)}
               alt="Full size"
               style={{
                 width: '100%',

@@ -26,14 +26,14 @@ export default function ImageHandler({setImages, handleAddPhotos}: {setImages: (
   };
 
   return (
-    <Grid container spacing={1} alignItems="center">
-      <Grid item xs={isUploaded ? 8 : 12}>
+    <Grid container spacing={1} alignItems="center" sx={{ justifyContent: 'flex-start' }}>
+      <Grid item xs={isUploaded ? 'auto' : 'auto'}>
         <Button
           component="label"
           variant="contained"
           startIcon={<CloudUploadIcon />}
           sx={{
-            width: '100%',
+            minWidth: 'fit-content',
             fontFamily: 'Kumbh Sans',
             fontWeight: '500',
             fontSize: '14px'

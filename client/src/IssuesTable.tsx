@@ -5,14 +5,14 @@ import React, { useEffect, useState } from 'react';
 import { TableCell } from '@mui/material';
 import { TableHead } from '@mui/material';
 import MyTabs from './Tabs';
-import { useAuth } from './UseContext/MainAuth';
-import axios from 'axios';
 import CustomButton from './Button';
 import { PhotosComp } from './PhotosComp';
 import { TextField } from '@mui/material';
 import { IconButton } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
 import ImageHandler from './ImageHandler';
+import { apiService } from './API/apiService';
+import { useReport } from './hooks/useReport';
 
 interface IssuesTableProps {
     chosenproduct: any;
@@ -31,35 +31,35 @@ interface IssuesTableProps {
   }
 
   const columns: readonly Column[] = [
-    { id: 'VersionName', label: 'Version Name', minWidth: 140, format_product: (value: string) => value.replace(/_/g, ' ') },
+    { id: 'VersionName', label: 'Version Name', minWidth: 60, format_product: (value: string) => value.replace(/_/g, ' ') },
 
     {
       id: 'Issue',
       label: 'Description',
       minWidth: 140,
-      align: 'center',
+      align: 'left',
       format_product: (value: string) => value
     },
 
     {
       id: 'Severity',
           label: 'Severity',
-      minWidth: 140,
-      align: 'center',
+      minWidth: 60,
+      align: 'left',
       format_product: (value: string) => value
     },
     {
       id: 'Date_field',
           label: 'Date',
       minWidth: 140,
-      align: 'center',
+      align: 'left',
       format_date: (value: Date) => value.toLocaleString('he-IL').split(',')[0]
     },
     {
       id: 'Resolution',
       label: 'Resolution',
       minWidth: 140,
-      align: 'center',
+      align: 'left',
       format_product: (value: string) => value
     },
 
@@ -67,21 +67,21 @@ interface IssuesTableProps {
         id:'Photos',
         label:'Photos',
         minWidth:140,
-        align:'center',
+        align:'left',
         format_product: (value: string) => value
     },
     {
         id:'Workaround',
         label:'Workaround',
         minWidth:140,
-        align:'center',
+        align:'left',
         format_product: (value: string) => value
     },
     {
         id:'Add Photos',
         label:'Add Photos',
         minWidth:140,
-        align:'center',
+        align:'left',
         format_product: (value: string) => value
     } 
   
@@ -95,9 +95,9 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
     const [filteredIssues, setFilteredIssues] = React.useState<any[]>([]);
     const [isphotosopen, setIsPhotosOpen] = useState(false);
     const [photos, setPhotos] = React.useState<string[]>([]);
-    const { setIsPopupOpen, setTitle, setMainMessage, setButtonText, setIssucceeded } = useAuth();
     const [editingCell, setEditingCell] = useState<{ rowId: number; column: string; value: string }>({ rowId: -1, column: '', value: '' });
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+    const { showError, showSuccess } = useReport();
     
     useEffect(() => {
      
@@ -128,7 +128,7 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
 
     const getissuephotos= async (issueId: number) => {
         console.log('issueId', issueId)
-            const response = await axios.get(`http://localhost:3001/api/issues/${issueId}/photos`);
+            const response = await apiService.getIssuePhotos(issueId);
         const data = response.data;
         console.log('data', data)
         if(data.photos.length>0){
@@ -136,12 +136,8 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
             setIsPhotosOpen(true);
         }
         else{
-          setIsPopupOpen(true);
-          setTitle('Error');
-          setMainMessage('There are not photos for this issue');
-          setButtonText('OK');
+          showError('There are not photos for this issue');
         }
-
 
 
         return data.photos;
@@ -159,8 +155,6 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
         setPage(0);
       };
 
-      const handleRowClick = (row: any) => {
-      };
 
     const handleEditStart = (issueId: number, column: string, value: string) => {
         setEditingCell({ rowId: issueId, column, value });
@@ -174,35 +168,29 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
         // Implement the logic to update the issue in the backend
         let response;
         if(editingCell.column==='Workaround'){
-            response = await axios.post(`http://localhost:3001/api/issues/${issueId}/addworkaround`, {workaround: editingCell.value} , {
-              headers: {
-                'Content-Type': 'application/json'
-              }
-            });
+            response = await apiService.addWorkaround(issueId, editingCell.value);
         }
-        else if(editingCell.column==='Issue Resolution'){
-            response =  await axios.post(`http://localhost:3001/api/issues/${issueId}/addresolution`, {resolution: editingCell.value}, {
-              headers: {
-                'Content-Type': 'application/json'
-              }
-            });
+        else if(editingCell.column==='Resolution'){
+          console.log('editingCell.value', editingCell.value)
+            response =  await apiService.addResolution(issueId, editingCell.value);
+            console.log('response', response)
         }
         console.log('response', response)
         if(response?.data?.success){
-          //update the issue in the table
-          setFilteredIssues(prevIssues => prevIssues.map(issue => issue.IssueId === issueId ? { ...issue, [editingCell.column]: editingCell.value } : issue));
-            setIssucceeded(true);
             setEditingCell({ rowId: -1, column: '', value: '' });
-            setIsPopupOpen(true);
-            setTitle('Success');
-            setMainMessage('Issue updated successfully');
-            setButtonText('OK');
+            const relevantissues= chosenproduct.issues.filter((issue: any) => issue.IssueId === issueId)[0]
+            if(editingCell.column==='Resolution'){
+                relevantissues.Resolution= editingCell.value
+            }
+            else if(editingCell.column==='Workaround'){
+                relevantissues.Workaround= editingCell.value
+            }
+             
+
+            showSuccess('Issue updated successfully');
         }
         else{
-            setIsPopupOpen(true);
-            setTitle('Error');
-            setMainMessage('Failed to update issue');
-            setButtonText('OK');
+            showError('Failed to update issue');
         }
     };
 
@@ -222,34 +210,17 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
           formData.append('photos', file);  // 'photos' must match server's upload.array('photos')
         });
 
-        const response = await axios.post(
-          `http://localhost:3001/api/issues/${issueId}/addphotos`,
-          formData,
-          {
-            headers: {
-              'Content-Type': 'multipart/form-data'
-            }
-          }
-        );
+        const response = await apiService.addPhotosToIssue(issueId!, selectedFiles);
+
 
         if (response?.data?.success) {
-          setIssucceeded(true);
-          setIsPopupOpen(true);
-          setTitle('Success');
-          setMainMessage('Photos added successfully');
-          setButtonText('OK');
+          showSuccess('Photos added successfully');
         } else {
-          setIsPopupOpen(true);
-          setTitle('Error');
-          setMainMessage('Failed to add photos');
-          setButtonText('OK');
+          showError('Failed to add photos');
         }
       } catch (error) {
         console.error('Error:', error);
-        setIsPopupOpen(true);
-        setTitle('Error');
-        setMainMessage('Failed to add photos');
-        setButtonText('OK');
+        showError('Failed to add photos');
       }
     };
 
@@ -265,7 +236,7 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
       <PhotosComp photos={photos} isphotosopen={isphotosopen} setIsPhotosOpen={setIsPhotosOpen} />
       <MyTabs chosenmodule={chosenmodule} setChosenModule={setChosenModule} modules={chosenproduct.modules}/>
       <TableContainer sx={{ 
-        minHeight: '60vh',
+        minHeight: '65vh',
         maxHeight: '70vh', // Add max height to enable scrolling
         marginTop: '20px',
         overflow: 'auto', // Enable scrolling
@@ -277,7 +248,7 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
             '& .MuiTableCell-root': {
               border: 'none',
               paddingLeft: '10px',
-              minWidth: '150px', // Ensure minimum width for cells
+              minWidth: '60px', // Ensure minimum width for cells
             },
             tableLayout: 'auto', // Allow table to expand based on content
           }}
@@ -320,7 +291,6 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
                       },
                       backgroundColor: index % 2 === 0 ? 'rgba(235, 246, 255, 0.50)' : '#FFFFFF',
                     }}
-                    onClick={() => { handleRowClick(row); }}
                   >
                     {columns.map((column) => {
                       const value = row[column.id];
@@ -335,7 +305,7 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
                             paddingY: '25px',
                             cursor: ['Workaround', 'Resolution'].includes(column.id) ? 'pointer' : 'default',
                             direction: column.id === 'Issue' && isHebrewText(value?.toString()) ? 'rtl' : 'ltr',
-                            textAlign: 'center'
+                            textAlign: 'left'
                           }}
                           onClick={() => {
                             if (['Workaround', 'Resolution'].includes(column.id)) {
@@ -343,10 +313,7 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
                             }
                           }}
                           //when the user clicks outside the cell, clear the editing cell
-                          onBlur={() => {
-                            
-                            setEditingCell({ rowId: -1, column: '', value: '' });
-                          }}
+                    
                         >
                           {['Workaround', 'Resolution'].includes(column.id) && editingCell.rowId === row.IssueId && editingCell.column === column.id ? (
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -360,7 +327,8 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
                               />
                               <IconButton 
                                 size="small" 
-                                onClick={(e) => {
+                                onClick={(e: any) => {
+                                  console.log('row.IssueId', row.IssueId)
                                   e.stopPropagation();
                                   handleEditSubmit(row.IssueId);
                                 }}

@@ -7,11 +7,10 @@ import DialogContent from '@mui/material/DialogContent';
 import { useAuth } from './UseContext/MainAuth';
 import { Box, FormControl, Grid, InputLabel, MenuItem, Select, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import { z } from 'zod';
 import CancelIcon from '@mui/icons-material/Cancel';
-import { styled } from '@mui/material/styles';
 import ImageHandler from './ImageHandler';
+import { apiService } from './API/apiService';
 
 const severities = ['Low', 'Medium', 'High','Urgent'];
 
@@ -99,7 +98,6 @@ export default function FormDialog({versions, productsandmodules}: ReportProps) 
       return;
     }
 
-    console.log(vendor, singleproduct, singleversion, chosenmodule, email, severity, issueDescription);
 
     const formData = new FormData();
     formData.append('vendor', vendor);
@@ -116,11 +114,7 @@ export default function FormDialog({versions, productsandmodules}: ReportProps) 
     });
 
     try {
-      const report = await axios.post('http://localhost:3001/api/report', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
+      const report = await apiService.submitReport(formData);
       
       if(report.data.report) {
         const issueId = report.data.issueId;

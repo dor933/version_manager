@@ -7,7 +7,6 @@ import InputBase from '@mui/material/InputBase';
 
 const BootstrapInput = styled(InputBase)(({ theme }) => ({
 
-    //insert pa
 
   '& .MuiInputBase-input': {
     borderRadius: 4,

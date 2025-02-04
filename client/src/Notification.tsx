@@ -5,7 +5,8 @@ import { z } from 'zod';
 import axios from 'axios';
 import FormControlSelect from './NotificationSelect';
 import { useAuth } from './UseContext/MainAuth';
-
+import { apiService } from './API/apiService';
+import { useReport } from './hooks/useReport';
 
 interface NotificationProps {
   open: boolean;
@@ -95,8 +96,8 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_to_
   const [singleproduct, setSingleProduct] = useState('');
   const [isproductsdisabled, setIsProductsDisabled] = useState(true);
   const [Unit, setUnit] = useState('');
-  const [Interval, setInterval] = useState('');
-  const { setIsPopupOpen, setIssucceeded, setMessage, setTitle, setMainMessage, setSubMessage, setButtonText } = useAuth();
+  const [Interval, setinterval] = useState('');
+  const { showError, showSuccess } = useReport();
 
   useEffect(() => {
 
@@ -121,61 +122,38 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_to_
 
  
 
-
-
-  
-
-
-
-
-
-
     const handleSubscribe = () => {
         if(vendor === '') {
-           setIsPopupOpen(true);
-           setTitle('Error');
-           setMainMessage('Please select a vendor');
-           setButtonText('OK');
+           showError('Please select a vendor');
            return;
         }
         else if(singleproduct === ''){
-           setIsPopupOpen(true);
-           setTitle('Error');
-           setMainMessage('Please select a product');
-           setButtonText('OK');
+           showError('Please select a product');
            return;
         }
       
         else if(Unit === ''){
-           setIsPopupOpen(true);
-           setTitle('Error');
-           setMainMessage('Please select a unit');
-           setButtonText('OK');
+           showError('Please select a unit');
            return;
         }
         else if(Interval === ''){
-           setIsPopupOpen(true);
-           setTitle('Error');
-           setMainMessage('Please select an interval');
-           setButtonText('OK');
+           showError('Please select an interval');
            return;
         }
    
         const emailValidation = emailSchema.safeParse(email);
         if (!emailValidation.success) {
-           setIsPopupOpen(true);
-           setTitle('Error');
-           setMainMessage('Please enter a valid email address');
-           setButtonText('OK');
+          
+           showError('Please enter a valid email address');
            return;
         }
 
-        axios.post('http://localhost:3001/api/subscribe', {
+        apiService.subscribe({
               vendor: vendor,
             email: email,
             product: singleproduct,
             Unit_of_time: Unit,
-            Frequency: Interval
+            Frequency: parseInt(Interval)
         })
         .then((response) => {
             console.log('response', response);
@@ -184,23 +162,13 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_to_
         .then(data => {
             console.log(data);
             if(data.subscribe==='Already Subscribed'){
-                setIsPopupOpen(true);
-                setTitle('Error');
-                setMainMessage('You are already subscribed to notifications');
-                setButtonText('OK');
+                showError('You are already subscribed to notifications');
             }
             else if(data.subscribe){
-                setIsPopupOpen(true);
-                setTitle('Success');
-                setIssucceeded(true);
-                setMainMessage('You are now subscribed to notifications');
-                setButtonText('OK');
+                showSuccess('You are now subscribed to notifications');
             }
             else{
-                setIsPopupOpen(true);
-                setTitle('Error');
-                setMainMessage('Error subscribing');
-                setButtonText('OK');
+                showError('Error subscribing');
             }
         })
         .catch(error => console.error('Error subscribing:', error));
@@ -345,7 +313,7 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_to_
                       label="Interval of time"
                       fullWidth
                       value={Interval}
-                      onChange={(e) => setInterval(e.target.value)}
+                      onChange={(e) => setinterval(e.target.value)}
                       sx={customTextFieldStyle}
                     />
                   </Grid>

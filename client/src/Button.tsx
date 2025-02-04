@@ -5,18 +5,18 @@ export default function CustomButton({label, onClick, opacity=1}: {label: string
     return (
         <Box 
         sx={{
-
-          display: 'flex',
+          display: 'inline-flex',
           alignItems: 'center',
-          justifyContent: 'center',
+          justifyContent: 'flex-start',
           backgroundColor: '#509CDB',
           borderRadius: '4px',
           opacity: opacity,
-          padding: '5px',
+          padding: '5px 10px',
           cursor: opacity==0.5 ? 'default' : 'pointer',
           '&:hover': {
             backgroundColor: '#4084C2'
-          }
+          },
+          minWidth: 'fit-content'
         }} 
         onClick={onClick}
       >

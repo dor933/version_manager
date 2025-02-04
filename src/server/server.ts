@@ -164,6 +164,10 @@ app.post('/api/issues/:issueId/addphotos', upload.array('photos'), async (req, r
   const issueId = req.params.issueId;
   const photos = req.files;
   const issueDir = `uploads/issues/${issueId}`;
+  //if not exists, create it
+  if(!fs.existsSync(issueDir)){
+    fs.mkdirSync(issueDir, { recursive: true });
+  }
   if(photos && Array.isArray(photos) && photos.length > 0){
     for(let photo of photos as Express.Multer.File[]){
       const newPath = `${issueDir}/${photo.filename}`;

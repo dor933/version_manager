@@ -15,6 +15,7 @@ import ErrorIcon from '@mui/icons-material/Error';
 import Notification from './Notification';
 import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
 import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined';
+import { apiService } from './API/apiService';
 
 export default function Home() {
 
@@ -36,12 +37,10 @@ const [productsandmodules, setProductsAndModules] = React.useState<any>(null);
 
 
 useEffect(() => {
-    axios.get('http://localhost:3001/api/versions',{
-    })
-    .then(response => response.data)
-    .then(data => {setVersions(data.versions)
-      setProductsAndModules(data.productsandmodules)
-      console.log('productsandmodules', data.productsandmodules)
+    apiService.getVersions()
+    .then(response => {setVersions(response.data.versions)
+      setProductsAndModules(response.data.productsandmodules)
+      console.log('productsandmodules', response.data.productsandmodules)
   })
     .catch(error => console.error('Error fetching versions:', error));
 
@@ -97,7 +96,7 @@ useEffect(() => {
 
 const handleSync = async () => {
   setIsSyncing(true);
-  const response = await axios.get('http://localhost:3001/api/sync');
+  const response = await apiService.syncVersions();
   console.log('response', response);
   setVersions(response.data.versions);
   //take now date and time
