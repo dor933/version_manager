@@ -1,7 +1,7 @@
 import React, {  useState } from "react";
 import { Dialog, DialogContent, Grid, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { apiService } from "./API/apiService";
+import { apiService } from "../API/apiService";
 
 
 interface PhotosCompProps {

@@ -5,14 +5,14 @@ import React, { useEffect, useState } from 'react';
 import { TableCell } from '@mui/material';
 import { TableHead } from '@mui/material';
 import MyTabs from './Tabs';
-import CustomButton from './Button';
-import { PhotosComp } from './PhotosComp';
+import CustomButton from '../Help_Components/Button';
+import { PhotosComp } from '../Help_Components/PhotosComp';
 import { TextField } from '@mui/material';
 import { IconButton } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
-import ImageHandler from './ImageHandler';
-import { apiService } from './API/apiService';
-import { useReport } from './hooks/useReport';
+import ImageHandler from '../Help_Components/ImageHandler';
+import { apiService } from '../API/apiService';
+import { useReport } from '../hooks/useReport';
 
 interface IssuesTableProps {
     chosenproduct: any;

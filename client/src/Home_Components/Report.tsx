@@ -4,13 +4,13 @@ import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import { useAuth } from './UseContext/MainAuth';
+import { useAuth } from '../UseContext/MainAuth';
 import { Box, FormControl, Grid, InputLabel, MenuItem, Select, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { z } from 'zod';
 import CancelIcon from '@mui/icons-material/Cancel';
-import ImageHandler from './ImageHandler';
-import { apiService } from './API/apiService';
+import ImageHandler from '../Help_Components/ImageHandler';
+import { apiService } from '../API/apiService';
 
 const severities = ['Low', 'Medium', 'High','Urgent'];
 

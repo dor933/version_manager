@@ -9,16 +9,16 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import { useEffect } from 'react';
 import Grid from '@mui/material/Grid';
-import Filter from './Filter';
-import CustomizedSelects from './CustomizeSelect';
+import Filter from '../Help_Components/Filter';
+import CustomizedSelects from '../Help_Components/CustomizeSelect';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import CustomButton from './Button';
+import CustomButton from '../Help_Components/Button';
 import Issues from './Issues';
-import { HomeSVG } from './svg/HomeSVG';
-import { EmailSVG } from './svg/EmailSVG';
-import { InfoSVG } from './svg/InfoSVG';
-import { VersionData } from './types';
+import { HomeSVG } from '../svg/HomeSVG';
+import { EmailSVG } from '../svg/EmailSVG';
+import { InfoSVG } from '../svg/InfoSVG';
+import { VersionData } from '../types';
 
 
 interface Column {

@@ -152,7 +152,7 @@ app.post('/api/issues/:IssueId/addworkaround', async (req, res) => {
     
     res.json({ success: true });
   } catch (error) {
-    console.error('Error adding workaround:', error);
+    logger.error('Error adding workaround:', error);
     res.status(500).json({ success: false });
   }
 });

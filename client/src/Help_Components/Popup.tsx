@@ -3,7 +3,7 @@ import { Box, Grid, Typography, Button } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
 import ErrorIcon from '@mui/icons-material/Error';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { useAuth } from './UseContext/MainAuth';
+import { useAuth } from '../UseContext/MainAuth';
 
 
 const Popup: React.FC = ({

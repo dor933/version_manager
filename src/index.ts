@@ -7,7 +7,7 @@ import { startServer } from './server/server';
 let errorCount=0;
 let croninterval:any= process.env.CRON_INTERVAL;
 let unit=process.env.UNIT;
-let isinit=false;
+let isinit=true;
 
 
 

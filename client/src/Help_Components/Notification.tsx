@@ -4,9 +4,9 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import { z } from 'zod';
 import axios from 'axios';
 import FormControlSelect from './NotificationSelect';
-import { useAuth } from './UseContext/MainAuth';
-import { apiService } from './API/apiService';
-import { useReport } from './hooks/useReport';
+import { useAuth } from '../UseContext/MainAuth';
+import { apiService } from '../API/apiService';
+import { useReport } from '../hooks/useReport';
 
 interface NotificationProps {
   open: boolean;
