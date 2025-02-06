@@ -374,22 +374,36 @@ class Database {
     
   
     
-   UpdateRecord(table: string, columns: string[], values: string[], identifier: string, identifierValue: string) {
-    try{
-        this.db.run(`UPDATE ${table} SET ${columns[0]} = "${values[0]}" WHERE ${identifier} = "${identifierValue}"`, (err: Error) => {
-            if (err) {
-                console.error('Error updating data', err.message + ' ' + values[0] + ' ' + values[1]);
-            } else {
+   async UpdateRecord(table: string, columns: string[], values: any[], whereColumn: string, whereValue: any): Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            try {
+                // Create placeholders for the values
+                const setClause = columns.map(col => `${col} = ?`).join(', ');
+                const query = `UPDATE ${table} SET ${setClause} WHERE ${whereColumn} = ?`;
+
+                // Escape special characters in values
+                const sanitizedValues = values.map(value => 
+                    typeof value === 'string' ? value.replace(/'/g, "''") : value
+                );
+
+                // Add the whereValue to the values array
+                sanitizedValues.push(whereValue);
+
+                this.db.run(query, sanitizedValues, (err: Error) => {
+                    if (err) {
+                        logger.error('Error updating record:', err);
+                        reject(err);
+                    } else {
+                        resolve(true);
+                    }
+                });
+               
+            } catch (err) {
+                logger.error('Error in UpdateRecord:', err);
+                reject(err);
             }
         });
-        return true;
-
-
     }
-    catch(err:any){
-        console.error('Error updating data', err.message);
-    }
-   }
 
    async getVersions(vendor?:string, product?:string, version?:string){
     return new Promise((resolve, reject) => {

@@ -75,7 +75,7 @@ export const apiService = {
 
   // Reports
   submitReport: (formData: FormData) => {
-    return axios.post(`${BASE_URL}/report`, formData, {
+    return axios.post(`${BASE_URL}/issues/report`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
