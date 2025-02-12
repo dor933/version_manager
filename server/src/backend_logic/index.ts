@@ -146,6 +146,10 @@ async function shutdown(signal: string) {
         logger.info('Stopped cron job');
     }
 
+    if(signal=='SIGINT' || signal=='SIGTERM'){
+        logger.info('Shutdown complete');
+        process.exit(0);
+    }
 
     logger.info('Shutdown complete, But Database is not closed');
 }
