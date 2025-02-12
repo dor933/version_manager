@@ -3,13 +3,11 @@ dotenv.config();
 import nodemailer from 'nodemailer';
 import { VersionData } from './types';
 import { createEmailTemplate } from './emailTemplate';
-import { Type1Products, Type2Products, version_extracted } from './types';
+import { Type1Products, version_extracted } from './types';
 import { isinit, logger } from './index';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 import { db } from './index';
-import { Logger } from 'concurrently';
-import { Console } from 'console';
 
 
 let identifier=0;

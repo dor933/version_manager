@@ -1,7 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 import fs from 'fs';
-import { db, logger } from '../../index';
+import { db, logger } from '../../backend_logic/index';
 
 const router = express.Router();
 

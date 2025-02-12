@@ -3,7 +3,7 @@ import { Database } from './Db';
 import { sendEmail } from './Functions';
 import winston from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
-import { startServer } from './server/server';
+import { startServer } from '../api/startup';
 let errorCount=0;
 let croninterval:any= process.env.CRON_INTERVAL;
 let unit=process.env.UNIT;
@@ -12,6 +12,8 @@ let isinit=true;
 
 
 // Configure logger with new file for each day
+
+
 
 const logger = winston.createLogger({
 
@@ -144,16 +146,8 @@ async function shutdown(signal: string) {
         logger.info('Stopped cron job');
     }
 
-    try {
-        // Close database connections
-        await db.close(); // You'll need to implement this method in your Database class
-        logger.info('Closed database connections');
-    } catch (error) {
-        logger.error('Error during database shutdown:', { error });
-    }
 
-    logger.info('Shutdown complete');
-    process.exit(0);
+    logger.info('Shutdown complete, But Database is not closed');
 }
 
 // Register shutdown handlers
@@ -174,9 +168,9 @@ process.on('unhandledRejection', (reason) => {
 // Start the application
 (async () => {
     startServer();
-    console.log('Initiate version manager...')
+    logger.info('Initiate version manager...')
     await db.HandleData();
-    console.log('Initiation finished successfully')
+    logger.info('Initiation finished successfully')
     startCronJob();
 
  

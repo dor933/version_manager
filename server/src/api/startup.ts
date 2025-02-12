@@ -1,5 +1,5 @@
 import express from 'express';
-import { db, logger } from '../index';
+import { db, logger } from '../backend_logic/index';
 import multer from 'multer';
 import fs from 'fs';
 import versionRoutes from './routes/version.routes';
