@@ -19,26 +19,27 @@ import { HomeSVG } from '../svg/HomeSVG';
 import { EmailSVG } from '../svg/EmailSVG';
 import { InfoSVG } from '../svg/InfoSVG';
 import { VersionData } from '../types';
-
+import { styled } from '@mui/material/styles';
+import TableSortLabel from '@mui/material/TableSortLabel';
 
 interface Column {
   id: 'VersionName' | 'ProductName' | 'VendorName' | 'ReleaseDate' | 'EndOfSupportDate' | 'Extended_Support_End_Date' | 'LevelOfSupport' 
   label: string;
   minWidth?: number;
-  align?: 'right' | 'left';
+  align?: 'right' | 'left' | 'center';
   format_number?: (value: number) => string;
-  format_date?: (value: Date) => string;
+  format_date?: (value: string) => string;
   format_product?: (value: string) => string;
-
 }
 
 const columns: readonly Column[] = [
-  { id: 'VersionName', label: 'Version Name', minWidth: 140, format_product: (value: string) => value.replace(/_/g, ' ') },
-  { id: 'ProductName', label: 'Product Name', minWidth: 100, format_product: (value: string) => value.replace(/_/g, ' ') },
+  { id: 'VersionName', label: 'Version Name', minWidth: 140, align:'left', format_product: (value: string) => value.replace(/_/g, ' ') },
+  { id: 'ProductName', label: 'Product Name', minWidth: 100, align:'left', format_product: (value: string) => value.replace(/_/g, ' ') },
   {
     id: 'VendorName',
     label: 'Vendor Name',
     minWidth: 100,
+    
     
     align: 'left',
     format_number: (value: number) => value.toLocaleString('en-US'),
@@ -47,39 +48,51 @@ const columns: readonly Column[] = [
     id: 'ReleaseDate',
     label: 'Version Release Date',
     minWidth: 140,
-    align: 'right',
-    format_date: (value: Date) => value.toLocaleString('he-IL').split(',')[0]
+    align: 'left',
+    format_date: (value: string) => new Date(value).toLocaleString('he-IL').split(',')[0]
   },
   {
     id:'LevelOfSupport',
     label:'Level Of Support',
     minWidth:140,
-    align:'right',
+    align:'left',
     format_number: (value: number) => value.toLocaleString('en-US'),
   },
   {
     id: 'EndOfSupportDate',
-        label: 'Version EOL',
+    label: 'Version EOL',
     minWidth: 140,
-    align: 'right',
-    format_date: (value: Date) => value.toLocaleString('he-IL').split(',')[0],
+    align: 'left',
+    format_date: (value: string) => new Date(value).toLocaleString('he-IL').split(',')[0]
   },
   {
     id: 'Extended_Support_End_Date',
-        label: 'Version Partial EOL',
+    label: 'Version Partial EOL',
     minWidth: 140,
-    align: 'right',
-    format_date: (value: Date) => value.toLocaleString('he-IL').split(',')[0]
+    align: 'left',
+    format_date: (value: string) => new Date(value).toLocaleString('he-IL').split(',')[0]
   },
 
 
 
 ];
 
+const AnimatedGrid = styled(Grid)<{ animate?: boolean }>`
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateX(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
 
+  animation: ${({ animate }) => animate ? 'fadeIn 0.5s ease-out' : 'none'};
+`;
 
-
-
+type Order = 'asc' | 'desc';
 
 export default function StickyHeadTable({versions, distinctVendors, productsandmodules }: {versions: VersionData[], distinctVendors: string[], productsandmodules: any[]}) {
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
@@ -92,6 +105,11 @@ export default function StickyHeadTable({versions, distinctVendors, productsandm
   const [chosenproduct, setChosenProduct] = React.useState<any>(null);
   const prevVendorRef = React.useRef(vendor);
   const prevSearchRef = React.useRef(searchvalue);
+  const [animate, setAnimate] = React.useState(false);
+  const [order, setOrder] = React.useState<Order>('desc');
+  const [orderBy, setOrderBy] = React.useState<keyof VersionData>('ReleaseDate');
+
+  
  
   useEffect(() => {
     if (!versions) return;
@@ -140,7 +158,6 @@ useEffect(() => {
 }, [vendor, searchvalue]);
 
 
-
   
   const handleRowClick = (row: any) => {
 
@@ -150,6 +167,11 @@ useEffect(() => {
      if(product){
       setChosenProduct(product);
      }
+     if (chosenversion) {
+      setAnimate(true);
+      const timer = setTimeout(() => setAnimate(false), 500);
+      return () => clearTimeout(timer);
+    }
   } 
 
 
@@ -169,7 +191,36 @@ useEffect(() => {
   };
   
   
- 
+  const handleRequestSort = (property: keyof VersionData) => {
+    const isAsc = orderBy === property && order === 'asc';
+    setOrder(isAsc ? 'desc' : 'asc');
+    setOrderBy(property);
+    
+    const sortedVersions = [...filteredVersions].sort((a, b) => {
+      if (property === 'ReleaseDate' || property === 'EndOfSupportDate' || property === 'Extended_Support_End_Date') {
+        const dateA = a[property] ? new Date(a[property] as string|number|Date).getTime() : Infinity;
+        const dateB = b[property] ? new Date(b[property] as string|number|Date).getTime() : Infinity;
+        return order === 'asc' ? dateA - dateB : dateB - dateA;
+      }
+  
+      else if(property==='ProductName'){
+        return order === 'asc' ? (a[property] || '') > (b[property] || '') ? 1 : -1 : (b[property] || '') > (a[property] || '') ? 1 : -1;
+      }
+      else if(property==='VendorName'){
+        return order === 'asc' ? (a[property] || '') > (b[property] || '') ? 1 : -1 : (b[property] || '') > (a[property] || '') ? 1 : -1;
+      }
+      else if(property==='LevelOfSupport'){
+        return order === 'asc' ? (a[property] || '') > (b[property] || '') ? 1 : -1 : (b[property] || '') > (a[property] || '') ? 1 : -1;
+      }
+      
+
+      return order === 'asc'
+        ? (a[property] || '') > (b[property] || '') ? 1 : -1
+        : (b[property] || '') > (a[property] || '') ? 1 : -1;
+    });
+    
+    setFilteredVersions(sortedVersions);
+  };
 
   return (
     <>
@@ -229,16 +280,37 @@ useEffect(() => {
                   key={column.id}
                   align={column.align}
                   style={{ minWidth: column.minWidth }}
-                  sx={{
-                    backgroundColor: '#fff',
-                    fontFamily: 'Kumbh Sans',
-                    fontWeight: 600,
-                    fontSize: '14px',
-                    color: '#152259',
-                    paddingY: '12px',  // Vertical padding
-                  }}
+                  sortDirection={orderBy === column.id ? order : false}
                 >
-                  {column.label}
+                  {column.id === 'VersionName' ? (
+                    <Typography sx={{
+                      fontFamily: 'Kumbh Sans',
+                      fontWeight: 600,
+                      fontSize: '12px',
+                      color: '#152259',
+                    }}>
+                      {column.label}
+                    </Typography>
+                  ) : (
+                    <TableSortLabel
+                      active={true}
+                      hideSortIcon={false}
+                      direction={orderBy === column.id ? order : 'asc'}
+                      onClick={() => handleRequestSort(column.id as keyof VersionData)}
+                      sx={{
+                        fontFamily: 'Kumbh Sans',
+                        fontWeight: 600,
+                        fontSize: '12px',
+                        color: '#152259',
+                        display:'flex',
+                        alignItems:'center',
+                        justifyContent:'center',
+                        gap:'10px'
+                      }}
+                    >
+                      {column.label}
+                    </TableSortLabel>
+                  )}
                 </TableCell>
               ))}
             </TableRow>
@@ -278,7 +350,7 @@ useEffect(() => {
                           {column.format_number && typeof value === 'number'
                             ? column.format_number(value) 
                             : column.format_date && typeof value === 'string'
-                            ? column.format_date(new Date(value)) 
+                            ? column.format_date(value) 
                             : column.format_product && typeof value === 'string'
                             ? column.format_product(value)
                             : column.id==='VendorName' ? 
@@ -314,7 +386,19 @@ useEffect(() => {
     </Grid>
     </Grid>
 
-    <Grid item xs={3} style={{display:'flex', alignSelf:'flex-start', flexDirection:'column',alignItems:'center', justifyContent:'center',gap:'10px'}}>
+    <AnimatedGrid 
+      item 
+      xs={3} 
+      animate={animate}
+      style={{
+        display: 'flex', 
+        alignSelf: 'flex-start', 
+        flexDirection: 'column',
+        alignItems: 'center', 
+        justifyContent: 'center',
+        gap: '10px'
+      }}
+    >
 
 <Typography style={{color:"#424242", fontSize:'14px', fontWeight:'500', lineHeight:'16px', letterSpacing:'0.2px', textAlign:'center', fontFamily:'Kumbh Sans'}}>
   {vendor? vendor: 'All Vendors'}
@@ -432,7 +516,7 @@ null
 
 
 </Grid>
-</Grid>
+</AnimatedGrid>
     </> 
   );
 }

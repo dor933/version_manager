@@ -33,6 +33,7 @@ const [readnotifications, setReadnotifications] = React.useState<boolean>(false)
 const [versions_to_notify, setVersionsToNotify] = React.useState<any[]>([]);
 const [openSubscribe, setOpenSubscribe] = React.useState<boolean>(false);
 const [productsandmodules, setProductsAndModules] = React.useState<any>(null);
+const [animate, setAnimate] = React.useState(false);
 
 
 useEffect(() => {
@@ -158,6 +159,8 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
 
 
 
+
+
   return (
     
     <Box sx={{ display: 'flex' }}>
@@ -215,13 +218,13 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
            </Box>
            <Grid item xs={4} style={{display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'column'}}>
              
-             <Box sx={{display:'flex', backgroundColor:'#FFF', borderRadius:'4px', paddingLeft:'13px', paddingRight:'13px', paddingTop:'14px', paddingBottom:'14px', cursor:'pointer'}} onClick={() => {
+             <Box sx={{display:'flex', backgroundColor:'#509CDB', borderRadius:'4px', paddingLeft:'13px', paddingRight:'13px', paddingTop:'14px', paddingBottom:'14px', cursor:'pointer' }} onClick={() => {
               if(!openSubscribe){
                 return setOpenSubscribe(true);
               }
             
              }}>
-                 <Typography  sx={{ color: '#424242', fontSize:'14px', fontWeight:'600', lineHeight:'16px', letterSpacing:'0.2px', textAlign:'center', fontFamily:'Kumbh Sans' }}>
+                 <Typography  sx={{ color: '#FFFFFF', fontSize:'14px', fontWeight:'600', lineHeight:'16px', letterSpacing:'0.2px', textAlign:'center', fontFamily:'Kumbh Sans' }}>
                      Subscribe to Notifications
                  </Typography>
                  <Notification
