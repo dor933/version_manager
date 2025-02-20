@@ -1,16 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Box, Grid, Typography, Button } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
 import ErrorIcon from '@mui/icons-material/Error';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { useAuth } from '../UseContext/MainAuth';
 
 
-const Popup: React.FC = ({
+const Popup = ({
 
 }) => {
     const isSmall = useMediaQuery('(max-width:600px)');
-    const { ispopupopen, setIsPopupOpen, setIssucceeded, setMessage, setTitle, setMainMessage, setSubMessage, setButtonText, issucceeded, title, mainMessage, subMessage, buttonText } = useAuth();
+    const [ispopupopen, setIsPopupOpen] = useState(false);
+    const [issucceeded, setIssucceeded] = useState(false);
+    const [message, setMessage] = useState('');
+    const [title, setTitle] = useState('');
+    const [mainMessage, setMainMessage] = useState('');
+    const [subMessage, setSubMessage] = useState('');
+    const [buttonText, setButtonText] = useState('');
 
     if (!ispopupopen) return null;
 

@@ -7,7 +7,7 @@ import { startServer } from '../api/startup';
 let errorCount=0;
 let croninterval:any= process.env.CRON_INTERVAL;
 let unit=process.env.UNIT;
-let isinit=true;
+let isinit=false;
 
 
 
@@ -25,13 +25,13 @@ const logger = winston.createLogger({
     ),
     transports: [
         new DailyRotateFile({
-            filename: 'logs/error-%DATE%.log',
+            filename: 'server/logs/error-%DATE%.log',
             datePattern: 'YYYY-MM-DD',
             level: 'error',
             maxFiles: '14d'  // Keep logs for 14 days
         }),
         new DailyRotateFile({
-            filename: 'logs/combined-%DATE%.log',
+            filename: 'server/logs/combined-%DATE%.log',
             datePattern: 'YYYY-MM-DD',
             maxFiles: '14d'  // Keep logs for 14 days
         })

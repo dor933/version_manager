@@ -2,10 +2,8 @@ import axios from 'axios';
 import { notify_on_end_of_support, notify_on_end_of_support_changes, notify_new_version, extract_versions_from_json,extract_fortra_versions_to_json, extract_JSON_URL } from './Functions';
 import { parseDate } from './Functions';
 import { DataStructure, VersionData, version_extracted } from './types';
-const Data=require('../Data.json') as DataStructure;
+const Data=require('../../Data.json') as DataStructure;
 import { logger } from './index';
-
-
 
 
 
@@ -259,6 +257,8 @@ class Database {
         return true;
     }
     catch(error){
+
+        logger.error('Error in HandleData', error);
    
         return error;
     }
@@ -341,12 +341,14 @@ class Database {
                      
                         else{
 
+
                         // If no rows found, execute insert query
                         this.db.run(`INSERT INTO ${table} (${columnsString}) VALUES (${valuesString})`, (err: Error) => {
                             if (err) {
                                 console.error('Error inserting data', err.message);
                                 reject(err);
                             } else {
+
                                 if(table === 'Version'){
                               
                                     notify_new_version(versionData!, UsersArrayes);
@@ -430,6 +432,7 @@ class Database {
         this.db.all(query, (err: Error, rows: any) => {
 
            if(err){
+
             logger.error('Error getting users array', err.message);
             reject(err);
            }
@@ -449,7 +452,6 @@ class Database {
         });
     }
     catch(err:any){
-        console.error('Error getting users array', err.message);
         logger.error('Error getting users array', err.message);
         reject(err);
     }

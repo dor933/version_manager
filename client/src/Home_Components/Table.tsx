@@ -18,9 +18,10 @@ import Issues from './Issues';
 import { HomeSVG } from '../svg/HomeSVG';
 import { EmailSVG } from '../svg/EmailSVG';
 import { InfoSVG } from '../svg/InfoSVG';
-import { VersionData } from '../types';
+import { VersionData } from '../Types/MainDataTypes';
 import { styled } from '@mui/material/styles';
 import TableSortLabel from '@mui/material/TableSortLabel';
+import { sortedVersions } from '../Help Functions/Sorting';
 
 interface Column {
   id: 'VersionName' | 'ProductName' | 'VendorName' | 'ReleaseDate' | 'EndOfSupportDate' | 'Extended_Support_End_Date' | 'LevelOfSupport' 
@@ -195,31 +196,10 @@ useEffect(() => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
-    
-    const sortedVersions = [...filteredVersions].sort((a, b) => {
-      if (property === 'ReleaseDate' || property === 'EndOfSupportDate' || property === 'Extended_Support_End_Date') {
-        const dateA = a[property] ? new Date(a[property] as string|number|Date).getTime() : Infinity;
-        const dateB = b[property] ? new Date(b[property] as string|number|Date).getTime() : Infinity;
-        return order === 'asc' ? dateA - dateB : dateB - dateA;
-      }
-  
-      else if(property==='ProductName'){
-        return order === 'asc' ? (a[property] || '') > (b[property] || '') ? 1 : -1 : (b[property] || '') > (a[property] || '') ? 1 : -1;
-      }
-      else if(property==='VendorName'){
-        return order === 'asc' ? (a[property] || '') > (b[property] || '') ? 1 : -1 : (b[property] || '') > (a[property] || '') ? 1 : -1;
-      }
-      else if(property==='LevelOfSupport'){
-        return order === 'asc' ? (a[property] || '') > (b[property] || '') ? 1 : -1 : (b[property] || '') > (a[property] || '') ? 1 : -1;
-      }
-      
 
-      return order === 'asc'
-        ? (a[property] || '') > (b[property] || '') ? 1 : -1
-        : (b[property] || '') > (a[property] || '') ? 1 : -1;
-    });
+    const VersionsSorted = sortedVersions(filteredVersions, property, order);
     
-    setFilteredVersions(sortedVersions);
+    setFilteredVersions(VersionsSorted);
   };
 
   return (

@@ -420,6 +420,8 @@ async function sendEmail({
     vendor_name: string, 
     users_array?: any
   }) {
+
+    logger.info('Sending email', { subject, content, vendor_name, users_array });
     // Early return if no users or initialization
     if (users_array === undefined || users_array === '' || isinit === true) {
       return;

@@ -8,7 +8,7 @@ const router = express.Router();
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
       // Store temporarily in uploads folder
-      const tempDir = 'uploads/temp';
+      const tempDir = 'server/uploads/temp';
       // Create temp directory if it doesn't exist
       if (!fs.existsSync(tempDir)) {
         fs.mkdirSync(tempDir, { recursive: true });
@@ -38,7 +38,7 @@ router.post('/:issueId/addresolution', async (req, res) => {
         
         res.json({ success: true });
       } catch (error) {
-        console.error('Error adding resolution:', error);
+        logger.error('Error adding resolution:', error);
         res.status(500).json({ success: false });
       }
 });
@@ -67,7 +67,7 @@ router.post('/:issueId/addworkaround', async (req, res) => {
 router.get('/:issueId/photos', (req, res) => {
     try {
         const issueId = req.params.issueId;
-        const issueDir = `uploads/issues/${issueId}`;
+        const issueDir = `server/uploads/issues/${issueId}`;
         console.log('issueDir', issueDir)
         
     if (fs.existsSync(issueDir)) {
@@ -75,7 +75,7 @@ router.get('/:issueId/photos', (req, res) => {
       const photos = fs.readdirSync(issueDir);
       console.log('photos', photos)
       res.json({
-        photos: photos.map(filename => `/uploads/issues/${issueId}/${filename}`)
+        photos: photos.map(filename => `server/uploads/issues/${issueId}/${filename}`)
       });
     } else {
       console.log('issueDir does not exist')
@@ -94,7 +94,7 @@ router.post('/:issueId/addphotos', upload.array('photos'), async (req, res) => {
   
     const issueId = req.params.issueId;
     const photos = req.files;
-    const issueDir = `uploads/issues/${issueId}`;
+    const issueDir = `server/uploads/issues/${issueId}`;
     //if not exists, create it
     if(!fs.existsSync(issueDir)){
       fs.mkdirSync(issueDir, { recursive: true });
@@ -129,7 +129,7 @@ router.post('/:issueId/addphotos', upload.array('photos'), async (req, res) => {
         
         if (photos && Array.isArray(photos) && photos.length > 0) {
           // Create issue directory if it doesn't exist
-          const issueDir = `uploads/issues/${issueId}`;
+          const issueDir = `server/uploads/issues/${issueId}`;
           fs.mkdirSync(issueDir, { recursive: true });
   
           // Move files from temp to issue directory
