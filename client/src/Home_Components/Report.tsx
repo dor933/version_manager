@@ -10,6 +10,7 @@ import { useEffect, useState } from 'react';
 import { z } from 'zod';
 import CancelIcon from '@mui/icons-material/Cancel';
 import ImageHandler from '../Help_Components/ImageHandler';
+import Popup from '../Help_Components/Popup';
 import { apiService } from '../API/apiService';
 
 const severities = ['Low', 'Medium', 'High','Urgent'];
@@ -35,9 +36,14 @@ export default function FormDialog({versions, productsandmodules}: ReportProps) 
   const [email, setEmail] = useState('');
   const [severity, setSeverity] = useState('');
   const [issueDescription, setIssueDescription] = useState('');
-  const { setIsPopupOpen, setTitle, setMainMessage, setButtonText, setIssucceeded } = useAuth();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
+  const [ispopupopen, setIsPopupOpen] = useState(false);
+  const [issucceeded, setIssucceeded] = useState(false);
+  const [title, setTitle] = useState('');
+  const [mainMessage, setMainMessage] = useState('');
+  const [subMessage, setSubMessage] = useState('');
+  const [buttonText, setButtonText] = useState('');
 
   useEffect(() => {
 
@@ -62,41 +68,35 @@ export default function FormDialog({versions, productsandmodules}: ReportProps) 
     }
   }, [singleproduct, productsandmodules]);
 
-
+const handlePopup = (title: string, issucceeded: boolean, mainMessage: string, buttonText: string) => {
+  setIsPopupOpen(true);
+  setTitle(title);
+  setIssucceeded(issucceeded);
+  setMainMessage(mainMessage);
+  setButtonText(buttonText);
+}
 
   const handleSubmit = async () => {
     console.log(vendor, singleproduct, singleversion, email, severity, issueDescription, chosenmodule);
     const emailSchema = z.string().email();
 
     if(!severities.includes(severity)){
-      setIsPopupOpen(true);
-      setTitle('Error');
-      setMainMessage('Please select a valid severity');
-      setButtonText('OK');
+      handlePopup('Error', false, 'Please select a valid severity', 'OK');
       return;
     }
   
     if(issueDescription.length < 10 || issueDescription.length > 1000){
-      setIsPopupOpen(true);
-      setTitle('Error');
-      setMainMessage('Please enter a valid issue description (Min 10 characters and Max 1000 characters)');
-      setButtonText('OK');
+      handlePopup('Error', false, 'Please enter a valid issue description (Min 10 characters and Max 1000 characters)', 'OK');
       return;
     }
 
     if(vendor.length < 1 || singleproduct.length < 1 || singleversion.length < 1 || chosenmodule.length < 1){
-      setIsPopupOpen(true);
-      setTitle('Error');
-      setMainMessage('Please select a valid vendor, product, version and module');
-      setButtonText('OK');
+      handlePopup('Error', false, 'Please select a valid vendor, product, version and module', 'OK');
       return;
     }
 
     if(!emailSchema.safeParse(email).success){
-      setIsPopupOpen(true);
-      setTitle('Error');
-      setMainMessage('Please enter a valid email address');
-      setButtonText('OK');
+      handlePopup('Error', false, 'Please enter a valid email address', 'OK');
       return;
     }
 
@@ -120,27 +120,17 @@ export default function FormDialog({versions, productsandmodules}: ReportProps) 
       
       if(report.data.report) {
         const issueId = report.data.issueId;
-        setIsPopupOpen(true);
-        setTitle('Success');
-        setIssucceeded(true);
-        setMainMessage('Report submitted successfully');
-        setButtonText('OK');
+        handlePopup('Success', true, 'Report submitted successfully', 'OK');
         // Clear files after successful upload
         setSelectedFiles([]);
         setPreviews([]);
       }
       else{
-        setIsPopupOpen(true);
-        setTitle('Error');
-        setMainMessage('Report submission failed');
-        setButtonText('OK');
+        handlePopup('Error', false, 'Report submission failed', 'OK');
       }
     } catch (error) {
       console.error('Error uploading:', error);
-      setIsPopupOpen(true);
-      setTitle('Error');
-      setMainMessage('Failed to upload files');
-      setButtonText('OK');
+      handlePopup('Error', false, 'Failed to upload files', 'OK');
     }
   }
 
@@ -154,6 +144,7 @@ export default function FormDialog({versions, productsandmodules}: ReportProps) 
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
+     
         }}
         maxWidth="lg"
         fullWidth={true}
@@ -165,7 +156,7 @@ export default function FormDialog({versions, productsandmodules}: ReportProps) 
         }}
         PaperProps={{
           component: 'form',
-          onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
+          onSubmit:  (event: React.FormEvent<HTMLFormElement>) => {
             event.preventDefault();
             const formData = new FormData(event.currentTarget);
             const formJson = Object.fromEntries((formData as any).entries());
@@ -180,9 +171,25 @@ export default function FormDialog({versions, productsandmodules}: ReportProps) 
           }
         }}
       >
+        {ispopupopen && (
+          <Popup
+            title={title}
+            issucceeded={issucceeded}
+            mainMessage={mainMessage}
+            buttonText={buttonText}
+            ispopupopen={ispopupopen}
+            setIsPopupOpen={setIsPopupOpen}
+            setIssucceeded={setIssucceeded}
+            setTitle={setTitle}
+            setMainMessage={setMainMessage}
+            setButtonText={setButtonText}
+            subMessage={subMessage}
+            setSubMessage={setSubMessage}
+          />
+        )}
         <DialogContent>
         <Grid item xs={12} sx={{display:'flex', justifyContent:'flex-start', alignItems:'center', flexDirection:'row',position:'fixed'}}>
-              <CancelIcon sx={{color:'#152259', cursor:'pointer', fontSize:'35px'}} onClick={() => setOpenDialog(false)}/>
+              <CancelIcon sx={{color:'#152259', cursor:'pointer', fontSize:'35px'}} onClick={() => !ispopupopen ? setOpenDialog(false) : null}/>
 
               </Grid>
             <Box sx={{display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'column', paddingLeft:'80px', paddingRight:'80px', paddingTop:'80px', paddingBottom:'80px',gap:'10px'}}>
@@ -204,6 +211,7 @@ export default function FormDialog({versions, productsandmodules}: ReportProps) 
                             sx={{width:'100%', fontFamily:'Kumbh Sans', fontWeight:'500', fontSize:'14px', color:'#152259'}}
                             required
                             onChange={(e) => setVendor(e.target.value)}
+                            disabled={ispopupopen}
                         >
                             {
                               //distinct vendors
@@ -226,6 +234,7 @@ export default function FormDialog({versions, productsandmodules}: ReportProps) 
                     sx={{width:'100%', fontFamily:'Kumbh Sans', fontWeight:'500', fontSize:'14px', color:'#152259'}}
                     required
                     onChange={(e) => setChosenModule(e.target.value)}
+                    disabled={ispopupopen}
                   >
                     {modules.map((module: any) => (
                       <MenuItem value={module.ModuleName}>{module.ModuleName}</MenuItem>
@@ -244,7 +253,7 @@ export default function FormDialog({versions, productsandmodules}: ReportProps) 
                             value={singleproduct}
                             sx={{width:'100%', fontFamily:'Kumbh Sans', fontWeight:'500', fontSize:'14px', color:'#152259'}}
                             required
-                            disabled={isproductsdisabled}
+                            disabled={isproductsdisabled || ispopupopen}
                             onChange={(e) => setSingleProduct(e.target.value)}
                         >
                             {
@@ -286,7 +295,7 @@ export default function FormDialog({versions, productsandmodules}: ReportProps) 
                             value={singleversion}
                             sx={{width:'100%', fontFamily:'Kumbh Sans', fontWeight:'500', fontSize:'14px', color:'#152259'}}
                             required
-                            disabled={isversiondisabled}
+                            disabled={isversiondisabled || ispopupopen}
                             onChange={(e) => setSingleVersion(e.target.value)}
                         >
                             {
@@ -354,7 +363,7 @@ export default function FormDialog({versions, productsandmodules}: ReportProps) 
      
         </DialogContent>
         <DialogActions sx={{display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'row',paddingBottom:'20px'}}>
-          <Button onClick={() => setOpenDialog(false)} sx={{backgroundColor:'#F2F2F2',fontWeight:'600',fontFamily:'Kumbh Sans', color:'#4F4F4F'}}>Cancel</Button>
+          <Button onClick={() => !ispopupopen ? setOpenDialog(false) : null} sx={{backgroundColor:'#F2F2F2',fontWeight:'600',fontFamily:'Kumbh Sans', color:'#4F4F4F'}}>Cancel</Button>
           <Button type="submit" onClick={handleSubmit} sx={{backgroundColor:'#509CDB',fontWeight:'600',fontFamily:'Kumbh Sans', color:'#fff'}}>Submit</Button>
         </DialogActions>
       </Dialog>

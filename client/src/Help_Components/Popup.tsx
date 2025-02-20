@@ -4,19 +4,38 @@ import CheckIcon from '@mui/icons-material/Check';
 import ErrorIcon from '@mui/icons-material/Error';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
+interface PopupProps {
+    ispopupopen: boolean;
+    setIsPopupOpen: (value: boolean) => void;
+    issucceeded: boolean;
+    setIssucceeded: (value: boolean) => void;
+    title: string;
+    setTitle: (value: string) => void;
+    mainMessage: string;
+    setMainMessage: (value: string) => void;
+    subMessage: string;
+    setSubMessage: (value: string) => void;
+    buttonText: string;
+    setButtonText: (value: string) => void;
+}
+
 
 const Popup = ({
+    ispopupopen,
+    setIsPopupOpen,
+    issucceeded,
+    setIssucceeded,
+    title,
+    setTitle,
+    mainMessage,
+    setMainMessage,
+    subMessage,
+    setSubMessage,
+    buttonText,
+    setButtonText,
+}: PopupProps) => {
 
-}) => {
     const isSmall = useMediaQuery('(max-width:600px)');
-    const [ispopupopen, setIsPopupOpen] = useState(false);
-    const [issucceeded, setIssucceeded] = useState(false);
-    const [message, setMessage] = useState('');
-    const [title, setTitle] = useState('');
-    const [mainMessage, setMainMessage] = useState('');
-    const [subMessage, setSubMessage] = useState('');
-    const [buttonText, setButtonText] = useState('');
-
     if (!ispopupopen) return null;
 
     return (
@@ -102,7 +121,6 @@ const Popup = ({
                         onClick={() => {
                             setIsPopupOpen(false);
                             setIssucceeded(false);
-                            setMessage('');
                             setTitle('');
                             setMainMessage('');
                             setSubMessage('');

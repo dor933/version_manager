@@ -12,8 +12,7 @@ import { IconButton } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
 import ImageHandler from '../Help_Components/ImageHandler';
 import { apiService } from '../API/apiService';
-import { useReport } from '../hooks/useReport';
-
+import Popup from '../Help_Components/Popup';
 interface IssuesTableProps {
     chosenproduct: any;
     chosenversion: any;
@@ -97,7 +96,12 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
     const [photos, setPhotos] = React.useState<string[]>([]);
     const [editingCell, setEditingCell] = useState<{ rowId: number; column: string; value: string }>({ rowId: -1, column: '', value: '' });
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-    const { showError, showSuccess } = useReport();
+    const [ispopupopen, setIsPopupOpen] = useState(false);
+    const [issucceeded, setIssucceeded] = useState(false);
+    const [title, setTitle] = useState('');
+    const [mainMessage, setMainMessage] = useState('');
+    const [subMessage, setSubMessage] = useState('');
+    const [buttonText, setButtonText] = useState('');
     
     useEffect(() => {
      
@@ -126,6 +130,13 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
         }
     }, [chosenmodule])
 
+    const handlePopup= (title: string, message: string, buttonText: string) => {
+        setIsPopupOpen(true);
+        setTitle(title);
+        setMainMessage(message);
+        setButtonText(buttonText);
+    }
+
     const getissuephotos= async (issueId: number) => {
         console.log('issueId', issueId)
             const response = await apiService.getIssuePhotos(issueId);
@@ -136,11 +147,8 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
             setIsPhotosOpen(true);
         }
         else{
-          showError('There are no photos for this issue');
+          handlePopup('Error', 'There are no photos for this issue', 'OK');
         }
-
-
-        return data.photos;
 
 
     }
@@ -187,10 +195,10 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
             }
              
 
-            showSuccess('Issue updated successfully');
+            handlePopup('Success', 'Issue updated successfully', 'OK');
         }
         else{
-            showError('Failed to update issue');
+            handlePopup('Error', 'Failed to update issue', 'OK');
         }
     };
 
@@ -214,13 +222,13 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
 
 
         if (response?.data?.success) {
-          showSuccess('Photos added successfully');
+          handlePopup('Success', 'Photos added successfully', 'OK');
         } else {
-          showError('Failed to add photos');
+          handlePopup('Error', 'Failed to add photos', 'OK');
         }
       } catch (error) {
         console.error('Error:', error);
-        showError('Failed to add photos');
+        handlePopup('Error', 'Failed to add photos', 'OK');
       }
     };
 
@@ -234,6 +242,22 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
       boxShadow: 'none',
       margin:'0 auto'
     }}>
+      {ispopupopen && (
+          <Popup
+            ispopupopen={ispopupopen}
+            setIsPopupOpen={setIsPopupOpen}
+            issucceeded={issucceeded}
+            setIssucceeded={setIssucceeded}
+            title={title}
+            setTitle={setTitle}
+            mainMessage={mainMessage}
+            setMainMessage={setMainMessage}
+            subMessage={subMessage}
+            setSubMessage={setSubMessage}
+            buttonText={buttonText}
+           setButtonText={setButtonText}
+        />
+      )}
       <PhotosComp photos={photos} isphotosopen={isphotosopen} setIsPhotosOpen={setIsPhotosOpen} />
       <MyTabs chosenmodule={chosenmodule} setChosenModule={setChosenModule} modules={chosenproduct.modules}/>
       <TableContainer sx={{ 

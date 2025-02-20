@@ -6,7 +6,7 @@ import axios from 'axios';
 import FormControlSelect from './NotificationSelect';
 import { useAuth } from '../UseContext/MainAuth';
 import { apiService } from '../API/apiService';
-import { useReport } from '../hooks/useReport';
+import Popup from './Popup';
 
 interface NotificationProps {
   open: boolean;
@@ -97,10 +97,14 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_to_
   const [isproductsdisabled, setIsProductsDisabled] = useState(true);
   const [Unit, setUnit] = useState('');
   const [Interval, setinterval] = useState('');
-  const { showError, showSuccess } = useReport();
+  const [ispopupopen, setIsPopupOpen] = useState(false);
+  const [issucceeded, setIssucceeded] = useState(false);
+  const [title, setTitle] = useState('');
+  const [mainMessage, setMainMessage] = useState('');
+  const [subMessage, setSubMessage] = useState('');
+  const [buttonText, setButtonText] = useState('');
 
   useEffect(() => {
-
 
 
       if(vendor==='All Vendors'){
@@ -120,31 +124,38 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_to_
 
   }, [vendor,versions]);
 
+  const handlePopup= (title: string, message: string, buttonText: string) => {
+    setIsPopupOpen(true);
+    setTitle(title);
+    setMainMessage(message);
+    setButtonText(buttonText);
+  }
+
  
 
     const handleSubscribe = () => {
         if(vendor === '') {
-           showError('Please select a vendor');
+           handlePopup('Error', 'Please select a vendor', 'OK');
            return;
         }
         else if(singleproduct === ''){
-           showError('Please select a product');
+           handlePopup('Error', 'Please select a product', 'OK');
            return;
         }
       
         else if(Unit === ''){
-           showError('Please select a unit');
+           handlePopup('Error', 'Please select a unit', 'OK');
            return;
         }
         else if(Interval === ''){
-           showError('Please select an interval');
+           handlePopup('Error', 'Please select an interval', 'OK');
            return;
         }
    
         const emailValidation = emailSchema.safeParse(email);
         if (!emailValidation.success) {
           
-           showError('Please enter a valid email address');
+           handlePopup('Error', 'Please enter a valid email address', 'OK');
            return;
         }
 
@@ -162,13 +173,13 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_to_
         .then(data => {
             console.log(data);
             if(data.subscribe==='Already Subscribed'){
-                showError('You are already subscribed to notifications');
+                handlePopup('Error', 'You are already subscribed to notifications', 'OK');
             }
             else if(data.subscribe){
-                showSuccess('You are now subscribed to notifications');
+                handlePopup('Success', 'You are now subscribed to notifications', 'OK');
             }
             else{
-                showError('Error subscribing');
+                handlePopup('Error', 'Error subscribing', 'OK');
             }
         })
         .catch(error => console.error('Error subscribing:', error));
@@ -180,6 +191,20 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_to_
 
   return (
     <>
+    <Popup
+    ispopupopen={ispopupopen}
+    setIsPopupOpen={setIsPopupOpen}
+    issucceeded={issucceeded}
+    setIssucceeded={setIssucceeded}
+    title={title}
+    setTitle={setTitle}
+    mainMessage={mainMessage}
+    setMainMessage={setMainMessage}
+    subMessage={subMessage}
+    setSubMessage={setSubMessage}
+    buttonText={buttonText}
+    setButtonText={setButtonText}
+    />
       {type === 'notifications' ? (
         <Paper
           sx={{

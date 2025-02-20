@@ -4,8 +4,15 @@ import DialogContent from '@mui/material/DialogContent';
 import { Box, Grid } from '@mui/material';
 import CancelIcon from '@mui/icons-material/Cancel';
 import IssuesTable from './IssuesTable';
+import { useState } from 'react';
+import Popup from '../Help_Components/Popup';
 
 export default function Issues({chosenproduct, issuesdialog, setIssuesDialog, chosenversion }: { chosenproduct: any, issuesdialog: boolean, setIssuesDialog: any, chosenversion: any}) {
+
+
+
+
+
   return (
     <React.Fragment>
       <Dialog
@@ -27,7 +34,8 @@ export default function Issues({chosenproduct, issuesdialog, setIssuesDialog, ch
             margin: '20px',
           }
         }}
-      >
+        >
+    
         <DialogContent sx={{ p: 0}}>
           <Box sx={{
             width: '100%',
