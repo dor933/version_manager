@@ -4,8 +4,8 @@
   "bin": "dist/index.js",
   "pkg": {
     "assets": [
-      "dist/**/*",
-      "Data.json",
+      "server/dist/**/*",
+      "server/Data.json",
       ".env",
       "node_modules/axios/**/*",
       "node_modules/sqlite3/**/*"
@@ -18,9 +18,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc",
+    "build": "cd server && tsc",
     "build:client": "cd client && npm run build",
-    "start:server": "node dist/index.js",
+    "start:server": "node server/dist/backend_logic/index.js",
     "start:client": "cd client && npm start",
     "start": "concurrently \"npm run start:server\" \"npm run start:client\"",
     "dev": "npm run build && npm run start",

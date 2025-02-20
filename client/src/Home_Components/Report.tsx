@@ -67,13 +67,7 @@ export default function FormDialog({versions, productsandmodules}: ReportProps) 
   const handleSubmit = async () => {
     console.log(vendor, singleproduct, singleversion, email, severity, issueDescription, chosenmodule);
     const emailSchema = z.string().email();
-    if(!emailSchema.safeParse(email).success){
-      setIsPopupOpen(true);
-      setTitle('Error');
-      setMainMessage('Please enter a valid email address');
-      setButtonText('OK');
-      return;
-    }
+
     if(!severities.includes(severity)){
       setIsPopupOpen(true);
       setTitle('Error');
@@ -94,6 +88,14 @@ export default function FormDialog({versions, productsandmodules}: ReportProps) 
       setIsPopupOpen(true);
       setTitle('Error');
       setMainMessage('Please select a valid vendor, product, version and module');
+      setButtonText('OK');
+      return;
+    }
+
+    if(!emailSchema.safeParse(email).success){
+      setIsPopupOpen(true);
+      setTitle('Error');
+      setMainMessage('Please enter a valid email address');
       setButtonText('OK');
       return;
     }
@@ -338,6 +340,7 @@ export default function FormDialog({versions, productsandmodules}: ReportProps) 
                 <Grid item xs={12}>
                     <TextField
                         label="Issue Description"
+                        value={issueDescription}
                         required
                         sx={{width:'100%'}}
                         multiline

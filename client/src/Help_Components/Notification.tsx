@@ -210,7 +210,7 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_to_
                   sx={{ p: 1, borderBottom: '1px solid #eee' }}
                 >
                   <Typography sx={{ fontSize: '12px', color: '#424242', fontFamily: 'Kumbh Sans' }}>
-                    {version.is_new ? `New Version! ${version.ProductName} ${version.VersionName}` : `${version.ProductName} ${version.VersionName} is nearing end of support life`} 
+                    {version.is_new ? `New Version! ${version.ProductName.replace(/_/g, ' ')} ${version.VersionName}` : `${version.ProductName.replace(/_/g, ' ')} ${version.VersionName} is nearing end of support life`} 
                   
                   </Typography>
                   <Typography sx={{ fontSize: '10px', color: '#666', mt: 0.5, fontFamily: 'Kumbh Sans' }}>
@@ -231,7 +231,7 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_to_
           sx={{
             position: 'absolute',
             right: '45px',
-            top: '80px',
+            top: '100px',
             width: '400px',
             backgroundColor: 'white',
             borderRadius: '8px',
