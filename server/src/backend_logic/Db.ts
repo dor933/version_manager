@@ -1,38 +1,11 @@
 import axios from 'axios';
 import { notify_on_end_of_support, notify_on_end_of_support_changes, notify_new_version, extract_versions_from_json,extract_fortra_versions_to_json, extract_JSON_URL } from './Functions';
 import { parseDate } from './Functions';
-import { DataStructure, VersionData, version_extracted } from './types';
+import { DataStructure, VersionData } from '../Types/MainDataTypes';
 const Data=require('../../Data.json') as DataStructure;
 import { logger } from './index';
-
-
-
-
-async function extract_fortra_versions(productname:string):Promise<version_extracted[]>{
-
-    let listoffortraversions= await extract_fortra_versions_to_json('https://api.portal.fortra.com/kbarticles/goanywhere-mft-end-of-support-life-policy-and-supported-versions-OWMyY2VkZTktZGFmMS1lZTExLTkwNGMtMDAyMjQ4MGFlMjg0?productSlug=goanywhere-mft');
-    
-    
-    let fortra_version_extracted:version_extracted[]=[]
-    let listnew= listoffortraversions[productname];
-   
-
-    for(const version of listnew){
-            fortra_version_extracted.push([
-                version.version_name,
-                version.release_date,
-                version.end_of_support_date,
-                version.level_of_support,
-                version.extended_support_end_date,
-                version.eosl_start_date
-            ])
-        
-      }
-
-      return fortra_version_extracted;
-
-    }
-    
+import { version_extracted } from '../Types/WebTypes';
+import { extract_fortra_versions } from './Functions';
 
 
 
@@ -43,10 +16,7 @@ class Database {
     constructor() {
 
         this.db = new sqlite3.Database( './my-database.db');
-      
-
-   
-        
+    
     }
 
     async HandleData(isinit?:boolean) : Promise<boolean | any> {
@@ -144,16 +114,14 @@ class Database {
                             
                             for(const index of ids){
                                 const jsonRequest = product.BASE_URL! + index;
-                                console.log('json_url', jsonRequest);
                                 let listofversionstemp:any= await axios.get(jsonRequest);
                                 listofversionstemp= extract_versions_from_json(listofversionstemp, vendor.VendorName, product.ProductName);
-                                console.log('listofversionstemp', listofversionstemp);
+                                logger.info('listofversionstemp', listofversionstemp);
                                 merged_listofversions.push(...listofversionstemp);
                             }
-                            console.log('merged_listofversions', merged_listofversions);
                             listofversions= merged_listofversions;
                         } catch (error) {
-                            console.error('Error fetching data:', error);
+                           logger.error('Error fetching data:', error);
                             throw error;
                         }
                     }
@@ -315,15 +283,14 @@ class Database {
                             //parse the EndOfSupportDate and values[3] to date   
                             const EndOfSupportDate_DateTime = parseDate(rows[0]?.EndOfSupportDate)
                             const EndOfSupportDate_DateTime_new = parseDate(values[4]);
-                            this.UpdateRecord('Version', ['full_release_notes'], [values[8]], 'VersionName', rows[0].VersionName);
-
+                            this.UpdateRecord('Version', ['full_release_notes'], [values[8]], ['VersionName'], [rows[0].VersionName]);
 
                             if(!EndOfSupportDate_DateTime && !EndOfSupportDate_DateTime_new){
                                
                                 resolve(false);
                             }
                             else if(rows[0]?.EndOfSupportDate !== values[4]){
-                                this.UpdateRecord(table, ['EndOfSupportDate'], [values[4]], 'VersionName', rows[0].VersionName);
+                                this.UpdateRecord(table, ['EndOfSupportDate'], [values[4]], ['VersionName'], [rows[0].VersionName]);
                                 notify_on_end_of_support_changes(rows[0].ProductName, rows[0].VendorName, rows[0].VersionName, EndOfSupportDate_DateTime? EndOfSupportDate_DateTime : undefined, EndOfSupportDate_DateTime_new? EndOfSupportDate_DateTime_new : undefined, UsersArrayes);   
                                 resolve(false);
                             }
@@ -376,20 +343,27 @@ class Database {
     
   
     
-   async UpdateRecord(table: string, columns: string[], values: any[], whereColumn: string, whereValue: any): Promise<boolean> {
+   async UpdateRecord(table: string, columns: string[], values: any[], whereColumn: string[], whereValue: any[]): Promise<boolean> {
         return new Promise((resolve, reject) => {
             try {
                 // Create placeholders for the values
                 const setClause = columns.map(col => `${col} = ?`).join(', ');
-                const query = `UPDATE ${table} SET ${setClause} WHERE ${whereColumn} = ?`;
+                const whereClause = whereColumn.map(col => `${col} = ?`).join(' AND ');
+                const query = `UPDATE ${table} SET ${setClause} WHERE ${whereClause}`;
 
                 // Escape special characters in values
                 const sanitizedValues = values.map(value => 
                     typeof value === 'string' ? value.replace(/'/g, "''") : value
                 );
 
+                const sanitizedWhereValues = whereValue.map(value => 
+                    typeof value === 'string' ? value.replace(/'/g, "''") : value
+                );
+
                 // Add the whereValue to the values array
-                sanitizedValues.push(whereValue);
+                sanitizedValues.push(...sanitizedWhereValues);
+
+                
 
                 this.db.run(query, sanitizedValues, (err: Error) => {
                     if (err) {
@@ -611,9 +585,6 @@ class Database {
     });
 }
 
-async updateLastUpdate(userid:number, product:string, vendor:string){
-    this.db.run(`UPDATE User_Chosen_Products SET Last_Update=? WHERE UserID=? AND ProductName=? AND VendorName=?`, [new Date().toISOString(), userid, product, vendor]);
-   }
     
 
     public async close(): Promise<void> {

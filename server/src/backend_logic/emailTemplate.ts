@@ -1,9 +1,8 @@
 const path = require('path');
 const logo = path.join(__dirname, '../assets/logo.png');
 
-console.log('logo', logo)
 
-interface Content {
+type Content = {
     subject: string;
     row1: string;
     row2: string;

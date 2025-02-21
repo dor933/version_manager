@@ -9,8 +9,6 @@ let croninterval:any= process.env.CRON_INTERVAL;
 let unit=process.env.UNIT;
 let isinit=false;
 
-
-
 // Configure logger with new file for each day
 
 
@@ -171,6 +169,8 @@ process.on('unhandledRejection', (reason) => {
 
 // Start the application
 (async () => {
+
+   await db.UpdateRecord('User_Chosen_Products', ['Last_Update'], [new Date().toISOString()], ['UserID', 'ProductName', 'VendorName'], [1, 'Metadefender_Vault', 'OPSWAT']);
     startServer();
     logger.info('Initiate version manager...')
     await db.HandleData();

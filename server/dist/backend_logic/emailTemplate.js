@@ -3,7 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.createEmailTemplate = void 0;
 const path = require('path');
 const logo = path.join(__dirname, '../assets/logo.png');
-console.log('logo', logo);
 const createEmailTemplate = (content, vendorname) => `  
     <!DOCTYPE html>
     <html>
