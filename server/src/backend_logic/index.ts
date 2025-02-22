@@ -1,5 +1,5 @@
 import nodecron from 'node-cron';
-import { Database } from './Db';
+import { Database } from './Database/Db';
 import { sendEmail } from './Functions';
 import winston from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
@@ -36,8 +36,29 @@ const logger = winston.createLogger({
     ]
 });
 
-// Add console logging in development
+
+// Add new SQL logger
+const sqlLogger = winston.createLogger({
+    level: 'info',
+    format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.json()
+    ),
+    transports: [
+        new DailyRotateFile({
+            filename: 'server/logs/sql-%DATE%.log',
+            datePattern: 'YYYY-MM-DD',
+            maxFiles: '14d'  // Keep logs for 14 days
+        })
+    ]
+});
+
+// Add console logging for SQL in development
 if (process.env.NODE_ENV !== 'production') {
+    sqlLogger.add(new winston.transports.Console({
+        format: winston.format.simple()
+    }));
+
     logger.add(new winston.transports.Console({
         format: winston.format.simple()
     }));
@@ -185,6 +206,6 @@ process.on('unhandledRejection', (reason) => {
 
 
 
-export { logger, isinit, db };
+export { logger, sqlLogger, isinit, db };
 
 

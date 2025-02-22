@@ -134,9 +134,8 @@ catch(error){
 
 }
 
-async function extract_fortra_versions(productname:string):Promise<version_extracted[]>{
+async function extract_fortra_versions(productname:string,listoffortraversions:any):Promise<version_extracted[]>{
 
-    let listoffortraversions= await extract_fortra_versions_to_json('https://api.portal.fortra.com/kbarticles/goanywhere-mft-end-of-support-life-policy-and-supported-versions-OWMyY2VkZTktZGFmMS1lZTExLTkwNGMtMDAyMjQ4MGFlMjg0?productSlug=goanywhere-mft');
     
     
     let fortra_version_extracted:version_extracted[]=[]
@@ -267,7 +266,7 @@ async function notify_on_end_of_support_changes(product: string, vendor: string,
 }
 
 
-async function extract_JSON_URL(url:string){
+async function extract_Opswat_Key_Indexes(url:string){
 
     try {
 
@@ -553,4 +552,4 @@ async function sendEmail({
 
 
 
-export { notify_on_end_of_support, notify_new_version, sendEmail, parseDate, notify_on_end_of_support_changes, extract_versions_from_json,extract_fortra_versions_to_json,extract_JSON_URL, extract_fortra_versions };
+export { notify_on_end_of_support, notify_new_version, sendEmail, parseDate, notify_on_end_of_support_changes, extract_versions_from_json,extract_fortra_versions_to_json,extract_Opswat_Key_Indexes, extract_fortra_versions };

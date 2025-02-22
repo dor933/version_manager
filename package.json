@@ -41,6 +41,7 @@
     "typescript": "^5.7.2"
   },
   "dependencies": {
+    "@types/sequelize": "^4.28.20",
     "axios": "^0.29.0",
     "cheerio": "^1.0.0",
     "concurrently": "^9.1.0",
@@ -54,6 +55,7 @@
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
     "react-router-dom": "^7.1.3",
+    "sequelize": "^6.37.5",
     "sqlite3": "^5.1.7",
     "winston": "^3.17.0",
     "winston-daily-rotate-file": "^5.0.0"
