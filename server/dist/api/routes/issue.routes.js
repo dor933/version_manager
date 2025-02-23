@@ -20,7 +20,7 @@ const router = express_1.default.Router();
 const storage = multer_1.default.diskStorage({
     destination: (req, file, cb) => {
         // Store temporarily in uploads folder
-        const tempDir = 'uploads/temp';
+        const tempDir = 'server/uploads/temp';
         // Create temp directory if it doesn't exist
         if (!fs_1.default.existsSync(tempDir)) {
             fs_1.default.mkdirSync(tempDir, { recursive: true });
@@ -38,11 +38,11 @@ router.post('/:issueId/addresolution', (req, res) => __awaiter(void 0, void 0, v
         const { issueId } = req.params;
         const { resolution } = req.body;
         console.log('Adding resolution for issue:', issueId, resolution);
-        yield index_1.db.UpdateRecord('Issues', ['Resolution'], [resolution], 'IssueId', issueId);
+        yield index_1.db.UpdateRecord('Issues', ['Resolution'], [resolution], ['IssueId'], [issueId]);
         res.json({ success: true });
     }
     catch (error) {
-        console.error('Error adding resolution:', error);
+        index_1.logger.error('Error adding resolution:', error);
         res.status(500).json({ success: false });
     }
 }));
@@ -51,7 +51,7 @@ router.post('/:issueId/addworkaround', (req, res) => __awaiter(void 0, void 0, v
         const { issueId } = req.params;
         const { workaround } = req.body;
         console.log('Adding workaround for issue:', issueId, workaround);
-        yield index_1.db.UpdateRecord('Issues', ['Workaround'], [workaround], 'IssueId', issueId);
+        yield index_1.db.UpdateRecord('Issues', ['Workaround'], [workaround], ['IssueId'], [issueId]);
         res.json({ success: true });
     }
     catch (error) {
@@ -62,14 +62,14 @@ router.post('/:issueId/addworkaround', (req, res) => __awaiter(void 0, void 0, v
 router.get('/:issueId/photos', (req, res) => {
     try {
         const issueId = req.params.issueId;
-        const issueDir = `uploads/issues/${issueId}`;
+        const issueDir = `server/uploads/issues/${issueId}`;
         console.log('issueDir', issueDir);
         if (fs_1.default.existsSync(issueDir)) {
             console.log('issueDir exists');
             const photos = fs_1.default.readdirSync(issueDir);
             console.log('photos', photos);
             res.json({
-                photos: photos.map(filename => `/uploads/issues/${issueId}/${filename}`)
+                photos: photos.map(filename => `server/uploads/issues/${issueId}/${filename}`)
             });
         }
         else {
@@ -86,7 +86,7 @@ router.post('/:issueId/addphotos', upload.array('photos'), (req, res) => __await
     try {
         const issueId = req.params.issueId;
         const photos = req.files;
-        const issueDir = `uploads/issues/${issueId}`;
+        const issueDir = `server/uploads/issues/${issueId}`;
         //if not exists, create it
         if (!fs_1.default.existsSync(issueDir)) {
             fs_1.default.mkdirSync(issueDir, { recursive: true });
@@ -117,7 +117,7 @@ router.post('/report', upload.array('photos'), (req, res) => __awaiter(void 0, v
             const issueId = yield index_1.db.report(vendor, product, version, module, email, severity, issueDescription, userid, rule ? rule : null);
             if (photos && Array.isArray(photos) && photos.length > 0) {
                 // Create issue directory if it doesn't exist
-                const issueDir = `uploads/issues/${issueId}`;
+                const issueDir = `server/uploads/issues/${issueId}`;
                 fs_1.default.mkdirSync(issueDir, { recursive: true });
                 // Move files from temp to issue directory
                 for (const photo of photos) {

@@ -1,5 +1,5 @@
 import nodecron from 'node-cron';
-import { Database } from './Db';
+import { Database } from './Database/Db';
 import { sendEmail } from './Functions';
 import winston from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
@@ -8,8 +8,6 @@ let errorCount=0;
 let croninterval:any= process.env.CRON_INTERVAL;
 let unit=process.env.UNIT;
 let isinit=false;
-
-
 
 // Configure logger with new file for each day
 
@@ -38,8 +36,29 @@ const logger = winston.createLogger({
     ]
 });
 
-// Add console logging in development
+
+// Add new SQL logger
+const sqlLogger = winston.createLogger({
+    level: 'info',
+    format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.json()
+    ),
+    transports: [
+        new DailyRotateFile({
+            filename: 'server/logs/sql-%DATE%.log',
+            datePattern: 'YYYY-MM-DD',
+            maxFiles: '14d'  // Keep logs for 14 days
+        })
+    ]
+});
+
+// Add console logging for SQL in development
 if (process.env.NODE_ENV !== 'production') {
+    sqlLogger.add(new winston.transports.Console({
+        format: winston.format.simple()
+    }));
+
     logger.add(new winston.transports.Console({
         format: winston.format.simple()
     }));
@@ -171,6 +190,8 @@ process.on('unhandledRejection', (reason) => {
 
 // Start the application
 (async () => {
+
+   await db.UpdateRecord('User_Chosen_Products', ['Last_Update'], [new Date().toISOString()], ['UserID', 'ProductName', 'VendorName'], [1, 'Metadefender_Vault', 'OPSWAT']);
     startServer();
     logger.info('Initiate version manager...')
     await db.HandleData();
@@ -185,6 +206,6 @@ process.on('unhandledRejection', (reason) => {
 
 
 
-export { logger, isinit, db };
+export { logger, sqlLogger, isinit, db };
 
 

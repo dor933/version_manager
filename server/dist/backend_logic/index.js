@@ -156,6 +156,7 @@ process.on('unhandledRejection', (reason) => {
 });
 // Start the application
 (() => __awaiter(void 0, void 0, void 0, function* () {
+    yield db.UpdateRecord('User_Chosen_Products', ['Last_Update'], [new Date().toISOString()], ['UserID', 'ProductName', 'VendorName'], [1, 'Metadefender_Vault', 'OPSWAT']);
     (0, startup_1.startServer)();
     logger.info('Initiate version manager...');
     yield db.HandleData();

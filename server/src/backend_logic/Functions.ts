@@ -1,14 +1,13 @@
 import dotenv from 'dotenv';
 dotenv.config();
 import nodemailer from 'nodemailer';
-import { VersionData } from './types';
+import { VersionData } from '../Types/MainDataTypes';
 import { createEmailTemplate } from './emailTemplate';
-import { Type1Products, version_extracted } from './types';
+import { Type1Products, version_extracted } from '../Types/WebTypes';
 import { isinit, logger } from './index';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 import { db } from './index';
-
 
 let identifier=0;
 
@@ -135,6 +134,30 @@ catch(error){
 
 }
 
+async function extract_fortra_versions(productname:string,listoffortraversions:any):Promise<version_extracted[]>{
+
+    
+    
+    let fortra_version_extracted:version_extracted[]=[]
+    let listnew= listoffortraversions[productname];
+   
+
+    for(const version of listnew){
+            fortra_version_extracted.push([
+                version.version_name,
+                version.release_date,
+                version.end_of_support_date,
+                version.level_of_support,
+                version.extended_support_end_date,
+                version.eosl_start_date
+            ])
+        
+      }
+
+      return fortra_version_extracted;
+
+    }
+    
 
 
 async function extract_fortra_versions_to_json(json_url:string):Promise<any> {
@@ -243,30 +266,42 @@ async function notify_on_end_of_support_changes(product: string, vendor: string,
 }
 
 
-async function extract_JSON_URL(url:string){
+async function extract_Opswat_Key_Indexes(url:string){
 
     try {
 
+        let elementfound=false;
+        let i=1;
+
 
     const object= await axios.get(url);
+ 
     //get the last element in the array in the object that called "publicVersions"
     const publicVersions= object.data.publicVersions;
-    const lengthpublicVersions= publicVersions.length;
-    let relevant_obj= publicVersions[lengthpublicVersions-1]
-    relevant_obj= relevant_obj.publicDocumentations.find((element:any)=> element.slug.includes('knowledgebase') || element.slug.includes('knowledge-base'));
-   //write as txt each time
 
-    const objwithpageonly= relevant_obj.publicIndxes;
+    const lengthpublicVersions= publicVersions.length;
     const arrayofpages:any[]=[];
+
+
+    //only objects with publicIndxes are relevant- if not found, increment i
+    while(!elementfound){
+
+    let relevant_obj= publicVersions[lengthpublicVersions-i]
+ 
+    relevant_obj= relevant_obj.publicDocumentations.find((element:any)=> element.slug.includes('knowledgebase') || element.slug.includes('knowledge-base'));
+   
+
+     if(relevant_obj?.publicIndxes){
+    const objwithpageonly= relevant_obj.publicIndxes;
+ 
 
     for(let i=0; i<objwithpageonly.length; i++){
       
         if(objwithpageonly[i].page!==undefined){
-            //note for myself to convert it to regex with 'how-long-is-the-support-lifecycle-for-a-specific-version-of-' or 'how-long-is-the-support-life-cycle-for-a-' 
             const regex= /how-long-is-the-support-lifecycle-for-a-specific-version-of-|how-long-is-the-support-life-cycle-for-a-/;
             if(objwithpageonly[i].page?.slug.match(regex)){
 
-                console.log('relevant page')
+               
                 identifier++;
 
                                
@@ -275,6 +310,12 @@ async function extract_JSON_URL(url:string){
             
         }
     }
+    elementfound=true;
+}
+    else{
+        i++
+    }
+}
 
     const concated_indexes:string[]= arrayofpages.map((element:any)=> element.id);
     return concated_indexes;
@@ -282,11 +323,9 @@ async function extract_JSON_URL(url:string){
 
 }
 catch(error){
-    logger.error('Error extracting JSON URL:', { error });
+    logger.error('Error extracting JSON URL: ' + url, { error });
     return []
 }
-
-
 
 }
 
@@ -442,11 +481,7 @@ async function sendEmail({
     try {
       if (users_array && users_array.length > 0) {
         for (const mailbox of users_array) {
-          // Add debug logs
-          console.log('Last_Update:', mailbox.Last_Update);
-          console.log('Unit_of_time:', mailbox.Unit_of_time);
-          console.log('Frequency:', mailbox.Frequency);
-          console.log('Milliseconds for frequency:', getMilliseconds(mailbox.Unit_of_time));
+   
   
           // Calculate each part separately for better debugging
           const lastUpdateMs = new Date(mailbox.Last_Update).getTime();
@@ -458,10 +493,8 @@ async function sendEmail({
   
           const nextUpdateTime = lastUpdateMs + totalOffset;
 
-          logger.info(nextUpdateTime)
-          logger.info(new Date().getTime())
+      
   
-          // Check if it's time to send an email
           const shouldSendEmail = 
             subject.includes('End of Support Date Change:') || 
             subject.includes('Version Changes Detected:') || 
@@ -476,13 +509,14 @@ async function sendEmail({
             });
   
             // Update the last_update field in the database
-            await db.updateLastUpdate(
-              mailbox.UserID,
-              mailbox.ProductName,
-              mailbox.VendorName
+            await db.UpdateRecord(
+              'User_Chosen_Products',
+              ['Last_Update'],
+              [new Date().toISOString()],
+              ['UserID', 'ProductName', 'VendorName'],
+              [mailbox.UserID, mailbox.ProductName, mailbox.VendorName]
             );
   
-            console.log('Email sent:', info.messageId);
             logger.info('Email sent and last_update updated:', { info, mailbox });
           } else {
             logger.info('Email not sent (last update is not old enough):', { mailbox });
@@ -492,7 +526,6 @@ async function sendEmail({
         logger.info('No users to send email to');
       }
     } catch (error) {
-      console.error('Error sending email:', error);
       logger.error('Error sending email:', { error });
       throw error;
     }
@@ -519,4 +552,4 @@ async function sendEmail({
 
 
 
-export { notify_on_end_of_support, notify_new_version, sendEmail, parseDate, notify_on_end_of_support_changes, extract_versions_from_json,extract_fortra_versions_to_json,extract_JSON_URL };
+export { notify_on_end_of_support, notify_new_version, sendEmail, parseDate, notify_on_end_of_support_changes, extract_versions_from_json,extract_fortra_versions_to_json,extract_Opswat_Key_Indexes, extract_fortra_versions };

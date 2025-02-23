@@ -18,24 +18,7 @@ const Functions_1 = require("./Functions");
 const Functions_2 = require("./Functions");
 const Data = require('../../Data.json');
 const index_1 = require("./index");
-function extract_fortra_versions(productname) {
-    return __awaiter(this, void 0, void 0, function* () {
-        let listoffortraversions = yield (0, Functions_1.extract_fortra_versions_to_json)('https://api.portal.fortra.com/kbarticles/goanywhere-mft-end-of-support-life-policy-and-supported-versions-OWMyY2VkZTktZGFmMS1lZTExLTkwNGMtMDAyMjQ4MGFlMjg0?productSlug=goanywhere-mft');
-        let fortra_version_extracted = [];
-        let listnew = listoffortraversions[productname];
-        for (const version of listnew) {
-            fortra_version_extracted.push([
-                version.version_name,
-                version.release_date,
-                version.end_of_support_date,
-                version.level_of_support,
-                version.extended_support_end_date,
-                version.eosl_start_date
-            ]);
-        }
-        return fortra_version_extracted;
-    });
-}
+const Functions_3 = require("./Functions");
 const sqlite3 = require('sqlite3').verbose();
 class Database {
     constructor() {
@@ -95,7 +78,7 @@ class Database {
                         }
                         let listofversions = [];
                         if (vendor.VendorName === 'Fortra') {
-                            listofversions = yield extract_fortra_versions(product.ProductName);
+                            listofversions = yield (0, Functions_3.extract_fortra_versions)(product.ProductName);
                         }
                         else {
                             if (product.BASE_URL) {
@@ -105,17 +88,15 @@ class Database {
                                     const merged_listofversions = [];
                                     for (const index of ids) {
                                         const jsonRequest = product.BASE_URL + index;
-                                        console.log('json_url', jsonRequest);
                                         let listofversionstemp = yield axios_1.default.get(jsonRequest);
                                         listofversionstemp = (0, Functions_1.extract_versions_from_json)(listofversionstemp, vendor.VendorName, product.ProductName);
-                                        console.log('listofversionstemp', listofversionstemp);
+                                        index_1.logger.info('listofversionstemp', listofversionstemp);
                                         merged_listofversions.push(...listofversionstemp);
                                     }
-                                    console.log('merged_listofversions', merged_listofversions);
                                     listofversions = merged_listofversions;
                                 }
                                 catch (error) {
-                                    console.error('Error fetching data:', error);
+                                    index_1.logger.error('Error fetching data:', error);
                                     throw error;
                                 }
                             }
@@ -241,12 +222,12 @@ class Database {
                                 //parse the EndOfSupportDate and values[3] to date   
                                 const EndOfSupportDate_DateTime = (0, Functions_2.parseDate)((_a = rows[0]) === null || _a === void 0 ? void 0 : _a.EndOfSupportDate);
                                 const EndOfSupportDate_DateTime_new = (0, Functions_2.parseDate)(values[4]);
-                                this.UpdateRecord('Version', ['full_release_notes'], [values[8]], 'VersionName', rows[0].VersionName);
+                                this.UpdateRecord('Version', ['full_release_notes'], [values[8]], ['VersionName'], [rows[0].VersionName]);
                                 if (!EndOfSupportDate_DateTime && !EndOfSupportDate_DateTime_new) {
                                     resolve(false);
                                 }
                                 else if (((_b = rows[0]) === null || _b === void 0 ? void 0 : _b.EndOfSupportDate) !== values[4]) {
-                                    this.UpdateRecord(table, ['EndOfSupportDate'], [values[4]], 'VersionName', rows[0].VersionName);
+                                    this.UpdateRecord(table, ['EndOfSupportDate'], [values[4]], ['VersionName'], [rows[0].VersionName]);
                                     (0, Functions_1.notify_on_end_of_support_changes)(rows[0].ProductName, rows[0].VendorName, rows[0].VersionName, EndOfSupportDate_DateTime ? EndOfSupportDate_DateTime : undefined, EndOfSupportDate_DateTime_new ? EndOfSupportDate_DateTime_new : undefined, UsersArrayes);
                                     resolve(false);
                                 }
@@ -266,7 +247,6 @@ class Database {
                                     }
                                     else {
                                         if (table === 'Version') {
-                                            index_1.logger.info('New version inserted', { versionData, UsersArrayes });
                                             (0, Functions_1.notify_new_version)(versionData, UsersArrayes);
                                         }
                                         resolve(true);
@@ -289,11 +269,15 @@ class Database {
                 try {
                     // Create placeholders for the values
                     const setClause = columns.map(col => `${col} = ?`).join(', ');
-                    const query = `UPDATE ${table} SET ${setClause} WHERE ${whereColumn} = ?`;
+                    const whereClause = whereColumn.map(col => `${col} = ?`).join(' AND ');
+                    const query = `UPDATE ${table} SET ${setClause} WHERE ${whereClause}`;
                     // Escape special characters in values
                     const sanitizedValues = values.map(value => typeof value === 'string' ? value.replace(/'/g, "''") : value);
+                    const sanitizedWhereValues = whereValue.map(value => typeof value === 'string' ? value.replace(/'/g, "''") : value);
                     // Add the whereValue to the values array
-                    sanitizedValues.push(whereValue);
+                    sanitizedValues.push(...sanitizedWhereValues);
+                    index_1.logger.info('sanitizedValues' + sanitizedValues);
+                    index_1.logger.info('query' + query);
                     this.db.run(query, sanitizedValues, (err) => {
                         if (err) {
                             index_1.logger.error('Error updating record:', err);
@@ -354,7 +338,6 @@ class Database {
                     });
                 }
                 catch (err) {
-                    console.error('Error getting users array', err.message);
                     index_1.logger.error('Error getting users array', err.message);
                     reject(err);
                 }
@@ -494,11 +477,6 @@ class Database {
                     }
                 });
             });
-        });
-    }
-    updateLastUpdate(userid, product, vendor) {
-        return __awaiter(this, void 0, void 0, function* () {
-            this.db.run(`UPDATE User_Chosen_Products SET Last_Update=? WHERE UserID=? AND ProductName=? AND VendorName=?`, [new Date().toISOString(), userid, product, vendor]);
         });
     }
     close() {

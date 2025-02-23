@@ -53,6 +53,7 @@ exports.notify_on_end_of_support_changes = notify_on_end_of_support_changes;
 exports.extract_versions_from_json = extract_versions_from_json;
 exports.extract_fortra_versions_to_json = extract_fortra_versions_to_json;
 exports.extract_JSON_URL = extract_JSON_URL;
+exports.extract_fortra_versions = extract_fortra_versions;
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const nodemailer_1 = __importDefault(require("nodemailer"));
@@ -152,6 +153,24 @@ function notify_on_end_of_support(versionData, daysUntilEOS, daysUntilExtendedEO
         }
     });
 }
+function extract_fortra_versions(productname) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let listoffortraversions = yield extract_fortra_versions_to_json('https://api.portal.fortra.com/kbarticles/goanywhere-mft-end-of-support-life-policy-and-supported-versions-OWMyY2VkZTktZGFmMS1lZTExLTkwNGMtMDAyMjQ4MGFlMjg0?productSlug=goanywhere-mft');
+        let fortra_version_extracted = [];
+        let listnew = listoffortraversions[productname];
+        for (const version of listnew) {
+            fortra_version_extracted.push([
+                version.version_name,
+                version.release_date,
+                version.end_of_support_date,
+                version.level_of_support,
+                version.extended_support_end_date,
+                version.eosl_start_date
+            ]);
+        }
+        return fortra_version_extracted;
+    });
+}
 function extract_fortra_versions_to_json(json_url) {
     return __awaiter(this, void 0, void 0, function* () {
         let listofVersions = yield axios_1.default.get(json_url);
@@ -237,31 +256,39 @@ function extract_JSON_URL(url) {
     return __awaiter(this, void 0, void 0, function* () {
         var _a;
         try {
+            let elementfound = false;
+            let i = 1;
             const object = yield axios_1.default.get(url);
             //get the last element in the array in the object that called "publicVersions"
             const publicVersions = object.data.publicVersions;
             const lengthpublicVersions = publicVersions.length;
-            let relevant_obj = publicVersions[lengthpublicVersions - 1];
-            relevant_obj = relevant_obj.publicDocumentations.find((element) => element.slug.includes('knowledgebase') || element.slug.includes('knowledge-base'));
-            //write as txt each time
-            const objwithpageonly = relevant_obj.publicIndxes;
             const arrayofpages = [];
-            for (let i = 0; i < objwithpageonly.length; i++) {
-                if (objwithpageonly[i].page !== undefined) {
-                    //note for myself to convert it to regex with 'how-long-is-the-support-lifecycle-for-a-specific-version-of-' or 'how-long-is-the-support-life-cycle-for-a-' 
-                    const regex = /how-long-is-the-support-lifecycle-for-a-specific-version-of-|how-long-is-the-support-life-cycle-for-a-/;
-                    if ((_a = objwithpageonly[i].page) === null || _a === void 0 ? void 0 : _a.slug.match(regex)) {
-                        console.log('relevant page');
-                        identifier++;
-                        arrayofpages.push(objwithpageonly[i].page);
+            //only objects with publicIndxes are relevant- if not found, increment i
+            while (!elementfound) {
+                let relevant_obj = publicVersions[lengthpublicVersions - i];
+                relevant_obj = relevant_obj.publicDocumentations.find((element) => element.slug.includes('knowledgebase') || element.slug.includes('knowledge-base'));
+                if (relevant_obj === null || relevant_obj === void 0 ? void 0 : relevant_obj.publicIndxes) {
+                    const objwithpageonly = relevant_obj.publicIndxes;
+                    for (let i = 0; i < objwithpageonly.length; i++) {
+                        if (objwithpageonly[i].page !== undefined) {
+                            const regex = /how-long-is-the-support-lifecycle-for-a-specific-version-of-|how-long-is-the-support-life-cycle-for-a-/;
+                            if ((_a = objwithpageonly[i].page) === null || _a === void 0 ? void 0 : _a.slug.match(regex)) {
+                                identifier++;
+                                arrayofpages.push(objwithpageonly[i].page);
+                            }
+                        }
                     }
+                    elementfound = true;
+                }
+                else {
+                    i++;
                 }
             }
             const concated_indexes = arrayofpages.map((element) => element.id);
             return concated_indexes;
         }
         catch (error) {
-            index_1.logger.error('Error extracting JSON URL:', { error });
+            index_1.logger.error('Error extracting JSON URL: ' + url, { error });
             return [];
         }
     });
@@ -385,8 +412,7 @@ function sendEmail(_a) {
                             html: (0, emailTemplate_1.createEmailTemplate)(content, vendor_name)
                         });
                         // Update the last_update field in the database
-                        yield index_2.db.updateLastUpdate(mailbox.UserID, mailbox.ProductName, mailbox.VendorName);
-                        console.log('Email sent:', info.messageId);
+                        yield index_2.db.UpdateRecord('User_Chosen_Products', ['Last_Update'], [new Date().toISOString()], ['UserID', 'ProductName', 'VendorName'], [mailbox.UserID, mailbox.ProductName, mailbox.VendorName]);
                         index_1.logger.info('Email sent and last_update updated:', { info, mailbox });
                     }
                     else {
@@ -399,7 +425,6 @@ function sendEmail(_a) {
             }
         }
         catch (error) {
-            console.error('Error sending email:', error);
             index_1.logger.error('Error sending email:', { error });
             throw error;
         }

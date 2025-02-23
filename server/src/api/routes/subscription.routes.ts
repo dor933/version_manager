@@ -12,29 +12,29 @@ router.post('/subscribe', async (req, res) => {
     try{
   
     const existinguser= await db.CheckUserExists(email);
-    if(!existinguser){  
+    if(existinguser===false){  
       console.log('User not found, registering user');
       result= await db.registerUser(email);
   
     }
   
-    const userid:number= await db.CheckUserExists(email);
+    const userid:number|false= await db.CheckUserExists(email);
   
     if(vendor==='All Vendors'){
       let allproducts:any= await db.getProducts()
       for(let product of allproducts){
-        result= await db.subscribe(userid, product.ProductName, product.VendorName, Unit_of_time, Frequency);
+        result= await db.subscribe(userid as number, product.ProductName, product.VendorName, Unit_of_time, Frequency);
       }
     }
     else if(product==='All Products'){
       let allproducts:any= await db.getProducts(vendor);
       for(let product of allproducts){
-        result= await db.subscribe(userid, product.ProductName, product.VendorName, Unit_of_time,Frequency);
+        result= await db.subscribe(userid as number, product.ProductName, product.VendorName, Unit_of_time,Frequency);
       }
     }
   
     else{
-      result= await db.subscribe(userid , product, vendor, Unit_of_time, Frequency);
+      result= await db.subscribe(userid as number, product, vendor, Unit_of_time, Frequency);
     }
     
     res.json({subscribe:result});

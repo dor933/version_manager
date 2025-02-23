@@ -32,8 +32,8 @@ router.post('/:issueId/addresolution', async (req, res) => {
           'Issues',
           ['Resolution'],
           [resolution],
-          'IssueId',
-          issueId
+          ['IssueId'],
+          [issueId]
         );
         
         res.json({ success: true });
@@ -53,8 +53,8 @@ router.post('/:issueId/addworkaround', async (req, res) => {
           'Issues',
           ['Workaround'],
           [workaround],
-          'IssueId',
-          issueId
+          ['IssueId'],
+          [issueId]
         );
         
         res.json({ success: true });
