@@ -6,9 +6,8 @@
 .env
 
 # Database
-Help Tools/*.sqlite3
-Help Tools/*.sqlite3-query
 *.db
+my-database.db
 
 # Build files
 *.js.map
