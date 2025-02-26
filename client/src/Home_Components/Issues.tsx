@@ -4,13 +4,32 @@ import DialogContent from '@mui/material/DialogContent';
 import { Box, Grid } from '@mui/material';
 import CancelIcon from '@mui/icons-material/Cancel';
 import IssuesTable from './IssuesTable';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Popup from '../Help_Components/Popup';
 
 export default function Issues({chosenproduct, issuesdialog, setIssuesDialog, chosenversion }: { chosenproduct: any, issuesdialog: boolean, setIssuesDialog: any, chosenversion: any}) {
 
 
+  useEffect(() => {
+    setIsPopupOpen(false);
+  }, [issuesdialog]);
 
+  const [ispopupopen, setIsPopupOpen] = useState(false);
+  const [issucceeded, setIssucceeded] = useState(false);
+    const [title, setTitle] = useState('');
+    const [mainMessage, setMainMessage] = useState('');
+    const [subMessage, setSubMessage] = useState('');
+    const [buttonText, setButtonText] = useState('');
+
+
+
+    const handlePopup= (title: string, message: string, isSuccess: boolean, buttonText: string) => {
+      setIsPopupOpen(true);
+      setTitle(title);
+      setMainMessage(message);
+      setButtonText(buttonText);
+      setIssucceeded(isSuccess);
+  }
 
 
   return (
@@ -35,29 +54,46 @@ export default function Issues({chosenproduct, issuesdialog, setIssuesDialog, ch
           }
         }}
         >
+               {ispopupopen && (
+          <Popup
+            ispopupopen={ispopupopen}
+            setIsPopupOpen={setIsPopupOpen}
+            issucceeded={issucceeded}
+            setIssucceeded={setIssucceeded}
+            title={title}
+            setTitle={setTitle}
+            mainMessage={mainMessage}
+            setMainMessage={setMainMessage}
+            subMessage={subMessage}
+            setSubMessage={setSubMessage}
+            buttonText={buttonText}
+           setButtonText={setButtonText}
+        />
+      )}
     
         <DialogContent sx={{ p: 0}}>
           <Box sx={{
             width: '100%',
             height: '100%',
+            opacity: ispopupopen ? 0.5 : 1,
           }}>
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <CancelIcon 
                   sx={{
                     color: '#152259', 
-                    cursor: 'pointer', 
+                    cursor: ispopupopen ? 'default' : 'pointer', 
                     fontSize: '35px',
                     position: 'absolute',
                     top: '20px',
                     right: '20px',
                     zIndex: 1
                   }} 
-                  onClick={() => setIssuesDialog(false)}
+                  onClick={() => ispopupopen ? setIsPopupOpen(false) : setIssuesDialog(false)}
                 />
               </Grid>
               <Grid item xs={12}>
-                <IssuesTable chosenproduct={chosenproduct} chosenversion={chosenversion} />
+                <IssuesTable chosenproduct={chosenproduct} chosenversion={chosenversion} ispopupopen={ispopupopen} setIsPopupOpen={setIsPopupOpen} handlePopup={handlePopup} />
               </Grid>
             </Grid>
           </Box>

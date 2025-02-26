@@ -16,7 +16,7 @@ const VisuallyHiddenInput = styled('input')({
   width: 1,
 });
 
-export default function ImageHandler({setImages, handleAddPhotos, isreport}: {setImages: (images: File[]) => void, handleAddPhotos?: () => void, isreport?: boolean}) {
+export default function ImageHandler({setImages, handleAddPhotos, isreport, ispopupopen}: {setImages: (images: File[]) => void, handleAddPhotos?: () => void, isreport?: boolean, ispopupopen?: boolean}) {
   const [isUploaded, setIsUploaded] = React.useState(false);
   const [previews, setPreviews] = React.useState<string[]>([]);
 
@@ -51,6 +51,7 @@ export default function ImageHandler({setImages, handleAddPhotos, isreport}: {se
       <Grid item>
         <Button
           component="label"
+          disabled={ispopupopen}
           variant="contained"
           startIcon={<CloudUploadIcon />}
           sx={{

@@ -2,7 +2,7 @@ import axios from 'axios';
 import { notify_on_end_of_support, notify_on_end_of_support_changes, notify_new_version, extract_versions_from_json,extract_fortra_versions_to_json, extract_Opswat_Key_Indexes } from '../Functions';
 import { parseDate } from '../Functions';
 import { DataStructure, VersionData } from '../../Types/MainDataTypes';
-const Data=require('../../Data.json') as DataStructure;
+const Data=require('../../../Data.json') as DataStructure;
 import { logger } from '../index';
 import { version_extracted } from '../../Types/WebTypes';
 import { extract_fortra_versions } from '../Functions';
@@ -29,31 +29,40 @@ class Database {
 
 
         try{
-            await this.sequelize.sync({ force: true });
 
+      
         
         for (const vendor of Data.Vendors) {
 
             await Vendor.findOrCreate({
-                where: { vendorName: vendor.VendorName },
+                where: { VendorName : vendor.VendorName },
                 defaults: {
-                    contactInfo: vendor.contactInfo,
-                    websiteUrl: vendor.WebsiteUrl
+                    ContactInfo: vendor.contactInfo,
+                    WebsiteUrl: vendor.WebsiteUrl
                 }
             });
 
             for(const product of vendor.Products){
 
-                await Product.findOrCreate({
+             let productRecord=await Product.findOrCreate({
                     where: { 
-                        productName: product.ProductName,
-                        vendorName: vendor.VendorName 
+                        ProductName: product.ProductName,
+                        VendorId: vendor.VendorId 
                     },
                     defaults: {
-                        jsonUrl: product.JSON_URL,
-                        releaseNotes: product.release_notes
+                        JSON_URL: product.JSON_URL,
+                        ReleaseNotes: product.release_notes
                     }
                 });
+
+                if(product.modules){
+                    for(const module of product.modules){
+                        await Module.findOrCreate({
+                            where: { ModuleName: module, ProductId: productRecord[0].ProductId, VendorId: vendor.VendorId },
+                            defaults: { ModuleName: module }
+                        });
+                    }
+                }
 
                 
 
@@ -75,7 +84,6 @@ class Database {
                                 const jsonRequest = product.BASE_URL! + index;
                                 let listofversionstemp:any= await axios.get(jsonRequest);
                                 listofversionstemp= extract_versions_from_json(listofversionstemp, vendor.VendorName, product.ProductName);
-                                logger.info('listofversionstemp', listofversionstemp);
                                 merged_listofversions.push(...listofversionstemp);
                             }
                             listofversions= merged_listofversions;
@@ -97,7 +105,7 @@ class Database {
                 for(const version of listofversions){
                     
                     let UsersArray= await this.GetUsersArray(product.ProductName, vendor.VendorName);
-                    let VersionName= version[0]
+                    let VersionNameExtracted= version[0]
                     let ReleaseDate_DateTime = parseDate(version[1]!);
                     let EndOfSupportDate_DateTime = parseDate(version[2]!) 
                     let LevelOfSupport= version[3]
@@ -111,8 +119,7 @@ class Database {
 
                             if(product.ProductName==='Metadefender_Core'){
                                 release_notes = product.release_notes + '/archived-release-notes#version-v' + 
-                                version[0].replace(/Version |[Vv]|\./g, '')
-                                console.log('release_notes', release_notes);
+                                VersionNameExtracted.replace(/Version |[Vv]|\./g, '')
 
                             }
                             else{
@@ -131,44 +138,70 @@ class Database {
 
 
                     const VersionData:VersionData= {
-                        VersionName: VersionName,
+                        VersionName: VersionNameExtracted,
                         ProductName: product.ProductName,
                         VendorName: vendor.VendorName,
                         ReleaseDate: ReleaseDate_DateTime ? ReleaseDate_DateTime : undefined,
                         EndOfSupportDate: EndOfSupportDate_DateTime ? EndOfSupportDate_DateTime : undefined ,
                         LevelOfSupport: LevelOfSupport? LevelOfSupport:undefined,
-                        Extended_Support_End_Date: ExtendedEndOfSupportDate? ExtendedEndOfSupportDate:undefined,
-                        EOSL_Start_Date: EOSL_Start_Date? EOSL_Start_Date:undefined,
-                        release_notes: release_notes
+                        ExtendedSupportEndDate: ExtendedEndOfSupportDate? ExtendedEndOfSupportDate:undefined,
+                        EoslStartDate: EOSL_Start_Date? EOSL_Start_Date:undefined,
+                        FullReleaseNotes: release_notes
                     }
+
 
                     const [versionRecord, created] = await Version.findOrCreate({
                         where: {
-                            versionName: VersionName,
-                            productName: product.ProductName,
-                            vendorName: vendor.VendorName
+                            VersionName: VersionData.VersionName,
+                          
                         },
+                        include: [{
+                            model: Product,
+                            attributes: ['ProductId'],
+                            where: {
+                                ProductName: VersionData.ProductName,
+                            }
+                        }  ,
+                        {
+                            model: Vendor,
+                            attributes: ['VendorId'],
+                            where: {
+                                VendorName: vendor.VendorName
+                            }
+                        }
+                    ],
                         defaults: {
-                            releaseDate: ReleaseDate_DateTime,
-                            endOfSupportDate: EndOfSupportDate_DateTime,
-                            levelOfSupport: LevelOfSupport,
-                            extendedSupportEndDate: ExtendedEndOfSupportDate,
-                            eoslStartDate: EOSL_Start_Date,
-                            fullReleaseNotes: release_notes,
-                            timestamp: new Date()
+                            ProductId: (await Product.findOne({ 
+                                where: { 
+                                    ProductName: VersionData.ProductName, 
+                                    VendorId: vendor.VendorId 
+                                } 
+                            }))?.ProductId || null,
+                            VendorId: (await Vendor.findOne({ 
+                                where: { 
+                                    VendorName: vendor.VendorName 
+                                } 
+                            }))?.VendorId || null,
+                            ReleaseDate: VersionData.ReleaseDate,
+                            EndOfSupportDate: VersionData.EndOfSupportDate,
+                            LevelOfSupport: VersionData.LevelOfSupport,
+                            ExtendedSupportEndDate: VersionData.ExtendedSupportEndDate,
+                            EoslStartDate: VersionData.EoslStartDate,
+                            FullReleaseNotes: VersionData.FullReleaseNotes,
+                            Timestamp: new Date()
                         }
                     });
 
                     if (!created) {
-                        if (versionRecord.endOfSupportDate?.getTime() !== EndOfSupportDate_DateTime?.getTime()) {
+                        if (versionRecord.EndOfSupportDate?.getTime() !== EndOfSupportDate_DateTime?.getTime()) {
                             await versionRecord.update({
-                                endOfSupportDate: EndOfSupportDate_DateTime
+                                EndOfSupportDate: EndOfSupportDate_DateTime
                             });
                             await notify_on_end_of_support_changes(
                                 product.ProductName,
                                 vendor.VendorName,
-                                VersionName,
-                                versionRecord.endOfSupportDate,
+                                VersionData.VersionName,
+                                versionRecord.EndOfSupportDate,
                                 EndOfSupportDate_DateTime!,
                                 UsersArray
                             );
@@ -247,7 +280,24 @@ class Database {
         include: any[] = []
     ): Promise<T[]> {
         try {
-            return await model.findAll({ where, include });
+            // Filter out undefined values from where clause
+            const filteredWhere = Object.entries(where).reduce((acc, [key, value]) => {
+                if (value !== undefined && value !== null) {
+                    acc[key] = value;
+                }
+                return acc;
+            }, {} as any);
+
+            const options: any = {
+                include
+            };
+
+            // Only add where clause if there are conditions
+            if (Object.keys(filteredWhere).length > 0) {
+                options.where = filteredWhere;
+            }
+
+            return await model.findAll(options);
         } catch (err) {
             logger.error('Error in getAll:', err);
             throw err;
@@ -260,41 +310,177 @@ class Database {
     ): Promise<T | false> {
         try {
             const record = await model.findOne({ where });
-            return record ? record.id : false;
+            return record ? record : false;
         } catch (err) {
             logger.error('Error in recordExists:', err);
             throw err;
         }
     }
 
-    async getVersions(vendor?: string, product?: string, version?: string) {
+    async getVersions(vendor?: string, product?: string) {
+        try{
         const where: any = {};
-        if (vendor) where.vendorName = vendor;
-        if (product) where.productName = product;
-        if (version) where.versionName = version;
-        return this.getAll<Version>(Version, where);
+        let VendorId = vendor? await Vendor.findOne({ where: { VendorName: vendor } }) : null;
+        let ProductId = product? await Product.findOne({ where: { ProductName: product, VendorId: VendorId?.VendorId } }) : null;
+        
+        if (vendor) where.VendorId = VendorId?.VendorId;
+        if (product) where.ProductId = ProductId?.ProductId;
+
+
+        let versions= await this.getAll<Version>(Version, where, [
+            {
+                model: Product,
+                attributes: ['ProductName']
+            },
+            {
+                model: Vendor,
+                attributes: ['VendorName']
+            }
+        ]);
+
+        let versionsdata= versions.map((version:any)=>{
+          
+            return {
+                VersionId: version.VersionId,
+
+                VersionName: version.VersionName,
+                ProductName: version.Product.ProductName,
+                VendorName: version.Vendor.VendorName,
+                ReleaseDate: version.ReleaseDate? version.ReleaseDate:undefined,
+                EndOfSupportDate: version.EndOfSupportDate? version.EndOfSupportDate:undefined,
+                LevelOfSupport: version.LevelOfSupport? version.LevelOfSupport:undefined,
+                ExtendedSupportEndDate: version.ExtendedSupportEndDate? version.ExtendedSupportEndDate:undefined,
+                EoslStartDate: version.EoslStartDate? version.EoslStartDate:undefined,
+                FullReleaseNotes: version.FullReleaseNotes? version.FullReleaseNotes:undefined,
+                Timestamp: version.Timestamp? version.Timestamp:undefined
+      
+            }
+        })
+
+        return versionsdata;
+    }
+    catch(error){
+        logger.error('Error in getVersions', error);
+        throw error;
+    }
     }
 
-    async getProducts(vendor?: string, product?: string) {
-        return this.getAll<Product>(Product, { 
-            vendorName: vendor, 
-            productName: product 
-        });
+    async getProducts(vendor?: string) {
+        try{
+        const where: any = {};
+        let VendorId= vendor? await Vendor.findOne({ where: { VendorName: vendor } }) : null;
+    
+        if (vendor) where.VendorId = VendorId?.VendorId;
+        let products= await this.getAll<Product>(Product, where, [{
+            model: Vendor,
+            attributes: ['VendorName', 'VendorId']
+        }]);
+
+        let productsdata= products.map((product:any)=>{
+            return {
+                ProductName: product.ProductName,
+                VendorName: product.Vendor.VendorName,
+                ProductId: product.ProductId,
+                VendorId: product.VendorId,
+                JSON_URL: product.JSON_URL,
+                ReleaseNotes: product.ReleaseNotes? product.ReleaseNotes:undefined,
+            }
+        })
+        console.log('productsdata', productsdata);
+        return productsdata;
     }
+    catch(error){
+        logger.error('Error in getProducts', error);
+        throw error;
+    }
+    }
+
 
     async getModules(product: string, vendor: string) {
-        return this.getAll<Module>(Module, { 
-            productName: product, 
-            vendorName: vendor 
-        });
+        try{
+        let VendorId= await Vendor.findOne({ where: { VendorName: vendor } });
+        let ProductId= await Product.findOne({ where: { ProductName: product, VendorId: VendorId?.VendorId } });
+        let modules= await this.getAll<Module>(Module, { 
+            ProductId: ProductId?.ProductId,
+            VendorId: VendorId?.VendorId
+        }, [
+            {
+                model: Vendor,
+                attributes: ['VendorName', 'VendorId']
+            },
+            {
+                model: Product,
+                attributes: ['ProductName', 'ProductId']
+            }
+        ]);
+
+        let modulesdata= modules.map((module:any)=>{
+            return {
+                ModuleName: module.ModuleName,
+                ProductName: module.Product.ProductName,
+                VendorName: module.Vendor.VendorName
+            }
+        })
+        console.log('modulesdata', modulesdata);
+        return modulesdata;
+    }
+    catch(error){
+        logger.error('Error in getModules', error);
+        throw error;
+    }
     }
 
+
     async getIssues(product: string, vendor: string) {
-        return this.getAll<Issue>(Issue, { 
-            productName: product, 
-            vendorName: vendor 
-        });
+        try{
+        let VendorId= await Vendor.findOne({ where: { VendorName: vendor } });
+        let ProductId= await Product.findOne({ where: { ProductName: product, VendorId: VendorId?.VendorId } });
+        let issues= await this.getAll<Issue>(Issue, { 
+            ProductId: ProductId?.ProductId,
+            VendorId: VendorId?.VendorId
+        }, [
+            {
+                model: Product,
+                attributes: ['ProductName', 'ProductId']
+            },
+            {
+                model: Vendor,
+                attributes: ['VendorName']
+            },
+            {
+                model: Version,
+                attributes: ['VersionName', 'VersionId']
+            }
+        ]);
+
+        let issuesdata= issues.map((issue:any)=>{
+            return {
+                Issue: issue.Issue,
+                IssueId: issue.IssueId,
+                VersionId: issue.VersionId,
+                ModuleId: issue.ModuleId,
+                VersionName: issue.Version.VersionName,
+                Email: issue.Email,
+                Rule: issue.Rule ? issue.Rule : undefined,
+                Severity: issue.Severity ? issue.Severity : undefined,
+                DateField: issue.DateField,
+                UserID: issue.UserID,
+                Ratification: issue.Ratification,
+                Workaround: issue.Workaround ? issue.Workaround : undefined,
+                Resolution: issue.Resolution ? issue.Resolution : undefined
+            }
+        
+    
+
+        })
+        console.log('issuesdata', issuesdata);
+        return issuesdata;
     }
+    catch(error){
+        logger.error('Error in getIssues', error);
+        throw error;
+    }
+        }
 
     async CheckUserExists(email: string): Promise<number | false> {
         let user = await this.recordExists<User>(User, { email });
@@ -302,54 +488,52 @@ class Database {
     }
 
     async GetUsersArray(product: string, vendor: string) {
+        let VendorId= await Vendor.findOne({ where: { VendorName: vendor } });
+        let ProductId= await Product.findOne({ where: { ProductName: product, VendorId: VendorId?.VendorId } });
         const userProducts = await this.getAll<UserChosenProduct>(UserChosenProduct, {
-            where: {
-                productName: product,
-                vendorName: vendor
-            },
-            include: [{
-                model: User,
-                attributes: ['email']
-            }]
-        });
+            ProductId: ProductId?.ProductId,
+            VendorId: VendorId?.VendorId
+        }, [{
+            model: User,
+            attributes: ['email']
+        }]);
 
         return userProducts.map(userProduct => ({
             Email: userProduct.User.email,
-            Last_Update: userProduct.Last_Update,
-            Unit_of_time: userProduct.Unit_of_time,
+            LastUpdate: userProduct.LastUpdate,
+            UnitOfTime: userProduct.UnitOfTime,
             Frequency: userProduct.Frequency,
             UserID: userProduct.UserID,
-            ProductName: userProduct.ProductName,
-            VendorName: userProduct.VendorName
+            ProductId: userProduct.ProductId,
+            VendorId: userProduct.VendorId
         }));
     }
 
-   async subscribe(userid:number, product:string, vendor:string, Unit_of_time:string, Frequency:string){
+   async subscribe(userid: number, product: string, vendor: string, Unit_of_time: string, Frequency: string) {
+
+    const VendorId= await Vendor.findOne({ where: { VendorName: vendor } });
+    const ProductId= await Product.findOne({ where: { ProductName: product, VendorId: VendorId?.VendorId } });
 
     return new Promise((resolve, reject) => {
-        try{
-         
 
+        try {
             UserChosenProduct.count({
                 where: {
-                    userId: userid,
-                    productName: product,
-                    vendorName: vendor,
-                    unitOfTime: Unit_of_time,
-                    frequency: Frequency
+                    UserID: userid,
+                    ProductId: ProductId?.ProductId,
+                   
                 }
             }).then(count => {
                 if (count > 0) {
                     UserChosenProduct.update(
                         {
-                            unitOfTime: Unit_of_time,
-                            frequency: Frequency
+                            UnitOfTime: Unit_of_time,
+                            Frequency: Frequency
                         },
                         {
                             where: {
-                                userId: userid,
-                                productName: product,
-                                vendorName: vendor
+                                UserID: userid,
+                                ProductId: ProductId?.ProductId,
                             }
                         }
                     ).then(() => {
@@ -359,13 +543,14 @@ class Database {
                         reject({ error: 'Database error', details: err });
                     });
                 } else {
+
                     UserChosenProduct.create({
-                        userId: userid,
-                        productName: product,
-                        vendorName: vendor,
-                        unitOfTime: Unit_of_time,
-                        frequency: Frequency,
-                        lastUpdate: new Date(new Date().setFullYear(new Date().getFullYear() - 1))
+                        UserID: userid,
+                        ProductId: ProductId?.ProductId,
+                        VendorId: VendorId?.VendorId,
+                        UnitOfTime: Unit_of_time,
+                        Frequency: Frequency,
+                        LastUpdate: new Date(new Date().setFullYear(new Date().getFullYear() - 1))
                     }).then(() => {
                         resolve({ success: true, message: 'Subscription added' });
                     }).catch(err => {
@@ -377,12 +562,11 @@ class Database {
                 logger.error('Error checking for existing subscription:', err);
                 reject({ error: 'Database error', details: err });
             });
-        }
-        catch(err:any){
+        } catch (err: any) {
             reject(false);
         }
     });
-   }
+}
 
 
 
@@ -414,21 +598,27 @@ class Database {
    
 
    async report(vendor:string, product:string, version:string, module:string, email:string, severity:string, issueDescription:string, userid:number, rule?:string) {
+
+    let VendorId= await Vendor.findOne({ where: { VendorName: vendor } });
+    let ProductId= await Product.findOne({ where: { ProductName: product, VendorId: VendorId?.VendorId } });
+    let VersionId= await Version.findOne({ where: { VersionName: version, ProductId: ProductId?.ProductId } });
+    let ModuleId= await Module.findOne({ where: { ModuleName: module, ProductId: ProductId?.ProductId, VendorId: VendorId?.VendorId } });
+
     return new Promise((resolve, reject) => {
         Issue.create({
-            vendorName: vendor,
-            productName: product,
-            versionName: version,
-            moduleName: module,
-            email: email,
-            rule: rule,
-            severity: severity,
-            issue: issueDescription,
-            dateField: new Date().toISOString(),
-            userId: userid,
-            ratification: 1
-        }).then(issue => {
-            resolve(issue.issueId);
+            VendorId: VendorId?.VendorId,
+            ProductId: ProductId?.ProductId,
+            VersionId: VersionId?.VersionId,
+            ModuleId: ModuleId?.ModuleId,
+            Email: email,
+            Rule: rule,
+            Severity: severity,
+            Issue: issueDescription,
+            DateField: new Date().toISOString(),
+            UserID: userid,
+            Ratification: 1
+        }).then(issue => {  
+            resolve(issue.IssueId);
         }).catch(err => {
             console.error('Error reporting issue', err.message);
             reject(false);

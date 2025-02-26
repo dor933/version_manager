@@ -16,10 +16,13 @@ import Popup from '../Help_Components/Popup';
 interface IssuesTableProps {
     chosenproduct: any;
     chosenversion: any;
+    ispopupopen: boolean;
+    setIsPopupOpen: (ispopupopen: boolean) => void;
+    handlePopup: (title: string, message: string, isSuccess: boolean, buttonText: string) => void;
   }
 
   interface Column {
-    id: 'VersionName' | 'Issue' | 'Photos' | 'Severity' | 'Issue Status' | 'Date_field' | 'Resolution' | 'Workaround' | 'Add Photos'
+    id: 'VersionName' | 'Issue' | 'Photos' | 'Severity' | 'Issue Status' | 'DateField' | 'Resolution' | 'Workaround' | 'Add Photos'
     label: string;
     minWidth?: number;
     align?: 'right' | 'left' | 'center';
@@ -48,7 +51,7 @@ interface IssuesTableProps {
       format_product: (value: string) => value
     },
     {
-      id: 'Date_field',
+      id: 'DateField',
           label: 'Date',
       minWidth: 100,
       align: 'left',
@@ -86,7 +89,7 @@ interface IssuesTableProps {
   
   ];
 
-const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
+const IssuesTable = ({ chosenproduct, chosenversion,ispopupopen, handlePopup }: IssuesTableProps) => {
 
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
@@ -96,19 +99,14 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
     const [photos, setPhotos] = React.useState<string[]>([]);
     const [editingCell, setEditingCell] = useState<{ rowId: number; column: string; value: string }>({ rowId: -1, column: '', value: '' });
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-    const [ispopupopen, setIsPopupOpen] = useState(false);
-    const [issucceeded, setIssucceeded] = useState(false);
-    const [title, setTitle] = useState('');
-    const [mainMessage, setMainMessage] = useState('');
-    const [subMessage, setSubMessage] = useState('');
-    const [buttonText, setButtonText] = useState('');
     
+ 
+
     useEffect(() => {
-     
-        console.log('chosenproduct', chosenproduct)
-        console.log('chosenversion', chosenversion)
-        const issuesrelevnetversion= chosenproduct.issues.filter((issue: any) => issue.VersionName === chosenversion.VersionName);
-        console.log('issuesrelevnetversion', issuesrelevnetversion)
+
+
+      const issuesrelevnetversion= chosenproduct.issues.filter((issue: any) => issue.VersionId === chosenversion.VersionId);
+      console.log('issuesrelevnetversion', issuesrelevnetversion);
         setFilteredIssues(issuesrelevnetversion);
     }, [chosenproduct]);
 
@@ -116,8 +114,7 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
 
     useEffect(() => {
 
-        const issuesrelevnetversion= chosenproduct.issues.filter((issue: any) => issue.VersionName === chosenversion.VersionName);
-
+        const issuesrelevnetversion= chosenproduct.issues.filter((issue: any) => issue.VersionId === chosenversion.VersionId);
 
         if(chosenmodule==='All'){
             setFilteredIssues(issuesrelevnetversion);
@@ -130,12 +127,7 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
         }
     }, [chosenmodule])
 
-    const handlePopup= (title: string, message: string, buttonText: string) => {
-        setIsPopupOpen(true);
-        setTitle(title);
-        setMainMessage(message);
-        setButtonText(buttonText);
-    }
+   
 
     const getissuephotos= async (issueId: number) => {
         console.log('issueId', issueId)
@@ -147,9 +139,8 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
             setIsPhotosOpen(true);
         }
         else{
-          handlePopup('Error', 'There are no photos for this issue', 'OK');
+            handlePopup('Error', 'There are no photos for this issue', false, 'OK');
         }
-
 
     }
 
@@ -195,10 +186,10 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
             }
              
 
-            handlePopup('Success', 'Issue updated successfully', 'OK');
+            handlePopup('Success', 'Issue updated successfully', true, 'OK');
         }
         else{
-            handlePopup('Error', 'Failed to update issue', 'OK');
+            handlePopup('Error', 'Failed to update issue', false, 'OK');
         }
     };
 
@@ -222,13 +213,13 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
 
 
         if (response?.data?.success) {
-          handlePopup('Success', 'Photos added successfully', 'OK');
+          handlePopup('Success', 'Photos added successfully', true, 'OK');
         } else {
-          handlePopup('Error', 'Failed to add photos', 'OK');
+          handlePopup('Error', 'Failed to add photos', false, 'OK');
         }
       } catch (error) {
         console.error('Error:', error);
-        handlePopup('Error', 'Failed to add photos', 'OK');
+        handlePopup('Error', 'Failed to add photos', false, 'OK');
       }
     };
 
@@ -242,28 +233,14 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
       boxShadow: 'none',
       margin:'0 auto'
     }}>
-      {ispopupopen && (
-          <Popup
-            ispopupopen={ispopupopen}
-            setIsPopupOpen={setIsPopupOpen}
-            issucceeded={issucceeded}
-            setIssucceeded={setIssucceeded}
-            title={title}
-            setTitle={setTitle}
-            mainMessage={mainMessage}
-            setMainMessage={setMainMessage}
-            subMessage={subMessage}
-            setSubMessage={setSubMessage}
-            buttonText={buttonText}
-           setButtonText={setButtonText}
-        />
-      )}
+ 
       <PhotosComp photos={photos} isphotosopen={isphotosopen} setIsPhotosOpen={setIsPhotosOpen} />
       <MyTabs chosenmodule={chosenmodule} setChosenModule={setChosenModule} modules={chosenproduct.modules}/>
       <TableContainer sx={{ 
         minHeight: '65vh',
         maxHeight: '70vh', // Add max height to enable scrolling
         marginTop: '30px',
+        opacity:ispopupopen ? 0.5 : 1,
       }}>
         <Table 
           stickyHeader 
@@ -376,10 +353,10 @@ const IssuesTable = ({ chosenproduct, chosenversion }: IssuesTableProps) => {
                             column.format_date && value ? column.format_date(new Date(value))
                             : column.format_product && value ? column.format_product(value)
                             : column.format_number && value ? column.format_number(value)
-                            : column.id === 'Photos' ? <CustomButton label="View Photos" onClick={() => getissuephotos(row.IssueId)} />
+                            : column.id === 'Photos' ? <CustomButton label="View Photos" onClick={() => getissuephotos(row.IssueId)} ispopupopen={ispopupopen} />
                             : ['Workaround', 'Resolution'].includes(column.id) ? (value || 'Click to edit')
                             : column.id === 'Add Photos' ? 
-                            <ImageHandler setImages={setSelectedFiles} handleAddPhotos={() => handleAddPhotos(row.IssueId)}/> 
+                            <ImageHandler ispopupopen={ispopupopen} setImages={setSelectedFiles} handleAddPhotos={() => handleAddPhotos(row.IssueId)}/> 
                             
                             : value
 

@@ -12,13 +12,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.db = exports.isinit = exports.logger = void 0;
+exports.db = exports.isinit = exports.sqlLogger = exports.logger = void 0;
 const node_cron_1 = __importDefault(require("node-cron"));
-const Db_1 = require("./Db");
+const Db_1 = require("./Database/Db");
 const Functions_1 = require("./Functions");
 const winston_1 = __importDefault(require("winston"));
 const winston_daily_rotate_file_1 = __importDefault(require("winston-daily-rotate-file"));
 const startup_1 = require("../api/startup");
+const ORM_1 = require("./Database/ORM");
 let errorCount = 0;
 let croninterval = process.env.CRON_INTERVAL;
 let unit = process.env.UNIT;
@@ -43,8 +44,24 @@ const logger = winston_1.default.createLogger({
     ]
 });
 exports.logger = logger;
-// Add console logging in development
+// Add new SQL logger
+const sqlLogger = winston_1.default.createLogger({
+    level: 'info',
+    format: winston_1.default.format.combine(winston_1.default.format.timestamp(), winston_1.default.format.json()),
+    transports: [
+        new winston_daily_rotate_file_1.default({
+            filename: 'server/logs/sql-%DATE%.log',
+            datePattern: 'YYYY-MM-DD',
+            maxFiles: '14d' // Keep logs for 14 days
+        })
+    ]
+});
+exports.sqlLogger = sqlLogger;
+// Add console logging for SQL in development
 if (process.env.NODE_ENV !== 'production') {
+    sqlLogger.add(new winston_1.default.transports.Console({
+        format: winston_1.default.format.simple()
+    }));
     logger.add(new winston_1.default.transports.Console({
         format: winston_1.default.format.simple()
     }));
@@ -156,10 +173,20 @@ process.on('unhandledRejection', (reason) => {
 });
 // Start the application
 (() => __awaiter(void 0, void 0, void 0, function* () {
-    yield db.UpdateRecord('User_Chosen_Products', ['Last_Update'], [new Date().toISOString()], ['UserID', 'ProductName', 'VendorName'], [1, 'Metadefender_Vault', 'OPSWAT']);
-    (0, startup_1.startServer)();
-    logger.info('Initiate version manager...');
-    yield db.HandleData();
-    logger.info('Initiation finished successfully');
-    startCronJob();
+    try {
+        // Sync database without forcing recreation
+        logger.info('Syncing database models...');
+        yield (0, ORM_1.syncModels)();
+        // Then start handling data
+        yield db.HandleData();
+        logger.info('Initiation finished successfully');
+        (0, startup_1.startServer)();
+        logger.info('Initiate version manager...');
+        // Finally start the cron job
+        startCronJob();
+    }
+    catch (error) {
+        logger.error('Error during startup:', error);
+        yield shutdown('startup error');
+    }
 }))();

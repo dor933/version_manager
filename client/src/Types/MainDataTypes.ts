@@ -30,12 +30,11 @@ export interface VersionData {
     ReleaseDate?: Date
     EndOfSupportDate?: Date;
     LevelOfSupport?:string;
-    Extended_Support_End_Date?:Date
-    EOSL_Start_Date?:Date
-    release_notes?:string
+    ExtendedSupportEndDate?:Date
+    EoslStartDate?:Date
+    FullReleaseNotes?:string
     Timestamp?:Date
     is_new?:boolean
-    full_release_notes?:string
 
 }
 

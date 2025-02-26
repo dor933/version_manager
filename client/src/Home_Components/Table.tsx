@@ -111,9 +111,17 @@ export default function StickyHeadTable({versions, distinctVendors, productsandm
   const [orderBy, setOrderBy] = React.useState<keyof VersionData>('ReleaseDate');
 
   
+
+
+  
  
   useEffect(() => {
+
+    console.log('entered useeffect');
+
     if (!versions) return;
+
+    console.log('not returned')
   
     if (searchvalue !== '') {
       // Filter by search + vendor
@@ -135,6 +143,7 @@ export default function StickyHeadTable({versions, distinctVendors, productsandm
       let filtered_versions= versions.filter((v) => v.VendorName === vendor);
       filtered_versions=filtered_versions.sort((a: any, b: any) => new Date(b.ReleaseDate).getTime() - new Date(a.ReleaseDate).getTime());  
       setFilteredVersions(filtered_versions);
+      setChosenProduct(productsandmodules?.find((product: any) => product.ProductName === filtered_versions[0].ProductName))
       if(chosenversion?.VendorName!==vendor){
         setChosenversion(filtered_versions[0])
         setPage(0)
@@ -428,7 +437,7 @@ null
     <HomeSVG />
   </Grid>
   <Grid item xs={2} style={{display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'row', cursor:'pointer'}} onClick={() => {
-      window.open(chosenversion?.full_release_notes, '_blank', 'noreferrer');
+      window.open(chosenversion?.FullReleaseNotes, '_blank', 'noreferrer');
   }}>
   
   <InfoSVG />
@@ -461,7 +470,7 @@ null
       Known Issues
     </Typography>
     <Typography style={{color:"#A7A7A7", fontSize:'16px', fontWeight:'500', lineHeight:'16px', letterSpacing:'0.2px', fontFamily:'Kumbh Sans',alignSelf:'center',marginTop:'5px'}}>  
-      {productsandmodules?.find((product: any) => product.ProductName === chosenversion?.ProductName)?.issues?.filter((issue: any) => issue.VersionName === chosenversion?.VersionName).length}
+      {productsandmodules?.find((product: any) => product.ProductName === chosenversion?.ProductName)?.issues?.filter((issue: any) => issue.VersionId === chosenversion?.VersionId).length}
     </Typography>
   </Grid>
   <Grid item xs={4} style={{display:'flex', justifyContent:'flex-start', alignItems:'center', flexDirection:'column', gap:'10px', minHeight:'100px'}}>

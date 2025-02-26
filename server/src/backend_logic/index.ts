@@ -4,6 +4,7 @@ import { sendEmail } from './Functions';
 import winston from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
 import { startServer } from '../api/startup';
+import { syncModels } from './Database/ORM';
 let errorCount=0;
 let croninterval:any= process.env.CRON_INTERVAL;
 let unit=process.env.UNIT;
@@ -190,16 +191,26 @@ process.on('unhandledRejection', (reason) => {
 
 // Start the application
 (async () => {
+    try {
+        // Sync database without forcing recreation
 
-   await db.UpdateRecord('User_Chosen_Products', ['Last_Update'], [new Date().toISOString()], ['UserID', 'ProductName', 'VendorName'], [1, 'Metadefender_Vault', 'OPSWAT']);
-    startServer();
-    logger.info('Initiate version manager...')
-    await db.HandleData();
-    logger.info('Initiation finished successfully')
-    startCronJob();
+        logger.info('Syncing database models...');
+        await syncModels();
 
- 
+        
+        // Then start handling data
+        await db.HandleData();
+        logger.info('Initiation finished successfully');
 
+        startServer();
+        logger.info('Initiate version manager...');
+        
+        // Finally start the cron job
+        startCronJob();
+    } catch (error) {
+        logger.error('Error during startup:', error);
+        await shutdown('startup error');
+    }
 })();
 
 

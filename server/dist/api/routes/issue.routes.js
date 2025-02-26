@@ -38,7 +38,7 @@ router.post('/:issueId/addresolution', (req, res) => __awaiter(void 0, void 0, v
         const { issueId } = req.params;
         const { resolution } = req.body;
         console.log('Adding resolution for issue:', issueId, resolution);
-        yield index_1.db.UpdateRecord('Issues', ['Resolution'], [resolution], ['IssueId'], [issueId]);
+        yield index_1.db.UpdateRecord('Issue', ['Resolution'], [resolution], ['IssueId'], [issueId]);
         res.json({ success: true });
     }
     catch (error) {
@@ -51,7 +51,7 @@ router.post('/:issueId/addworkaround', (req, res) => __awaiter(void 0, void 0, v
         const { issueId } = req.params;
         const { workaround } = req.body;
         console.log('Adding workaround for issue:', issueId, workaround);
-        yield index_1.db.UpdateRecord('Issues', ['Workaround'], [workaround], ['IssueId'], [issueId]);
+        yield index_1.db.UpdateRecord('Issue', ['Workaround'], [workaround], ['IssueId'], [issueId]);
         res.json({ success: true });
     }
     catch (error) {

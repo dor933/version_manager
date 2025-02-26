@@ -1,27 +1,37 @@
 import express from 'express';
-import { db } from '../../backend_logic/index';
+import { db, logger } from '../../backend_logic/index';
 
 const router = express.Router();
 
 
 router.get('/versions', async (req, res) => {
+    try{
     const versions = await db.getVersions();
+    if(versions.length>0){
+        console.log('versions exist');
+    }
     let products:any= await db.getProducts();
+  
     let productsandmodules:any= [];
  
     for(let product of products){
-     let modules= await db.getmodules(product.ProductName, product.VendorName);
-     let issues= await db.getissues(product.ProductName, product.VendorName);
+     let modules= await db.getModules(product.ProductName, product.VendorName);
+  
+     let issues= await db.getIssues(product.ProductName, product.VendorName);
+   
      productsandmodules.push({ProductName: product.ProductName, modules: modules, issues: issues});
     }
  
-    console.log('productsandmodules',productsandmodules);
-    
- 
- 
+
+   
     res.json({versions, productsandmodules});
- });
- 
+    }
+    catch(error){
+        logger.error('Error in getVersions', error);
+        throw error;
+    }
+});
+
  router.get('/sync', async (req, res) => {
      const sync = await db.HandleData();
      const versions = await db.getVersions();

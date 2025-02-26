@@ -2,7 +2,7 @@ import { VersionData } from "../Types/MainDataTypes";
 
 export const sortedVersions = (filteredVersions: VersionData[], property: keyof VersionData, order: 'asc' | 'desc') => {
     return  [...filteredVersions].sort((a, b) => {
-    if (property === 'ReleaseDate' || property === 'EndOfSupportDate' || property === 'Extended_Support_End_Date') {
+    if (property === 'ReleaseDate' || property === 'EndOfSupportDate' || property === 'ExtendedSupportEndDate') {
       const dateA = a[property] ? new Date(a[property] as string|number|Date).getTime() : Infinity;
       const dateB = b[property] ? new Date(b[property] as string|number|Date).getTime() : Infinity;
       return order === 'asc' ? dateA - dateB : dateB - dateA;

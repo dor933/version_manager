@@ -29,7 +29,7 @@ router.post('/:issueId/addresolution', async (req, res) => {
         console.log('Adding resolution for issue:', issueId, resolution);
         
         await db.UpdateRecord(
-          'Issues',
+          'Issue',
           ['Resolution'],
           [resolution],
           ['IssueId'],
@@ -50,7 +50,7 @@ router.post('/:issueId/addworkaround', async (req, res) => {
         console.log('Adding workaround for issue:', issueId, workaround);
         
             await db.UpdateRecord(
-          'Issues',
+          'Issue',
           ['Workaround'],
           [workaround],
           ['IssueId'],

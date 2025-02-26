@@ -19,12 +19,16 @@ router.post('/subscribe', (req, res) => __awaiter(void 0, void 0, void 0, functi
     const { vendor, email, product, Unit_of_time, Frequency } = req.body;
     let result;
     try {
-        const existinguser = yield index_1.db.CheckUserExists(email);
-        if (!existinguser) {
+        let existinguser = yield index_1.db.CheckUserExists(email);
+        if (existinguser === false) {
             console.log('User not found, registering user');
-            result = yield index_1.db.registerUser(email);
+            yield index_1.db.registerUser(email);
         }
         const userid = yield index_1.db.CheckUserExists(email);
+        if (userid === false) {
+            res.json({ subscribe: false });
+            return;
+        }
         if (vendor === 'All Vendors') {
             let allproducts = yield index_1.db.getProducts();
             for (let product of allproducts) {

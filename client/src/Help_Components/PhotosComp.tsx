@@ -1,4 +1,4 @@
-import React, {  useState } from "react";
+import React, {  useEffect, useState } from "react";
 import { Dialog, DialogContent, Grid, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { apiService } from "../API/apiService";
@@ -12,6 +12,17 @@ interface PhotosCompProps {
 
 export const PhotosComp = ({ photos, isphotosopen, setIsPhotosOpen }: PhotosCompProps) => {
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
+
+
+  useEffect(() => {
+    
+    for (const photo of photos) {
+      const photourl= apiService.photoUrl(photo);
+      console.log('photourl', photourl);
+    }
+
+  }, [photos]);
+
 
   const handleClose = () => {
     setIsPhotosOpen(false);
@@ -46,6 +57,8 @@ export const PhotosComp = ({ photos, isphotosopen, setIsPhotosOpen }: PhotosComp
         <DialogContent sx={{ p: 3 }}>
           <Grid container item xs={10} sx={{display:'flex',justifyContent:'center',flexDirection:'row',alignItems:'center',margin:'0 auto'}}>
             {photos.map((photo, index) => (
+
+              
               <Grid item xs={12} sm={6} md={4} key={index} style={{borderRight: index !== photos.length - 1 ? '1px solid #E0E0E0' : 'none',paddingLeft:'10px',paddingRight:'10px',marginBottom:'10px',alignItems:'center',justifyContent:'center'}}>
                 <img
                   src={apiService.photoUrl(photo)}

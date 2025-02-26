@@ -33,14 +33,16 @@ const [readnotifications, setReadnotifications] = React.useState<boolean>(false)
 const [versions_to_notify, setVersionsToNotify] = React.useState<any[]>([]);
 const [openSubscribe, setOpenSubscribe] = React.useState<boolean>(false);
 const [productsandmodules, setProductsAndModules] = React.useState<any>(null);
-const [animate, setAnimate] = React.useState(false);
 
 
 useEffect(() => {
     apiService.getVersions()
     .then(response => {setVersions(response.data.versions)
       setProductsAndModules(response.data.productsandmodules)
+
+      console.log('versions', response.data.versions)
       console.log('productsandmodules', response.data.productsandmodules)
+    
   })
     .catch(error => console.error('Error fetching versions:', error));
 

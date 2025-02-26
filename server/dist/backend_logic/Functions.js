@@ -52,7 +52,7 @@ exports.parseDate = parseDate;
 exports.notify_on_end_of_support_changes = notify_on_end_of_support_changes;
 exports.extract_versions_from_json = extract_versions_from_json;
 exports.extract_fortra_versions_to_json = extract_fortra_versions_to_json;
-exports.extract_JSON_URL = extract_JSON_URL;
+exports.extract_Opswat_Key_Indexes = extract_Opswat_Key_Indexes;
 exports.extract_fortra_versions = extract_fortra_versions;
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
@@ -107,7 +107,7 @@ function notify_on_end_of_support(versionData, daysUntilEOS, daysUntilExtendedEO
                 row2: `The end of extended support date for ${product.replace(/_/g, ' ')} ${version} is approaching.`,
                 row3: `End of Support Date:`,
                 row4: `The end of extended support date for ${product.replace(/_/g, ' ')} ${version} is:`,
-                row5: `${(_a = versionData.Extended_Support_End_Date) === null || _a === void 0 ? void 0 : _a.toDateString()} ,`,
+                row5: `${(_a = versionData.ExtendedSupportEndDate) === null || _a === void 0 ? void 0 : _a.toDateString()} ,`,
                 row6: `Number of days remaining:`,
                 row7: `${daysUntilEOS}`
             };
@@ -153,9 +153,8 @@ function notify_on_end_of_support(versionData, daysUntilEOS, daysUntilExtendedEO
         }
     });
 }
-function extract_fortra_versions(productname) {
+function extract_fortra_versions(productname, listoffortraversions) {
     return __awaiter(this, void 0, void 0, function* () {
-        let listoffortraversions = yield extract_fortra_versions_to_json('https://api.portal.fortra.com/kbarticles/goanywhere-mft-end-of-support-life-policy-and-supported-versions-OWMyY2VkZTktZGFmMS1lZTExLTkwNGMtMDAyMjQ4MGFlMjg0?productSlug=goanywhere-mft');
         let fortra_version_extracted = [];
         let listnew = listoffortraversions[productname];
         for (const version of listnew) {
@@ -252,7 +251,7 @@ function notify_on_end_of_support_changes(product, vendor, version, oldDate, new
         }
     });
 }
-function extract_JSON_URL(url) {
+function extract_Opswat_Key_Indexes(url) {
     return __awaiter(this, void 0, void 0, function* () {
         var _a;
         try {
@@ -368,12 +367,10 @@ function notify_new_version(newVersion, users_array) {
 }
 function sendEmail(_a) {
     return __awaiter(this, arguments, void 0, function* ({ subject, content, vendor_name, users_array }) {
-        index_1.logger.info('Sending email', { subject, content, vendor_name, users_array });
         // Early return if no users or initialization
         if (users_array === undefined || users_array === '' || index_1.isinit === true) {
             return;
         }
-        console.log('users_array', users_array);
         const transporter = nodemailer_1.default.createTransport({
             host: "mail.bulwarx.local",
             port: 25,
@@ -386,21 +383,13 @@ function sendEmail(_a) {
         try {
             if (users_array && users_array.length > 0) {
                 for (const mailbox of users_array) {
-                    // Add debug logs
-                    console.log('Last_Update:', mailbox.Last_Update);
-                    console.log('Unit_of_time:', mailbox.Unit_of_time);
-                    console.log('Frequency:', mailbox.Frequency);
-                    console.log('Milliseconds for frequency:', getMilliseconds(mailbox.Unit_of_time));
                     // Calculate each part separately for better debugging
-                    const lastUpdateMs = new Date(mailbox.Last_Update).getTime();
+                    const lastUpdateMs = new Date(mailbox.LastUpdate).getTime();
                     console.log('Last Update in ms:', lastUpdateMs);
-                    const frequencyMs = getMilliseconds(mailbox.Unit_of_time);
+                    const frequencyMs = getMilliseconds(mailbox.UnitOfTime);
                     const totalOffset = mailbox.Frequency * frequencyMs;
                     console.log('Total time offset:', totalOffset);
                     const nextUpdateTime = lastUpdateMs + totalOffset;
-                    index_1.logger.info(nextUpdateTime);
-                    index_1.logger.info(new Date().getTime());
-                    // Check if it's time to send an email
                     const shouldSendEmail = subject.includes('End of Support Date Change:') ||
                         subject.includes('Version Changes Detected:') ||
                         nextUpdateTime < new Date().getTime();
@@ -412,8 +401,11 @@ function sendEmail(_a) {
                             html: (0, emailTemplate_1.createEmailTemplate)(content, vendor_name)
                         });
                         // Update the last_update field in the database
-                        yield index_2.db.UpdateRecord('User_Chosen_Products', ['Last_Update'], [new Date().toISOString()], ['UserID', 'ProductName', 'VendorName'], [mailbox.UserID, mailbox.ProductName, mailbox.VendorName]);
-                        index_1.logger.info('Email sent and last_update updated:', { info, mailbox });
+                        let affectedCount = yield index_2.db.UpdateRecord('User_Chosen_Products', ['Last_Update'], [new Date().toISOString()], ['UserID', 'ProductName', 'VendorName'], [mailbox.UserID, mailbox.ProductName, mailbox.VendorName]);
+                        if (affectedCount)
+                            index_1.logger.info('Email sent and last_update updated:', { info, mailbox });
+                        else
+                            index_1.logger.error('Error updating last_update in database:', { mailbox });
                     }
                     else {
                         index_1.logger.info('Email not sent (last update is not old enough):', { mailbox });

@@ -1,5 +1,6 @@
 import express from 'express';
 import { db, logger } from '../../backend_logic/index';
+import { User } from '../../backend_logic/Database/ORM';
 
 const router = express.Router();
 
@@ -11,30 +12,34 @@ router.post('/subscribe', async (req, res) => {
   
     try{
   
-    const existinguser= await db.CheckUserExists(email);
+    let existinguser= await db.CheckUserExists(email);
     if(existinguser===false){  
       console.log('User not found, registering user');
-      result= await db.registerUser(email);
+    await db.registerUser(email);
   
     }
   
     const userid:number|false= await db.CheckUserExists(email);
-  
+    if(userid===false){
+      res.json({subscribe:false});
+      return;
+    }
+
     if(vendor==='All Vendors'){
       let allproducts:any= await db.getProducts()
       for(let product of allproducts){
-        result= await db.subscribe(userid as number, product.ProductName, product.VendorName, Unit_of_time, Frequency);
+        result= await db.subscribe(userid, product.ProductName, product.VendorName, Unit_of_time, Frequency);
       }
     }
     else if(product==='All Products'){
       let allproducts:any= await db.getProducts(vendor);
       for(let product of allproducts){
-        result= await db.subscribe(userid as number, product.ProductName, product.VendorName, Unit_of_time,Frequency);
+        result= await db.subscribe(userid, product.ProductName, product.VendorName, Unit_of_time,Frequency);
       }
     }
   
     else{
-      result= await db.subscribe(userid as number, product, vendor, Unit_of_time, Frequency);
+      result= await db.subscribe(userid, product, vendor, Unit_of_time, Frequency);
     }
     
     res.json({subscribe:result});

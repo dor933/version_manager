@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
 
-export default function CustomButton({label, onClick, opacity=1}: {label: string, onClick: () => void, opacity?: number}) {
+export default function CustomButton({label, onClick, opacity=1, ispopupopen}: {label: string, onClick: () => void, opacity?: number, ispopupopen?: boolean}) {
     return (
         <Box 
         sx={{
@@ -10,9 +10,9 @@ export default function CustomButton({label, onClick, opacity=1}: {label: string
           justifyContent: 'center',
           backgroundColor: '#509CDB',
           borderRadius: '4px',
-          opacity: opacity,
+          opacity: ispopupopen ? 0.5 : 1,
           padding: '5px 10px',
-          cursor: opacity==0.5 ? 'default' : 'pointer',
+          cursor: ispopupopen ? 'default' : 'pointer',
           '&:hover': {
             backgroundColor: '#4084C2'
           },

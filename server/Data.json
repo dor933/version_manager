@@ -195,7 +195,7 @@
             "Products": [ 
                 {
                     "ProductName": "Goanywhere_MFT",
-                    "ProductId": 1,
+                    "ProductId": 17,
                     "modules":["General","Workflows","Secure Mail","Web Portal","SFTP","Secure Folders"],
                     "issues":[],
                     "release_notes":"https://hstechdocs.helpsystems.com/releasenotes/Content/_ProductPages/GoAnywhere/GAMFT.htm"  
@@ -204,7 +204,7 @@
 
                 {
                     "ProductName": "Goanywhere_Gateway",
-                    "ProductId": 2,
+                    "ProductId": 18,
                     "modules":["General"],
                     "issues":[],
                     "release_notes":"https://hstechdocs.helpsystems.com/releasenotes/Content/_ProductPages/GoAnywhere/GAG.htm"
@@ -213,7 +213,7 @@
                 },
                 {
                     "ProductName": "Goanywhere_Agent",
-                    "ProductId": 3,
+                    "ProductId": 19,
                     "modules":["General"],
                     "issues":[],
                     "release_notes":"https://hstechdocs.helpsystems.com/releasenotes/Content/_ProductPages/GoAnywhere/Agents.htm"

@@ -73,7 +73,7 @@ async function notify_on_end_of_support(versionData: VersionData , daysUntilEOS:
             row2: `The end of extended support date for ${product.replace(/_/g, ' ')} ${version} is approaching.`,
             row3: `End of Support Date:`,
             row4: `The end of extended support date for ${product.replace(/_/g, ' ')} ${version} is:`,
-            row5: `${versionData.Extended_Support_End_Date?.toDateString()} ,`,
+            row5: `${versionData.ExtendedSupportEndDate?.toDateString()} ,`,
             row6: `Number of days remaining:`,
             row7: `${daysUntilEOS}`
 
@@ -460,13 +460,11 @@ async function sendEmail({
     users_array?: any
   }) {
 
-    logger.info('Sending email', { subject, content, vendor_name, users_array });
     // Early return if no users or initialization
     if (users_array === undefined || users_array === '' || isinit === true) {
       return;
     }
   
-    console.log('users_array', users_array);
   
     const transporter = nodemailer.createTransport({
       host: "mail.bulwarx.local",
@@ -484,10 +482,10 @@ async function sendEmail({
    
   
           // Calculate each part separately for better debugging
-          const lastUpdateMs = new Date(mailbox.Last_Update).getTime();
+          const lastUpdateMs = new Date(mailbox.LastUpdate).getTime();
           console.log('Last Update in ms:', lastUpdateMs);
   
-          const frequencyMs = getMilliseconds(mailbox.Unit_of_time);
+          const frequencyMs = getMilliseconds(mailbox.UnitOfTime);
           const totalOffset = mailbox.Frequency * frequencyMs;
           console.log('Total time offset:', totalOffset);
   
@@ -509,15 +507,21 @@ async function sendEmail({
             });
   
             // Update the last_update field in the database
-            await db.UpdateRecord(
+          let affectedCount=  await db.UpdateRecord(
               'User_Chosen_Products',
               ['Last_Update'],
               [new Date().toISOString()],
               ['UserID', 'ProductName', 'VendorName'],
               [mailbox.UserID, mailbox.ProductName, mailbox.VendorName]
             );
+
+            if(affectedCount)
+                logger.info('Email sent and last_update updated:', { info, mailbox });
+            else
+                logger.error('Error updating last_update in database:', { mailbox });
+            
   
-            logger.info('Email sent and last_update updated:', { info, mailbox });
+           
           } else {
             logger.info('Email not sent (last update is not old enough):', { mailbox });
           }

@@ -60,6 +60,7 @@ export default function FormDialog({versions, productsandmodules}: ReportProps) 
     if (productsandmodules) {
       const distinctVersions: any = [...new Set(versions.filter((version: any) => version.ProductName === singleproduct).map((version: any) => version.VersionName))];
       setProductVersions(distinctVersions);
+      console.log(singleproduct);
       const productandmodule: any = productsandmodules.find((module: any) => module.ProductName === singleproduct)
       if (productandmodule) {
         setModules(productandmodule.modules);
@@ -80,6 +81,11 @@ const handlePopup = (title: string, issucceeded: boolean, mainMessage: string, b
     console.log(vendor, singleproduct, singleversion, email, severity, issueDescription, chosenmodule);
     const emailSchema = z.string().email();
 
+    if(vendor.length < 1 || singleproduct.length < 1 || singleversion.length < 1 || chosenmodule.length < 1){
+      handlePopup('Error', false, 'Please select a valid vendor, product, version and module', 'OK');
+      return;
+    }
+
     if(!severities.includes(severity)){
       handlePopup('Error', false, 'Please select a valid severity', 'OK');
       return;
@@ -90,10 +96,6 @@ const handlePopup = (title: string, issucceeded: boolean, mainMessage: string, b
       return;
     }
 
-    if(vendor.length < 1 || singleproduct.length < 1 || singleversion.length < 1 || chosenmodule.length < 1){
-      handlePopup('Error', false, 'Please select a valid vendor, product, version and module', 'OK');
-      return;
-    }
 
     if(!emailSchema.safeParse(email).success){
       handlePopup('Error', false, 'Please enter a valid email address', 'OK');
@@ -138,31 +140,32 @@ const handlePopup = (title: string, issucceeded: boolean, mainMessage: string, b
     <React.Fragment>
       <Dialog
         open={opendialog}
-        onClose={() => setOpenDialog(false)}
+      
+        onClose={() => ispopupopen ? null : setOpenDialog(false)}
         style={{
           backgroundColor: 'transparent',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-     
+          
+
         }}
         maxWidth="lg"
         fullWidth={true}
+        
         BackdropProps={{
           sx: {
             backgroundColor: 'rgba(0, 0, 0, 0.3)',
             backdropFilter: 'blur(2px)',
+
+            
           }
         }}
         PaperProps={{
           component: 'form',
           onSubmit:  (event: React.FormEvent<HTMLFormElement>) => {
             event.preventDefault();
-            const formData = new FormData(event.currentTarget);
-            const formJson = Object.fromEntries((formData as any).entries());
-            const email = formJson.email;
-            console.log(email);
-            setOpenDialog(false);
+        
           },
           sx: {
             width: '1000px',
@@ -187,9 +190,13 @@ const handlePopup = (title: string, issucceeded: boolean, mainMessage: string, b
             setSubMessage={setSubMessage}
           />
         )}
-        <DialogContent>
+        <DialogContent style={{
+
+          opacity:ispopupopen ? 0.5 : 1,
+
+        }}>
         <Grid item xs={12} sx={{display:'flex', justifyContent:'flex-start', alignItems:'center', flexDirection:'row',position:'fixed'}}>
-              <CancelIcon sx={{color:'#152259', cursor:'pointer', fontSize:'35px'}} onClick={() => !ispopupopen ? setOpenDialog(false) : null}/>
+              <CancelIcon sx={{color:'#152259', cursor: ispopupopen ? 'false' : 'pointer', fontSize:'35px'}} onClick={() => !ispopupopen ? setOpenDialog(false) : null}/>
 
               </Grid>
             <Box sx={{display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'column', paddingLeft:'80px', paddingRight:'80px', paddingTop:'80px', paddingBottom:'80px',gap:'10px'}}>
@@ -272,10 +279,12 @@ const handlePopup = (title: string, issucceeded: boolean, mainMessage: string, b
                     <Select 
                         labelId="Severity-label"
                         label="Severity"
+                        
                         value={severity}
                         sx={{width:'100%', fontFamily:'Kumbh Sans', fontWeight:'500', fontSize:'14px', color:'#152259'}}
                         required
                         onChange={(e) => setSeverity(e.target.value)}
+                        disabled={ispopupopen}
                     >
                         {
                           severities.map((severity) => (
@@ -339,6 +348,7 @@ const handlePopup = (title: string, issucceeded: boolean, mainMessage: string, b
                     <TextField
                         label="Email"
                         value={email}
+                        disabled={ispopupopen}
                         required
                         sx={{width:'100%'}}
                         onChange={(e) => setEmail(e.target.value)}
@@ -350,6 +360,7 @@ const handlePopup = (title: string, issucceeded: boolean, mainMessage: string, b
                     <TextField
                         label="Issue Description"
                         value={issueDescription}
+                        disabled={ispopupopen}
                         required
                         sx={{width:'100%'}}
                         multiline
@@ -363,8 +374,8 @@ const handlePopup = (title: string, issucceeded: boolean, mainMessage: string, b
      
         </DialogContent>
         <DialogActions sx={{display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'row',paddingBottom:'20px'}}>
-          <Button onClick={() => !ispopupopen ? setOpenDialog(false) : null} sx={{backgroundColor:'#F2F2F2',fontWeight:'600',fontFamily:'Kumbh Sans', color:'#4F4F4F'}}>Cancel</Button>
-          <Button type="submit" onClick={handleSubmit} sx={{backgroundColor:'#509CDB',fontWeight:'600',fontFamily:'Kumbh Sans', color:'#fff'}}>Submit</Button>
+          <Button disabled={ispopupopen} onClick={() => !ispopupopen ? setOpenDialog(false) : null} sx={{backgroundColor:'#F2F2F2',fontWeight:'600',fontFamily:'Kumbh Sans', color:'#4F4F4F'}}>Cancel</Button>
+          <Button disabled={ispopupopen} type="submit" onClick={handleSubmit} sx={{backgroundColor:'#509CDB',fontWeight:'600',fontFamily:'Kumbh Sans', color:'#fff'}}>Submit</Button>
         </DialogActions>
       </Dialog>
     </React.Fragment>

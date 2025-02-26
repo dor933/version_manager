@@ -124,38 +124,39 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_to_
 
   }, [vendor,versions]);
 
-  const handlePopup= (title: string, message: string, buttonText: string) => {
+  const handlePopup= (title: string, message: string, isSuccess: boolean, buttonText: string) => {
     setIsPopupOpen(true);
     setTitle(title);
     setMainMessage(message);
     setButtonText(buttonText);
+    setIssucceeded(isSuccess);
   }
 
  
 
     const handleSubscribe = () => {
         if(vendor === '') {
-           handlePopup('Error', 'Please select a vendor', 'OK');
+           handlePopup('Error', 'Please select a vendor', false, 'OK');
            return;
         }
         else if(singleproduct === ''){
-           handlePopup('Error', 'Please select a product', 'OK');
+           handlePopup('Error', 'Please select a product', false, 'OK');
            return;
         }
       
         else if(Unit === ''){
-           handlePopup('Error', 'Please select a unit', 'OK');
+           handlePopup('Error', 'Please select a unit', false, 'OK');
            return;
         }
         else if(Interval === ''){
-           handlePopup('Error', 'Please select an interval', 'OK');
+           handlePopup('Error', 'Please select an interval', false, 'OK');
            return;
         }
    
         const emailValidation = emailSchema.safeParse(email);
         if (!emailValidation.success) {
           
-           handlePopup('Error', 'Please enter a valid email address', 'OK');
+           handlePopup('Error', 'Please enter a valid email address', false, 'OK');
            return;
         }
 
@@ -173,13 +174,13 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_to_
         .then(data => {
             console.log(data);
             if(data.subscribe==='Already Subscribed'){
-                handlePopup('Error', 'You are already subscribed to notifications', 'OK');
+                handlePopup('Error', 'You are already subscribed to notifications', false, 'OK');
             }
             else if(data.subscribe){
-                handlePopup('Success', 'You are now subscribed to notifications', 'OK');
+                handlePopup('Success', 'You are now subscribed to notifications', true,  'OK');
             }
             else{
-                handlePopup('Error', 'Error subscribing', 'OK');
+                handlePopup('Error', 'Error subscribing', false, 'OK');
             }
         })
         .catch(error => console.error('Error subscribing:', error));

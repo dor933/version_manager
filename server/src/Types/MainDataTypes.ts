@@ -1,4 +1,5 @@
 export type ProductData = {
+    ProductId: number;
     ProductName: string;
     VendorId: number;
     Versions: VersionData[];
@@ -30,9 +31,11 @@ export type VersionData = {
     ReleaseDate?: Date
     EndOfSupportDate?: Date;
     LevelOfSupport?:string;
-    Extended_Support_End_Date?:Date
-    EOSL_Start_Date?:Date
-    release_notes?:string
+    ExtendedSupportEndDate?:Date
+    EoslStartDate?:Date
     Timestamp?:Date
+    ProductId?:number
+    VendorId?:number
+    FullReleaseNotes?:string
 
 }

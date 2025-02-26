@@ -83,7 +83,7 @@ export const apiService = {
   },
 
   photoUrl: (photo: string) => {
-    return `${BASE_URL_LOCAL}` +  photo;
+    return `${BASE_URL_LOCAL}` + '/'+ photo;
   }
 
 };
