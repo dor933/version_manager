@@ -508,15 +508,15 @@ async function sendEmail({
   
             // Update the last_update field in the database
           let affectedCount=  await db.UpdateRecord(
-              'User_Chosen_Products',
-              ['Last_Update'],
+              'UserChosenProduct',
+              ['LastUpdate'],
               [new Date().toISOString()],
-              ['UserID', 'ProductName', 'VendorName'],
-              [mailbox.UserID, mailbox.ProductName, mailbox.VendorName]
+              ['UserID', 'ProductId', 'VendorId'],
+              [mailbox.UserID, mailbox.ProductId, mailbox.VendorId]
             );
 
             if(affectedCount)
-                logger.info('Email sent and last_update updated:', { info, mailbox });
+                logger.info('Email sent and last_update updated:', {  mailbox });
             else
                 logger.error('Error updating last_update in database:', { mailbox });
             

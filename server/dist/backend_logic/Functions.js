@@ -57,7 +57,6 @@ exports.extract_fortra_versions = extract_fortra_versions;
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const nodemailer_1 = __importDefault(require("nodemailer"));
-const emailTemplate_1 = require("./emailTemplate");
 const index_1 = require("./index");
 const axios_1 = __importDefault(require("axios"));
 const cheerio = __importStar(require("cheerio"));
@@ -394,16 +393,16 @@ function sendEmail(_a) {
                         subject.includes('Version Changes Detected:') ||
                         nextUpdateTime < new Date().getTime();
                     if (shouldSendEmail) {
-                        const info = yield transporter.sendMail({
-                            from: process.env.USER_EMAIL,
-                            to: mailbox.Email,
-                            subject: subject,
-                            html: (0, emailTemplate_1.createEmailTemplate)(content, vendor_name)
-                        });
+                        // const info = await transporter.sendMail({
+                        //   from: process.env.USER_EMAIL,
+                        //   to: mailbox.Email,
+                        //   subject: subject,
+                        //   html: createEmailTemplate(content, vendor_name)
+                        // });
                         // Update the last_update field in the database
-                        let affectedCount = yield index_2.db.UpdateRecord('User_Chosen_Products', ['Last_Update'], [new Date().toISOString()], ['UserID', 'ProductName', 'VendorName'], [mailbox.UserID, mailbox.ProductName, mailbox.VendorName]);
+                        let affectedCount = yield index_2.db.UpdateRecord('UserChosenProduct', ['LastUpdate'], [new Date().toISOString()], ['UserID', 'ProductId', 'VendorId'], [mailbox.UserID, mailbox.ProductId, mailbox.VendorId]);
                         if (affectedCount)
-                            index_1.logger.info('Email sent and last_update updated:', { info, mailbox });
+                            index_1.logger.info('Email sent and last_update updated:', { mailbox });
                         else
                             index_1.logger.error('Error updating last_update in database:', { mailbox });
                     }
