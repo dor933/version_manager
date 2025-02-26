@@ -24,6 +24,7 @@ const { versions, setVersions, setOpenDialog } = useAuth();
 const drawerWidth = 240;
 const [open, setOpen] = React.useState(false);
 const [distinctVendors, setDistinctVendors] = React.useState<string[]>([]);
+const [ispopupopen, setIsPopupOpen] = React.useState(false);
 const [lastSync, setLastSync] = React.useState<string>('');
 const [finishedSyncing, setFinishedSyncing] = React.useState(false);
 const [failedSyncing, setFailedSyncing] = React.useState(false);
@@ -216,6 +217,7 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
                versions_to_notify={versions_to_notify}
                type='notifications'
                versions={versions? versions: []}
+             
              />
            </Box>
            <Grid item xs={4} style={{display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'column'}}>
@@ -236,6 +238,7 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
                  type='subscribe'
                  distinctVendors={distinctVendors}
                  versions={versions? versions: []}
+               
                  />
               </Box>
              </Grid>

@@ -10,12 +10,14 @@ import Popup from '../Help_Components/Popup';
 export default function Issues({chosenproduct, issuesdialog, setIssuesDialog, chosenversion }: { chosenproduct: any, issuesdialog: boolean, setIssuesDialog: any, chosenversion: any}) {
 
 
+
+
   useEffect(() => {
     setIsPopupOpen(false);
   }, [issuesdialog]);
 
-  const [ispopupopen, setIsPopupOpen] = useState(false);
-  const [issucceeded, setIssucceeded] = useState(false);
+    const [ispopupopen, setIsPopupOpen] = useState(false);
+    const [issucceeded, setIssucceeded] = useState(false);
     const [title, setTitle] = useState('');
     const [mainMessage, setMainMessage] = useState('');
     const [subMessage, setSubMessage] = useState('');

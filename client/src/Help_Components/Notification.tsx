@@ -135,6 +135,14 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_to_
  
 
     const handleSubscribe = () => {
+
+      const emailValidation = emailSchema.safeParse(email);
+      if (!emailValidation.success) {
+        
+         handlePopup('Error', 'Please enter a valid email address', false, 'OK');
+         return;
+      }
+
         if(vendor === '') {
            handlePopup('Error', 'Please select a vendor', false, 'OK');
            return;
@@ -153,12 +161,7 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_to_
            return;
         }
    
-        const emailValidation = emailSchema.safeParse(email);
-        if (!emailValidation.success) {
-          
-           handlePopup('Error', 'Please enter a valid email address', false, 'OK');
-           return;
-        }
+  
 
         apiService.subscribe({
               vendor: vendor,
@@ -177,7 +180,7 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_to_
                 handlePopup('Error', 'You are already subscribed to notifications', false, 'OK');
             }
             else if(data.subscribe){
-                handlePopup('Success', 'You are now subscribed to notifications', true,  'OK');
+                handlePopup('Success', 'You are now subscribed to notifications', true, 'OK');
             }
             else{
                 handlePopup('Error', 'Error subscribing', false, 'OK');
@@ -221,13 +224,13 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_to_
 
           }}
         >     
-          <Box sx={{ p: 2}}>
+          <Box sx={{ p: 2 }}>
             <Grid container sx={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
                 
             <Typography variant="h6" sx={{  fontFamily: 'Kumbh Sans', fontSize: '14px' }}>
               Notifications
             </Typography>
-            <CancelIcon sx={{color:'#152259', cursor:'pointer', fontSize:'20px'}} onClick={onClose}/>
+            <CancelIcon sx={{color:'#152259', cursor:'pointer', fontSize:'20px'}} onClick={ !ispopupopen ? onClose : undefined}/>
             </Grid>
             <Box sx={{ maxHeight: '300px', overflowY: 'auto' }}>
               {versions_to_notify.map((version) => (
@@ -266,14 +269,14 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_to_
           }}
         >
 
-<Box sx={{ p: 2}}>
+<Box sx={{ p: 2 , opacity: ispopupopen ? 0.5 : 1}}>
             <Grid container sx={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
                 
             <Typography variant="h6" sx={{  fontFamily: 'Kumbh Sans', fontSize: '14px', }}>
               Subscribe to Notifications
             </Typography>
             
-            <CancelIcon sx={{color:'#152259', cursor:'pointer', fontSize:'20px'}} onClick={onClose}/>
+            <CancelIcon sx={{color:'#152259', cursor:'pointer', fontSize:'20px'}} onClick={ !ispopupopen ? onClose : undefined}/>
             </Grid>
             <Box sx={{ p: 2 }}>
          
@@ -296,6 +299,7 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_to_
                       variant="outlined" 
                       label="Email"
                       fullWidth
+                      disabled={ispopupopen}
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       sx={customTextFieldStyle}
@@ -307,8 +311,9 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_to_
                <FormControlSelect   
                 label="Vendor"
                 singleitem={vendor}
+                isitemdisabled={ispopupopen}
                 setSingleItem={setVendor}
-                items={distinctVendors? distinctVendors : []}
+                items={distinctVendors && !ispopupopen ? distinctVendors : []}
                 customSelectStyle={customSelectStyle}
                 />
                   </Grid>
@@ -318,8 +323,8 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_to_
                   label="Product"
                   singleitem={singleproduct}
                   setSingleItem={setSingleProduct}
-                  isitemdisabled={isproductsdisabled}
-                  items={products}
+                  isitemdisabled={ ispopupopen ? true : isproductsdisabled}
+                  items={ products && !ispopupopen ? products : []}
                   customSelectStyle={customSelectStyle}
                   />
                   </Grid>
@@ -329,7 +334,7 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_to_
                     label="Unit"
                     singleitem={Unit}
                     setSingleItem={setUnit}
-                    items={["Hours", "Days", "Months"]}
+                    items={ ["Hours", "Days", "Months"] && !ispopupopen ? ["Hours", "Days", "Months"] : []}
                     customSelectStyle={customSelectStyle}
                     />
                   </Grid>
@@ -338,6 +343,7 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_to_
                       variant="outlined" 
                       label="Interval of time"
                       fullWidth
+                      disabled={ispopupopen}
                       value={Interval}
                       onChange={(e) => setinterval(e.target.value)}
                       sx={customTextFieldStyle}
@@ -359,7 +365,7 @@ const Notification: React.FC<NotificationProps> = ({ open, onClose, versions_to_
                           backgroundColor: '#4084C2'
                         }
                       }} 
-                      onClick={handleSubscribe}
+                      onClick={ !ispopupopen ? handleSubscribe : undefined}
                     >
                       <Typography sx={{ 
                         color: '#FFF',
