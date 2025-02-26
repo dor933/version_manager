@@ -265,7 +265,7 @@ const handlePopup = (title: string, issucceeded: boolean, mainMessage: string, b
                         >
                             {
                               products.map((product: any) => (
-                                <MenuItem value={product}>{product}</MenuItem>
+                                <MenuItem value={product}>{product.replace(/_/g, ' ')}</MenuItem>
                               ))
                             }
                         </Select>
