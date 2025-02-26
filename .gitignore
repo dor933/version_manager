@@ -5,10 +5,6 @@
 # Environment
 .env
 
-# Database
-*.db
-my-database.db
-
 # Build files
 *.js.map
 
@@ -20,5 +16,4 @@ my-database.db
 .log
 
 logs/
-uploads/
 # Logs
