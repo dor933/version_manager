@@ -1,7 +1,7 @@
 import React from 'react';
 import './css/App.css';
 import Home from './Home';
-import { AuthProvider } from './UseContext/MainAuth';
+import { AuthProvider } from './UseContext/MainContext';
 
 function App() {
   return (

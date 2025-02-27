@@ -1,10 +1,10 @@
 import nodecron from 'node-cron';
-import { Database } from '../BackendLogic/Database/DatabaseRunner';
-import { sendEmail } from '../BackendLogic/Functions/LogicFunctions';
+import { Database } from './Database/DatabaseRunner';
+import { sendEmail } from './Functions/LogicFunctions';
 import winston from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
-import { startServer } from '../api/Startup'
-import { syncModels } from '../BackendLogic/Database/ORM';
+import { startServer } from '../api/Startup';
+import { syncModels } from './Database/ORM';
 let errorCount=0;
 let croninterval:any= process.env.CRON_INTERVAL;
 let unit=process.env.UNIT;

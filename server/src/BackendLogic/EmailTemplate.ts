@@ -1,5 +1,4 @@
 const path = require('path');
-const logo = path.join(__dirname, '../assets/logo.png');
 
 
 type Content = {

@@ -1,13 +1,14 @@
 import dotenv from 'dotenv';
 dotenv.config();
 import nodemailer from 'nodemailer';
-import { VersionData } from '../Types/MainDataTypes';
-import { createEmailTemplate } from './emailTemplate';
-import { Type1Products, version_extracted } from '../Types/WebTypes';
-import { isinit, logger } from './index';
+import { VersionData } from '../../Types/MainDataTypes';
+import { createEmailTemplate } from '../emailTemplate';
+import { version_extracted } from '../../Types/WebTypes';
+import { isinit, logger } from '../index';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
-import { db } from './index';
+import { db } from '../index';
+import { EmailBodyCreator, FortraVersionObjectCreator, getMilliseconds, isType1Product } from './HelperFunctions';
 
 let identifier=0;
 
@@ -65,19 +66,7 @@ async function notify_on_end_of_support(versionData: VersionData , daysUntilEOS:
 
     if(daysUntilExtendedEOS){
 
-        
-        emailBody = {
-            name:'Team',
-            subject: `End of Extended Support Alert: ${product.replace(/_/g, ' ')} ${version}`,
-            row1: `Hey Team`,
-            row2: `The end of extended support date for ${product.replace(/_/g, ' ')} ${version} is approaching.`,
-            row3: `End of Support Date:`,
-            row4: `The end of extended support date for ${product.replace(/_/g, ' ')} ${version} is:`,
-            row5: `${versionData.ExtendedSupportEndDate?.toDateString()} ,`,
-            row6: `Number of days remaining:`,
-            row7: `${daysUntilEOS}`
-
-        }
+        emailBody = EmailBodyCreator('Team', `End of Extended Support Alert: ${product.replace(/_/g, ' ')} ${version}`, `Hey Team`, `The end of extended support date for ${product.replace(/_/g, ' ')} ${version} is approaching.`, `End of Support Date:`, `The end of extended support date for ${product.replace(/_/g, ' ')} ${version} is:`, `${versionData.ExtendedSupportEndDate?.toDateString()} ,`, `Number of days remaining:`, `${daysUntilEOS}`)
 
     }
 
@@ -85,35 +74,14 @@ async function notify_on_end_of_support(versionData: VersionData , daysUntilEOS:
     
     if (daysUntilEOS <= 7) { // Notify when 30 days or less remaining
 
-        emailBody = {
-            name:'Team',
-            subject: `Critical: End of Support Approaching - 7 days or less remaining`,
-            row1: `Hey Team`,
-            row2: `The end of support date for ${product.replace(/_/g, ' ')} ${version} is approaching.`,
-            row3: `End of Support Date:`,
-            row4: `The end of support date for ${product.replace(/_/g, ' ')} ${version} is:`,
-            row5: `${versionData.EndOfSupportDate?.toDateString()} ,`,
-            row6: `Number of days remaining:`,
-            row7: `${daysUntilEOS}`
-        }
-        
-      
-        
+        emailBody = EmailBodyCreator('Team', `Critical: End of Support Approaching - 7 days or less remaining`, `Hey Team`, `The end of support date for ${product.replace(/_/g, ' ')} ${version} is approaching.`, `End of Support Date:`, `The end of support date for ${product.replace(/_/g, ' ')} ${version} is:`, `${versionData.EndOfSupportDate?.toDateString()} ,`, `Number of days remaining:`, `${daysUntilEOS}`)
+   
     
     }
     else if (daysUntilEOS <= 30) {
-        emailBody = {
-            name:'Team',
-            subject: `End of Support Alert: ${product.replace(/_/g, ' ')} ${version}`,
-            row1: `Hey Team`,
-            row2: `The end of support date for ${product.replace(/_/g, ' ')} ${version} is approaching.`,
-            row3: `End of Support Date:`,
-            row4: `The end of support date for ${product.replace(/_/g, ' ')} ${version} is:`,
-            row5: `${versionData.EndOfSupportDate?.toDateString()} ,`,
-            row6: `Number of days remaining:`,
-            row7: `${daysUntilEOS}`
 
-        }
+        emailBody = EmailBodyCreator('Team', `End of Support Alert: ${product.replace(/_/g, ' ')} ${version}`, `Hey Team`, `The end of support date for ${product.replace(/_/g, ' ')} ${version} is approaching.`, `End of Support Date:`, `The end of support date for ${product.replace(/_/g, ' ')} ${version} is:`, `${versionData.EndOfSupportDate?.toDateString()} ,`, `Number of days remaining:`, `${daysUntilEOS}`)
+
   
     }
 }
@@ -183,39 +151,26 @@ async function extract_fortra_versions_to_json(json_url:string):Promise<any> {
     for(let i=0; i<listoftd.length; i+=7){
 
 
+        let VersionObject:any;
+
         switch(cheerio.load(listofVersions)(listoftd[i]).text().toLowerCase()){
             case 'mft':
-                listofVersions_ret.Goanywhere_MFT.push({
-                    version_name: cheerio.load(listofVersions)(listoftd[i+1]).text(),
-                    release_date: cheerio.load(listofVersions)(listoftd[i+3]).text(),
-                    end_of_support_date: cheerio.load(listofVersions)(listoftd[i+6]).text(),
-                    level_of_support: cheerio.load(listofVersions)(listoftd[i+2]).text(),
-                    extended_support_end_date: cheerio.load(listofVersions)(listoftd[i+5]).text(),
-                    eosl_start_date: cheerio.load(listofVersions)(listoftd[i+4]).text(),
-             
-                });
-                break;
-            case 'gateway':
-                listofVersions_ret.Goanywhere_Gateway.push({
-                    version_name: cheerio.load(listofVersions)(listoftd[i+1]).text(),
-                    release_date: cheerio.load(listofVersions)(listoftd[i+3]).text(),
-                    end_of_support_date: cheerio.load(listofVersions)(listoftd[i+6]).text(),
-                    level_of_support: cheerio.load(listofVersions)(listoftd[i+2]).text(),
-                    extended_support_end_date: cheerio.load(listofVersions)(listoftd[i+5]).text(),
-                    eosl_start_date: cheerio.load(listofVersions)(listoftd[i+4]).text(),
 
-                });
+             VersionObject= FortraVersionObjectCreator(cheerio.load(listofVersions)(listoftd[i+1]).text(), cheerio.load(listofVersions)(listoftd[i+3]).text(), cheerio.load(listofVersions)(listoftd[i+6]).text(), cheerio.load(listofVersions)(listoftd[i+2]).text(), cheerio.load(listofVersions)(listoftd[i+5]).text(), cheerio.load(listofVersions)(listoftd[i+4]).text())
+
+                listofVersions_ret.Goanywhere_MFT.push(VersionObject);
+                break;
+               
+             
+               
+            case 'gateway':
+                VersionObject= FortraVersionObjectCreator(cheerio.load(listofVersions)(listoftd[i+1]).text(), cheerio.load(listofVersions)(listoftd[i+3]).text(), cheerio.load(listofVersions)(listoftd[i+6]).text(), cheerio.load(listofVersions)(listoftd[i+2]).text(), cheerio.load(listofVersions)(listoftd[i+5]).text(), cheerio.load(listofVersions)(listoftd[i+4]).text())
+
                 break;
             case 'agents':
-                listofVersions_ret.Goanywhere_Agent.push({
-                    version_name: cheerio.load(listofVersions)(listoftd[i+1]).text(),
-                    release_date: cheerio.load(listofVersions)(listoftd[i+3]).text(),
-                    end_of_support_date: cheerio.load(listofVersions)(listoftd[i+6]).text(),
-                    level_of_support: cheerio.load(listofVersions)(listoftd[i+2]).text(),
-                    extended_support_end_date: cheerio.load(listofVersions)(listoftd[i+5]).text(),
-                    eosl_start_date: cheerio.load(listofVersions)(listoftd[i+4]).text(),
+                VersionObject= FortraVersionObjectCreator(cheerio.load(listofVersions)(listoftd[i+1]).text(), cheerio.load(listofVersions)(listoftd[i+3]).text(), cheerio.load(listofVersions)(listoftd[i+6]).text(), cheerio.load(listofVersions)(listoftd[i+2]).text(), cheerio.load(listofVersions)(listoftd[i+5]).text(), cheerio.load(listofVersions)(listoftd[i+4]).text())
+                listofVersions_ret.Goanywhere_Agent.push(VersionObject);
 
-                });
                 break;
         }
     }
@@ -231,23 +186,10 @@ async function extract_fortra_versions_to_json(json_url:string):Promise<any> {
 async function notify_on_end_of_support_changes(product: string, vendor: string, version: string, oldDate?: Date, newDate?: Date, users_array?: any) {
 
 
-    const emailBody =
+
+    const emailBody = EmailBodyCreator('Team', `End of Support Date Change: ${product.replace(/_/g, ' ')} ${version}`, `Hey Team`, `The end of support date for ${product.replace(/_/g, ' ')} ${version} has been changed.`, `Changes Detected:`, `End of Support Date changed from `, `${oldDate ? oldDate.toDateString() : 'No old date'}`, `to`, `${newDate ? newDate.toDateString() : 'No new date'}`)
         
-        {
-            name:'Team',
-            subject: `End of Support Date Change: ${product.replace(/_/g, ' ')} ${version}`,
-            row1: `Hey Team`,
-            row2: `The end of support date for ${product.replace(/_/g, ' ')} ${version} has been changed.`,
-            row3: `Changes Detected:`,
-            row4: `End of Support Date changed from `,
-            row5: `${oldDate ? oldDate.toDateString() : 'No old date'}`,
-            row6: `to`,
-            row7: `${newDate ? newDate.toDateString() : 'No new date'}`
-        }
-
   
-
-
         try{
 
         await sendEmail({
@@ -260,8 +202,6 @@ async function notify_on_end_of_support_changes(product: string, vendor: string,
     catch(error){
         logger.error('Error sending email:', { error });
     }
-    
-
     
 }
 
@@ -410,27 +350,14 @@ return version_extracted_ret;
 
 }
 
-function isType1Product(productName: string): productName is Type1Products {
-    return ['Metadefender_Core', 'OCMv7', 'Metadefender_Kiosk', 'Metadefender_Vault', 'Metadefender_Gateway_Email_Security', 'Metadefender_Icap_Server', 'Metadefender_MFT', 'Metadefender_Cloud'].includes(productName);
-}
 
 async function notify_new_version(newVersion: VersionData, users_array?: any) {
     
     // Compare relevant fields
     
     
-        const emailBody = {
-            name:'Team',
-            subject: `Version Changes Detected: ${newVersion.ProductName.replace(/_/g, ' ')}`,
-            row1: `Hey Team`,
-            row2: `A new version has been detected for ${newVersion.ProductName.replace(/_/g, ' ')}`,
-            row3: `Version:`,
-            row4: ``,
-            row5: `${newVersion.VersionName}`,
-            row6: `Release Date:`,
-            row7: `${newVersion.ReleaseDate? newVersion.ReleaseDate.toDateString() : 'No release date'}`,
-          
-        }
+        const emailBody = EmailBodyCreator('Team', `Version Changes Detected: ${newVersion.ProductName.replace(/_/g, ' ')}`, `Hey Team`, `A new version has been detected for ${newVersion.ProductName.replace(/_/g, ' ')}`, `Version:`, ``, `${newVersion.VersionName}`, `Release Date:`, `${newVersion.ReleaseDate? newVersion.ReleaseDate.toDateString() : 'No release date'}`)
+       
 
         try{
 
@@ -535,24 +462,7 @@ async function sendEmail({
     }
   }
   
-  // Modify the getMilliseconds function to handle case-sensitivity
-  const getMilliseconds = (frequency: string) => {
-    const conversions = {
-      'HOURS': 3600000,
-      'DAYS': 86400000,
-      'MONTHS': 2629746000,
-      'Hours': 3600000,
-      'Days': 86400000,
-      'Months': 604800000,
-    };
-    
-    const result = conversions[frequency as keyof typeof conversions];
-    if (!result) {
-      console.error('Invalid frequency:', frequency);
-      return 0;
-    }
-    return result;
-  };
+ 
 
 
 

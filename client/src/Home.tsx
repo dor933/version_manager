@@ -5,7 +5,7 @@ import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
 import DrawerComponent from './Drawer';
 import Table from './Home_Components/Table';
-import { useAuth } from './UseContext/MainAuth';
+import { useMain } from './UseContext/MainContext';
 import { useEffect } from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
 import Report from './Home_Components/Report';
@@ -20,11 +20,10 @@ export default function Home() {
 
   
   
-const { versions, setVersions, setOpenDialog } = useAuth();
+const { versions, setVersions, setOpenDialog } = useMain();
 const drawerWidth = 240;
 const [open, setOpen] = React.useState(false);
 const [distinctVendors, setDistinctVendors] = React.useState<string[]>([]);
-const [ispopupopen, setIsPopupOpen] = React.useState(false);
 const [lastSync, setLastSync] = React.useState<string>('');
 const [finishedSyncing, setFinishedSyncing] = React.useState(false);
 const [failedSyncing, setFailedSyncing] = React.useState(false);

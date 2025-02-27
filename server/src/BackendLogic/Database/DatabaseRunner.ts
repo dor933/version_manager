@@ -1,11 +1,11 @@
 import axios from 'axios';
-import { notify_on_end_of_support, notify_on_end_of_support_changes, notify_new_version, extract_versions_from_json,extract_fortra_versions_to_json, extract_Opswat_Key_Indexes } from '../Functions';
-import { parseDate } from '../Functions';
+import { notify_on_end_of_support, notify_on_end_of_support_changes, notify_new_version, extract_versions_from_json,extract_fortra_versions_to_json, extract_Opswat_Key_Indexes } from '../Functions/LogicFunctions';
+import { parseDate } from '../Functions/LogicFunctions';
 import { DataStructure, VersionData } from '../../Types/MainDataTypes';
 const Data=require('../../../Data.json') as DataStructure;
 import { logger } from '../index';
 import { version_extracted } from '../../Types/WebTypes';
-import { extract_fortra_versions } from '../Functions';
+import { extract_fortra_versions } from '../Functions/LogicFunctions';
 import { Sequelize } from 'sequelize';
 import { User, UserChosenProduct, Vendor, Product, Version, Module, Issue } from './ORM';
 import { sequelize } from './ORM';
@@ -242,9 +242,6 @@ class Database {
     }
 
 
-
-    
-  
     
    async UpdateRecord(table: string, columns: string[], values: any[], whereColumn: string[], whereValue: any[]): Promise<boolean> {
         try {

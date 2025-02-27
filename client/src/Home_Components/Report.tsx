@@ -4,13 +4,14 @@ import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import { useAuth } from '../UseContext/MainAuth';
+import { useMain } from '../UseContext/MainContext';
 import { Box, FormControl, Grid, InputLabel, MenuItem, Select, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { z } from 'zod';
 import CancelIcon from '@mui/icons-material/Cancel';
 import ImageHandler from '../Help_Components/ImageHandler';
 import Popup from '../Help_Components/Popup';
+import GenericSelect from '../Help_Components/GenericSelect';
 import { apiService } from '../API/apiService';
 
 const severities = ['Low', 'Medium', 'High','Urgent'];
@@ -23,7 +24,7 @@ interface ReportProps {
 
 
 export default function FormDialog({versions, productsandmodules}: ReportProps) {
-  const { opendialog, setOpenDialog } = useAuth();
+  const { opendialog, setOpenDialog } = useMain();
   const [vendor, setVendor] = useState('');
   const [products, setProducts] = useState([]);
   const [singleproduct, setSingleProduct] = useState('');
@@ -234,19 +235,8 @@ const handlePopup = (title: string, issucceeded: boolean, mainMessage: string, b
                 <Grid item xs={4}>
                 <FormControl sx={{ width: '100%' }}>
                   <InputLabel id="module-label">Module</InputLabel>
-                  <Select 
-                    labelId="module-label"
-                    label="Module"
-                    value={chosenmodule}
-                    sx={{width:'100%', fontFamily:'Kumbh Sans', fontWeight:'500', fontSize:'14px', color:'#152259'}}
-                    required
-                    onChange={(e) => setChosenModule(e.target.value)}
-                    disabled={ispopupopen}
-                  >
-                    {modules.map((module: any) => (
-                      <MenuItem value={module.ModuleName}>{module.ModuleName}</MenuItem>
-                    ))}
-                  </Select>
+                  <GenericSelect singleitem={chosenmodule} isitemdisabled={ispopupopen} ispopupopen={ispopupopen} setSingleItem={setChosenModule} options={modules}/>
+            
                 </FormControl>
 
 
@@ -254,21 +244,8 @@ const handlePopup = (title: string, issucceeded: boolean, mainMessage: string, b
                 <Grid item xs={8} style={{display:'flex', justifyContent:'flex-end', alignItems:'center', flexDirection:'row'}}>
                     <FormControl sx={{ width: '50%' }}>
                         <InputLabel id="product-label">Product</InputLabel>
-                        <Select 
-                            labelId="product-label"
-                            label="Product"
-                            value={singleproduct}
-                            sx={{width:'100%', fontFamily:'Kumbh Sans', fontWeight:'500', fontSize:'14px', color:'#152259'}}
-                            required
-                            disabled={isproductsdisabled || ispopupopen}
-                            onChange={(e) => setSingleProduct(e.target.value)}
-                        >
-                            {
-                              products.map((product: any) => (
-                                <MenuItem value={product}>{product.replace(/_/g, ' ')}</MenuItem>
-                              ))
-                            }
-                        </Select>
+                        <GenericSelect singleitem={singleproduct} isitemdisabled={isproductsdisabled} ispopupopen={ispopupopen} setSingleItem={setSingleProduct} options={products}/>
+                 
                     </FormControl>
                 </Grid>
             </Grid>
@@ -276,43 +253,18 @@ const handlePopup = (title: string, issucceeded: boolean, mainMessage: string, b
                 <Grid item xs={4}>
                 <FormControl sx={{ display:'flex', justifyContent:'flex-end', alignItems:'center', flexDirection:'row', width: '100%'}}>
                     <InputLabel id="Severity-label">Severity</InputLabel>
-                    <Select 
-                        labelId="Severity-label"
-                        label="Severity"
-                        
-                        value={severity}
-                        sx={{width:'100%', fontFamily:'Kumbh Sans', fontWeight:'500', fontSize:'14px', color:'#152259'}}
-                        required
-                        onChange={(e) => setSeverity(e.target.value)}
-                        disabled={ispopupopen}
-                    >
-                        {
-                          severities.map((severity) => (
-                            <MenuItem value={severity}>{severity}</MenuItem>
-                          ))
-                        }
-                    </Select>
+                    <GenericSelect singleitem={severity} isitemdisabled={ispopupopen} ispopupopen={ispopupopen} setSingleItem={setSeverity} options={severities}/>
+              
                   </FormControl>
 
                 </Grid>
                 <Grid item xs={8} style={{display:'flex', justifyContent:'flex-end', alignItems:'center', flexDirection:'row'}}>
                     <FormControl sx={{ width: '50%' }}>
                         <InputLabel id="version-label">Version</InputLabel>
-                        <Select 
-                            labelId="version-label"
-                            label="Version"
-                            value={singleversion}
-                            sx={{width:'100%', fontFamily:'Kumbh Sans', fontWeight:'500', fontSize:'14px', color:'#152259'}}
-                            required
-                            disabled={isversiondisabled || ispopupopen}
-                            onChange={(e) => setSingleVersion(e.target.value)}
-                        >
-                            {
-                              productVersions.map((version: any) => (
-                                <MenuItem value={version}>{version}</MenuItem>
-                              ))
-                            }
-                        </Select>
+
+                        <GenericSelect singleitem={singleversion} isitemdisabled={isversiondisabled} ispopupopen={ispopupopen} setSingleItem={setSingleVersion} options={productVersions}/>
+
+                  
                     </FormControl>
                 </Grid>
                 </Grid>
