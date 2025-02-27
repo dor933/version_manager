@@ -1,6 +1,5 @@
 import express from 'express';
 import { db, logger } from '../../BackendLogic/index';
-import { User } from '../../BackendLogic/Database/ORM';
 
 const router = express.Router();
 
