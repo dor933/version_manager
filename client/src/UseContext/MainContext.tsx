@@ -4,7 +4,7 @@ import * as React from 'react';
 import { createContext, useContext, useState } from 'react';
 import { VersionData } from '../Types/MainDataTypes';
 
-const AuthContext = createContext<{
+const MainContext = createContext<{
   versions: VersionData[] | null;
   setVersions: React.Dispatch<React.SetStateAction<VersionData[] | null>>;
   opendialog: boolean;
@@ -32,15 +32,15 @@ const AuthContext = createContext<{
 
 });
 
-export const useAuth = () => useContext(AuthContext);
+export const useMain = () => useContext(MainContext);
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+export const MainProvider = ({ children }: { children: React.ReactNode }) => {
   const [versions, setVersions] = useState<VersionData[] | null>(null);
   const [opendialog, setOpenDialog] = useState<boolean>(false);
   const [productsandmodules, setProductsAndModules] = useState<any>(null);
   const [isphotosopen, setIsPhotosOpen] = useState<boolean>(false);
 
-  return <AuthContext.Provider value={{ 
+  return <MainContext.Provider value={{ 
     versions, 
     setVersions, 
     opendialog, 
@@ -53,7 +53,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
 
 
-  }}>{children}</AuthContext.Provider>;
+  }}>{children}</MainContext.Provider>;
 };
-
 

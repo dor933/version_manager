@@ -7,7 +7,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Grid from '@mui/material/Grid';
 import Filter from '../Help_Components/Filter';
 import CustomizedSelects from '../Help_Components/CustomizeSelect';
@@ -22,96 +22,26 @@ import { VersionData } from '../Types/MainDataTypes';
 import { styled } from '@mui/material/styles';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import { sortedVersions } from '../Help Functions/Sorting';
-
-interface Column {
-  id: 'VersionName' | 'ProductName' | 'VendorName' | 'ReleaseDate' | 'EndOfSupportDate' | 'Extended_Support_End_Date' | 'LevelOfSupport' 
-  label: string;
-  minWidth?: number;
-  align?: 'right' | 'left' | 'center';
-  format_number?: (value: number) => string;
-  format_date?: (value: string) => string;
-  format_product?: (value: string) => string;
-}
-
-const columns: readonly Column[] = [
-  { id: 'VersionName', label: 'Version Name', minWidth: 140, align:'left', format_product: (value: string) => value.replace(/_/g, ' ') },
-  { id: 'ProductName', label: 'Product Name', minWidth: 100, align:'left', format_product: (value: string) => value.replace(/_/g, ' ') },
-  {
-    id: 'VendorName',
-    label: 'Vendor Name',
-    minWidth: 100,
-    
-    
-    align: 'left',
-    format_number: (value: number) => value.toLocaleString('en-US'),
-  },
-  {
-    id: 'ReleaseDate',
-    label: 'Version Release Date',
-    minWidth: 140,
-    align: 'left',
-    format_date: (value: string) => new Date(value).toLocaleString('he-IL').split(',')[0]
-  },
-  {
-    id:'LevelOfSupport',
-    label:'Level Of Support',
-    minWidth:140,
-    align:'left',
-    format_number: (value: number) => value.toLocaleString('en-US'),
-  },
-  {
-    id: 'EndOfSupportDate',
-    label: 'Version EOL',
-    minWidth: 140,
-    align: 'left',
-    format_date: (value: string) => new Date(value).toLocaleString('he-IL').split(',')[0]
-  },
-  {
-    id: 'Extended_Support_End_Date',
-    label: 'Version Partial EOL',
-    minWidth: 140,
-    align: 'left',
-    format_date: (value: string) => new Date(value).toLocaleString('he-IL').split(',')[0]
-  },
-
-
-
-];
-
-const AnimatedGrid = styled(Grid)<{ animate?: boolean }>`
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateX(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-
-  animation: ${({ animate }) => animate ? 'fadeIn 0.5s ease-out' : 'none'};
-`;
+import { columns, AnimatedGrid } from '../css/TableColumns';
 
 type Order = 'asc' | 'desc';
+
+
 
 export default function StickyHeadTable({versions, distinctVendors, productsandmodules }: {versions: VersionData[], distinctVendors: string[], productsandmodules: any[]}) {
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [filteredVersions, setFilteredVersions] = React.useState(versions);
-  const [searchvalue, setSearchvalue] = React.useState('');
-  const [chosenversion, setChosenversion] = React.useState<any>(versions? versions[0]: null);
+  const [SearchValue, setSearchValue] = React.useState('');
+  const [ChosenVersion, setChosenVersion] = React.useState<any>(versions ? versions[0] : null);
   const [vendor, setVendor] = React.useState('');
   const [page, setPage] = React.useState(0);
-  const [issuesdialog, setIssuesDialog] = React.useState(false);
-  const [chosenproduct, setChosenProduct] = React.useState<any>(null);
+  const [IssuesDialog, setIssuesDialog] = React.useState(false);
+  const [ChosenProduct, setChosenProduct] = React.useState<any>(null);
   const prevVendorRef = React.useRef(vendor);
-  const prevSearchRef = React.useRef(searchvalue);
+  const prevSearchRef = React.useRef(SearchValue);
   const [animate, setAnimate] = React.useState(false);
   const [order, setOrder] = React.useState<Order>('desc');
   const [orderBy, setOrderBy] = React.useState<keyof VersionData>('ReleaseDate');
-
-  
-
 
   
  
@@ -123,13 +53,13 @@ export default function StickyHeadTable({versions, distinctVendors, productsandm
 
     console.log('not returned')
   
-    if (searchvalue !== '') {
+    if (SearchValue !== '') {
       // Filter by search + vendor
       let newFiltered = versions.filter((version: any) => {
         const matchesSearch =
-          version.VersionName?.toLowerCase().includes(searchvalue.toLowerCase()) ||
-          version.ProductName?.toLowerCase().includes(searchvalue.toLowerCase()) ||
-          version.VendorName?.toLowerCase().includes(searchvalue.toLowerCase());
+          version.VersionName?.toLowerCase().includes(SearchValue.toLowerCase()) ||
+          version.ProductName?.toLowerCase().includes(SearchValue.toLowerCase()) ||
+          version.VendorName?.toLowerCase().includes(SearchValue.toLowerCase());
   
         const matchesVendor = vendor ? version.VendorName === vendor : true;
         return matchesSearch && matchesVendor;
@@ -144,40 +74,40 @@ export default function StickyHeadTable({versions, distinctVendors, productsandm
       filtered_versions=filtered_versions.sort((a: any, b: any) => new Date(b.ReleaseDate).getTime() - new Date(a.ReleaseDate).getTime());  
       setFilteredVersions(filtered_versions);
       setChosenProduct(productsandmodules?.find((product: any) => product.ProductName === filtered_versions[0].ProductName))
-      if(chosenversion?.VendorName!==vendor){
-        setChosenversion(filtered_versions[0])
+      if(ChosenVersion?.VendorName!==vendor){
+        setChosenVersion(filtered_versions[0])
         setPage(0)
       }
     } else {
       // No search, no vendor
       let filtered_versions= versions.sort((a: any, b: any) => new Date(b.ReleaseDate).getTime() - new Date(a.ReleaseDate).getTime());  
       setFilteredVersions(filtered_versions);
-      setChosenversion(filtered_versions[0])
+      setChosenVersion(filtered_versions[0])
       setChosenProduct(productsandmodules?.find((product: any) => product.ProductName === filtered_versions[0].ProductName))
     }
-  }, [searchvalue, vendor, versions]);
+  }, [SearchValue, vendor, versions]);
   
 useEffect(() => {
   // Compare old vs new
-  if (prevVendorRef.current !== vendor || prevSearchRef.current !== searchvalue) {
+  if (prevVendorRef.current !== vendor || prevSearchRef.current !== SearchValue) {
     setPage(0);
   }
   // Update refs for next render
   prevVendorRef.current = vendor;
-  prevSearchRef.current = searchvalue;
-}, [vendor, searchvalue]);
+  prevSearchRef.current = SearchValue;
+}, [vendor, SearchValue]);
 
 
   
   const handleRowClick = (row: any) => {
 
     console.log('row', row);
-    setChosenversion(row);
+    setChosenVersion(row);
      const product = productsandmodules?.find((product: any) => product.ProductName === row.ProductName);
      if(product){
       setChosenProduct(product);
      }
-     if (chosenversion) {
+     if (ChosenVersion) {
       setAnimate(true);
       const timer = setTimeout(() => setAnimate(false), 500);
       return () => clearTimeout(timer);
@@ -213,7 +143,7 @@ useEffect(() => {
 
   return (
     <>
-    <Issues chosenproduct={chosenproduct} issuesdialog={issuesdialog} setIssuesDialog={setIssuesDialog} chosenversion={chosenversion} />
+    <Issues chosenproduct={ChosenProduct} issuesdialog={IssuesDialog} setIssuesDialog={setIssuesDialog} chosenversion={ChosenVersion} />
     
               <Grid container item xs={9} style={{display:'flex', justifyContent:'flex-start', alignItems:'center', flexDirection:'row'}}>
 
@@ -237,7 +167,7 @@ useEffect(() => {
 
               <Grid item xs={7} style={{display:'flex', justifyContent:'flex-start', alignItems:'center', flexDirection:'row'}}>
 
-                <Filter filtervalue={searchvalue} setFiltervalue={setSearchvalue}/>
+                <Filter filtervalue={SearchValue} setFiltervalue={setSearchValue}/>
               </Grid>
    
 
@@ -421,23 +351,23 @@ vendor==='Fortra' ?
 null
 }
 <Typography style={{color:"#424242", fontSize:'16px', fontWeight:'700', lineHeight:'16px', letterSpacing:'0.2px', textAlign:'center', fontFamily:'Kumbh Sans'}}>
- {chosenversion?.ProductName.replace(/_/g, ' ') || 'Product Name'}
+ {ChosenVersion?.ProductName.replace(/_/g, ' ') || 'Product Name'}
 </Typography>
 <Typography style={{color:"#424242", fontSize:'14px', fontWeight:'500', lineHeight:'16px', letterSpacing:'0.2px', textAlign:'center', fontFamily:'Kumbh Sans'}}>
- {chosenversion?.VersionName || 'Version Name'}
+ {ChosenVersion?.VersionName || 'Version Name'}
 </Typography>
 
 <Grid container xs={8} style={{display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'row'}}>
 
   <Grid item xs={2} style={{display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'row', cursor:'pointer'}} onClick={() => {
   
-       chosenversion?.VendorName==='Fortra' ? window.open('https://my.goanywhere.com/webclient/Login.xhtml', '_blank') : window.open('https://my.opswat.com/', '_blank')
+       ChosenVersion?.VendorName==='Fortra' ? window.open('https://my.goanywhere.com/webclient/Login.xhtml', '_blank') : window.open('https://my.opswat.com/', '_blank')
   }} >
 
     <HomeSVG />
   </Grid>
   <Grid item xs={2} style={{display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'row', cursor:'pointer'}} onClick={() => {
-      window.open(chosenversion?.FullReleaseNotes, '_blank', 'noreferrer');
+      window.open(ChosenVersion?.FullReleaseNotes, '_blank', 'noreferrer');
   }}>
   
   <InfoSVG />
@@ -445,7 +375,7 @@ null
   </Grid>
   <Grid item xs={2} style={{display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'row', cursor:'pointer'}} onClick={() => {
  
-  chosenversion?.VendorName==='Fortra' ? window.open('mailto:goanywhere.support@helpsystems.com', '_blank') : window.open('mailto:support@opswat.com', '_blank')
+  ChosenVersion?.VendorName==='Fortra' ? window.open('mailto:goanywhere.support@helpsystems.com', '_blank') : window.open('mailto:support@opswat.com', '_blank')
   }} >
 
 <EmailSVG />
@@ -470,7 +400,7 @@ null
       Known Issues
     </Typography>
     <Typography style={{color:"#A7A7A7", fontSize:'16px', fontWeight:'500', lineHeight:'16px', letterSpacing:'0.2px', fontFamily:'Kumbh Sans',alignSelf:'center',marginTop:'5px'}}>  
-      {productsandmodules?.find((product: any) => product.ProductName === chosenversion?.ProductName)?.issues?.filter((issue: any) => issue.VersionId === chosenversion?.VersionId).length}
+      {productsandmodules?.find((product: any) => product.ProductName === ChosenVersion?.ProductName)?.issues?.filter((issue: any) => issue.VersionId === ChosenVersion?.VersionId).length}
     </Typography>
   </Grid>
   <Grid item xs={4} style={{display:'flex', justifyContent:'flex-start', alignItems:'center', flexDirection:'column', gap:'10px', minHeight:'100px'}}>
@@ -492,12 +422,12 @@ null
 
 <Grid container xs={8} style={{display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'row', marginTop:'20px',paddingLeft:'10px'}}>
   
-<Box  sx={{display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'50px', paddingLeft:'25px', paddingRight:'25px',zIndex:'0', paddingTop:'25px', paddingBottom:'25px', backgroundColor:'#F5F5F5', width:'50px', height:'50px', cursor:'pointer'}} onClick={() => {setVendor('Fortra'); setSearchvalue(''); setPage(0);}}>
+<Box  sx={{display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'50px', paddingLeft:'25px', paddingRight:'25px',zIndex:'0', paddingTop:'25px', paddingBottom:'25px', backgroundColor:'#F5F5F5', width:'50px', height:'50px', cursor:'pointer'}} onClick={() => {setVendor('Fortra'); setSearchValue(''); setPage(0);}}>
 
 <img alt='fortra' src='https://static.fortra.com/hs-logo.png' style={{width:'80px', height:'20px'}}/>
 
 </Box>
-<Box sx={{display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'50px', paddingLeft:'25px', paddingRight:'25px', paddingTop:'25px', paddingBottom:'25px', backgroundColor:'#F5F5F5', width:'50px', height:'50px',marginLeft:'-30px',zIndex:'0', cursor:'pointer'}} onClick={() => {setVendor('OPSWAT'); setSearchvalue(''); setPage(0);}}>
+<Box sx={{display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'50px', paddingLeft:'25px', paddingRight:'25px', paddingTop:'25px', paddingBottom:'25px', backgroundColor:'#F5F5F5', width:'50px', height:'50px',marginLeft:'-30px',zIndex:'0', cursor:'pointer'}} onClick={() => {setVendor('OPSWAT'); setSearchValue(''); setPage(0);}}>
 
 <img alt='opswat' src='https://cybersecurity-excellence-awards.com/wp-content/uploads/2022/01/507133.png' style={{width:'85px', height:'15px'}}/>
 

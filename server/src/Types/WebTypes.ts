@@ -1,7 +1,5 @@
 
-type version_extracted= [version_name:string, release_date: string | null, end_of_support_date:string | null, level_of_support?: string, extended_support_end_date? : string,eosl_start_date?:string]
-
-
+type VersionExtracted= [VersionName:string, ReleaseDate: string | null, EndOfSupportDate:string | null, LevelOfSupport?: string, ExtendedSupportEndDate? : string,EoslStartDate?:string]
 
 type Type1Products = 
     'Metadefender_Core' | 
@@ -27,4 +25,4 @@ type Type2Products =
     'Metadefender_Central_Management';
 
 
-export type {version_extracted, Type1Products, Type2Products}
+export type {VersionExtracted, Type1Products, Type2Products}
