@@ -12,13 +12,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Database = void 0;
 const axios_1 = __importDefault(require("axios"));
-const Functions_1 = require("../Functions");
-const Functions_2 = require("../Functions");
+const LogicFunctions_1 = require("../Functions/LogicFunctions");
+const LogicFunctions_2 = require("../Functions/LogicFunctions");
 const Data = require('../../../Data.json');
 const index_1 = require("../index");
-const Functions_3 = require("../Functions");
+const LogicFunctions_3 = require("../Functions/LogicFunctions");
 const ORM_1 = require("./ORM");
 const ORM_2 = require("./ORM");
 class Database {
@@ -27,8 +26,8 @@ class Database {
     }
     HandleData() {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a, _b, _c;
-            let listoffortraversions = yield (0, Functions_1.extract_fortra_versions_to_json)(Data.Vendors[1].JSON_URL);
+            var _a, _b, _c, _d, _e;
+            let listoffortraversions = yield (0, LogicFunctions_1.extract_fortra_versions_to_json)(Data.Vendors[1].JSON_URL);
             try {
                 for (const vendor of Data.Vendors) {
                     yield ORM_1.Vendor.findOrCreate({
@@ -59,18 +58,19 @@ class Database {
                         }
                         let listofversions = [];
                         if (vendor.VendorName === 'Fortra') {
-                            listofversions = yield (0, Functions_3.extract_fortra_versions)(product.ProductName, listoffortraversions);
+                            listofversions = yield (0, LogicFunctions_3.extract_fortra_versions)(product.ProductName, listoffortraversions);
+                            console.log('listofversions fortra', listofversions);
                         }
                         else {
                             if (product.BASE_URL) {
                                 try {
-                                    const ids = yield (0, Functions_1.extract_Opswat_Key_Indexes)(product.JSON_URL);
+                                    const ids = yield (0, LogicFunctions_1.extract_Opswat_Key_Indexes)(product.JSON_URL);
                                     console.log('id', ids);
                                     const merged_listofversions = [];
                                     for (const index of ids) {
                                         const jsonRequest = product.BASE_URL + index;
                                         let listofversionstemp = yield axios_1.default.get(jsonRequest);
-                                        listofversionstemp = (0, Functions_1.extract_versions_from_json)(listofversionstemp, vendor.VendorName, product.ProductName);
+                                        listofversionstemp = (0, LogicFunctions_1.extract_versions_from_json)(listofversionstemp, vendor.VendorName, product.ProductName);
                                         merged_listofversions.push(...listofversionstemp);
                                     }
                                     listofversions = merged_listofversions;
@@ -82,7 +82,7 @@ class Database {
                             }
                             else {
                                 listofversions = yield axios_1.default.get(product.JSON_URL);
-                                listofversions = (0, Functions_1.extract_versions_from_json)(listofversions, vendor.VendorName, product.ProductName);
+                                listofversions = (0, LogicFunctions_1.extract_versions_from_json)(listofversions, vendor.VendorName, product.ProductName);
                             }
                         }
                         //let us know how new is the version (the smaller the index the newer the version)
@@ -90,11 +90,15 @@ class Database {
                         for (const version of listofversions) {
                             let UsersArray = yield this.GetUsersArray(product.ProductName, vendor.VendorName);
                             let VersionNameExtracted = version[0];
-                            let ReleaseDate_DateTime = (0, Functions_2.parseDate)(version[1]);
-                            let EndOfSupportDate_DateTime = (0, Functions_2.parseDate)(version[2]);
+                            if (!VersionNameExtracted) {
+                                index_1.logger.warn(`Skipping version with undefined name for product ${product.ProductName}`);
+                                continue; // Skip this version and continue with the next one
+                            }
+                            let ReleaseDate_DateTime = (0, LogicFunctions_2.parseDate)(version[1]);
+                            let EndOfSupportDate_DateTime = (0, LogicFunctions_2.parseDate)(version[2]);
                             let LevelOfSupport = version[3];
-                            let ExtendedEndOfSupportDate = (0, Functions_2.parseDate)(version[4]);
-                            let EOSL_Start_Date = (0, Functions_2.parseDate)(version[5]);
+                            let ExtendedEndOfSupportDate = (0, LogicFunctions_2.parseDate)(version[4]);
+                            let EOSL_Start_Date = (0, LogicFunctions_2.parseDate)(version[5]);
                             let release_notes;
                             if (vendor.VendorName === 'OPSWAT') {
                                 if (ProductVersionIndex !== 0) {
@@ -127,6 +131,17 @@ class Database {
                             const [versionRecord, created] = yield ORM_1.Version.findOrCreate({
                                 where: {
                                     VersionName: VersionData.VersionName,
+                                    ProductId: (_a = (yield ORM_1.Product.findOne({
+                                        where: {
+                                            ProductName: VersionData.ProductName,
+                                            VendorId: vendor.VendorId
+                                        }
+                                    }))) === null || _a === void 0 ? void 0 : _a.ProductId,
+                                    VendorId: (_b = (yield ORM_1.Vendor.findOne({
+                                        where: {
+                                            VendorName: vendor.VendorName
+                                        }
+                                    }))) === null || _b === void 0 ? void 0 : _b.VendorId
                                 },
                                 include: [{
                                         model: ORM_1.Product,
@@ -144,17 +159,17 @@ class Database {
                                     }
                                 ],
                                 defaults: {
-                                    ProductId: ((_a = (yield ORM_1.Product.findOne({
+                                    ProductId: ((_c = (yield ORM_1.Product.findOne({
                                         where: {
                                             ProductName: VersionData.ProductName,
                                             VendorId: vendor.VendorId
                                         }
-                                    }))) === null || _a === void 0 ? void 0 : _a.ProductId) || null,
-                                    VendorId: ((_b = (yield ORM_1.Vendor.findOne({
+                                    }))) === null || _c === void 0 ? void 0 : _c.ProductId) || null,
+                                    VendorId: ((_d = (yield ORM_1.Vendor.findOne({
                                         where: {
                                             VendorName: vendor.VendorName
                                         }
-                                    }))) === null || _b === void 0 ? void 0 : _b.VendorId) || null,
+                                    }))) === null || _d === void 0 ? void 0 : _d.VendorId) || null,
                                     ReleaseDate: VersionData.ReleaseDate,
                                     EndOfSupportDate: VersionData.EndOfSupportDate,
                                     LevelOfSupport: VersionData.LevelOfSupport,
@@ -165,15 +180,15 @@ class Database {
                                 }
                             });
                             if (!created) {
-                                if (((_c = versionRecord.EndOfSupportDate) === null || _c === void 0 ? void 0 : _c.getTime()) !== (EndOfSupportDate_DateTime === null || EndOfSupportDate_DateTime === void 0 ? void 0 : EndOfSupportDate_DateTime.getTime())) {
+                                if (((_e = versionRecord.EndOfSupportDate) === null || _e === void 0 ? void 0 : _e.getTime()) !== (EndOfSupportDate_DateTime === null || EndOfSupportDate_DateTime === void 0 ? void 0 : EndOfSupportDate_DateTime.getTime())) {
                                     yield versionRecord.update({
                                         EndOfSupportDate: EndOfSupportDate_DateTime
                                     });
-                                    yield (0, Functions_1.notify_on_end_of_support_changes)(product.ProductName, vendor.VendorName, VersionData.VersionName, versionRecord.EndOfSupportDate, EndOfSupportDate_DateTime, UsersArray);
+                                    yield (0, LogicFunctions_1.notify_on_end_of_support_changes)(product.ProductName, vendor.VendorName, VersionData.VersionName, versionRecord.EndOfSupportDate, EndOfSupportDate_DateTime, UsersArray);
                                 }
                             }
                             else {
-                                yield (0, Functions_1.notify_new_version)(VersionData, UsersArray);
+                                yield (0, LogicFunctions_1.notify_new_version)(VersionData, UsersArray);
                             }
                             if (EndOfSupportDate_DateTime) {
                                 let daysUntilExtendedEOS;
@@ -182,7 +197,7 @@ class Database {
                                     daysUntilExtendedEOS = Math.ceil((ExtendedEndOfSupportDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
                                 }
                                 if ((daysUntilEOS <= 30 && daysUntilEOS >= 0) || daysUntilExtendedEOS && daysUntilExtendedEOS < 14) {
-                                    (0, Functions_1.notify_on_end_of_support)(VersionData, daysUntilEOS, daysUntilExtendedEOS && daysUntilExtendedEOS, UsersArray);
+                                    (0, LogicFunctions_1.notify_on_end_of_support)(VersionData, daysUntilEOS, daysUntilExtendedEOS && daysUntilExtendedEOS, UsersArray);
                                 }
                             }
                             ProductVersionIndex++;
@@ -559,4 +574,4 @@ class Database {
         });
     }
 }
-exports.Database = Database;
+exports.default = Database;

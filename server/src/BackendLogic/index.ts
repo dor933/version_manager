@@ -1,17 +1,16 @@
 import nodecron from 'node-cron';
-import { Database } from './Database/DatabaseRunner';
-import { sendEmail } from './Functions/LogicFunctions';
+import { SendEmail } from './Functions/LogicFunctions';
 import winston from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
 import { startServer } from '../api/Startup';
 import { syncModels } from './Database/ORM';
+import Database from './Database/DatabaseRunner';
 let errorCount=0;
 let croninterval:any= process.env.CRON_INTERVAL;
 let unit=process.env.UNIT;
 let isinit=false;
 
 // Configure logger with new file for each day
-
 
 
 const logger = winston.createLogger({
@@ -66,6 +65,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // Configuration
+console.log('trying to init db');
 const db = new Database();
 let cronJob: nodecron.ScheduledTask;
 
@@ -135,7 +135,7 @@ function startCronJob() {
                        "row6":"Please check the logs for more details.",
                        "row7":"",
                     }
-                    await sendEmail({
+                    await SendEmail({
                         subject: `Error in Version Manager`,
                         content: emailBody,
                         vendor_name:'NA'

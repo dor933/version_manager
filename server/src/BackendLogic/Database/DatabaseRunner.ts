@@ -1,17 +1,15 @@
-import axios from 'axios';
-import { notify_on_end_of_support, notify_on_end_of_support_changes, notify_new_version, extract_versions_from_json,extract_fortra_versions_to_json, extract_Opswat_Key_Indexes } from '../Functions/LogicFunctions';
-import { parseDate } from '../Functions/LogicFunctions';
+
+import { NotifyOnEndOfSupport, NotifyOnEndOfSupportChanges, NotifyNewVersion, ExtractVersionsFromJson,ExtractFortraVersionsToJson, ExtractOpswatKeyIndexes, ExtractFortraVersions } from '../Functions/LogicFunctions';
+import { ParseDate } from '../Functions/LogicFunctions';
 import { DataStructure, VersionData } from '../../Types/MainDataTypes';
 const Data=require('../../../Data.json') as DataStructure;
 import { logger } from '../index';
-import { version_extracted } from '../../Types/WebTypes';
-import { extract_fortra_versions } from '../Functions/LogicFunctions';
+import { VersionExtracted } from '../../Types/WebTypes';
 import { Sequelize } from 'sequelize';
 import { User, UserChosenProduct, Vendor, Product, Version, Module, Issue } from './ORM';
 import { sequelize } from './ORM';
-
-
-class Database {
+import axios from 'axios';
+ class Database {
 
     sequelize: Sequelize;
 
@@ -25,8 +23,7 @@ class Database {
 
     async HandleData() : Promise<boolean | any> {
 
-        let listoffortraversions= await extract_fortra_versions_to_json(Data.Vendors[1].JSON_URL!);
-
+        let listoffortraversions= await ExtractFortraVersionsToJson(Data.Vendors[1].JSON_URL!);
 
         try{
 
@@ -66,24 +63,24 @@ class Database {
 
                 
 
-                let listofversions:version_extracted[]=[]
+                let listofversions:VersionExtracted[]=[]
 
                 if(vendor.VendorName==='Fortra'){
-                    listofversions= await extract_fortra_versions(product.ProductName, listoffortraversions);
+                    listofversions= await ExtractFortraVersions(product.ProductName, listoffortraversions);
                 }
 
                 else{
                    
                     if(product.BASE_URL){
                         try {
-                            const ids = await extract_Opswat_Key_Indexes(product.JSON_URL!);
+                            const ids = await ExtractOpswatKeyIndexes(product.JSON_URL!);
                             console.log('id', ids);
                             const merged_listofversions:any[]=[]
                             
                             for(const index of ids){
                                 const jsonRequest = product.BASE_URL! + index;
                                 let listofversionstemp:any= await axios.get(jsonRequest);
-                                listofversionstemp= extract_versions_from_json(listofversionstemp, vendor.VendorName, product.ProductName);
+                                listofversionstemp= ExtractVersionsFromJson(listofversionstemp, vendor.VendorName, product.ProductName);
                                 merged_listofversions.push(...listofversionstemp);
                             }
                             listofversions= merged_listofversions;
@@ -94,7 +91,7 @@ class Database {
                     }
                     else{
                         listofversions = await axios.get(product.JSON_URL!)
-                        listofversions = extract_versions_from_json(listofversions, vendor.VendorName, product.ProductName)
+                        listofversions = ExtractVersionsFromJson(listofversions, vendor.VendorName, product.ProductName)
                     }
             
                 }
@@ -106,11 +103,15 @@ class Database {
                     
                     let UsersArray= await this.GetUsersArray(product.ProductName, vendor.VendorName);
                     let VersionNameExtracted= version[0]
-                    let ReleaseDate_DateTime = parseDate(version[1]!);
-                    let EndOfSupportDate_DateTime = parseDate(version[2]!) 
+                    if (!VersionNameExtracted) {
+                        logger.warn(`Skipping version with undefined name for product ${product.ProductName}`);
+                        continue; // Skip this version and continue with the next one
+                    }
+                    let ReleaseDate_DateTime = ParseDate(version[1]!);
+                    let EndOfSupportDate_DateTime = ParseDate(version[2]!) 
                     let LevelOfSupport= version[3]
-                    let ExtendedEndOfSupportDate= parseDate(version[4]!);
-                    let EOSL_Start_Date= parseDate(version[5]!);
+                    let ExtendedEndOfSupportDate= ParseDate(version[4]!);
+                    let EOSL_Start_Date= ParseDate(version[5]!);
 
                     let release_notes:string|undefined;
 
@@ -153,7 +154,17 @@ class Database {
                     const [versionRecord, created] = await Version.findOrCreate({
                         where: {
                             VersionName: VersionData.VersionName,
-                          
+                            ProductId: (await Product.findOne({ 
+                                where: { 
+                                    ProductName: VersionData.ProductName, 
+                                    VendorId: vendor.VendorId 
+                                } 
+                            }))?.ProductId,
+                            VendorId: (await Vendor.findOne({ 
+                                where: { 
+                                    VendorName: vendor.VendorName 
+                                } 
+                            }))?.VendorId
                         },
                         include: [{
                             model: Product,
@@ -197,7 +208,7 @@ class Database {
                             await versionRecord.update({
                                 EndOfSupportDate: EndOfSupportDate_DateTime
                             });
-                            await notify_on_end_of_support_changes(
+                            await NotifyOnEndOfSupportChanges(
                                 product.ProductName,
                                 vendor.VendorName,
                                 VersionData.VersionName,
@@ -208,7 +219,7 @@ class Database {
                         }
                     }
                     else{
-                        await notify_new_version(VersionData, UsersArray);
+                        await NotifyNewVersion(VersionData, UsersArray);
                     }
 
                    if (EndOfSupportDate_DateTime) {
@@ -219,7 +230,7 @@ class Database {
                              daysUntilExtendedEOS= Math.ceil((ExtendedEndOfSupportDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
                         }
                         if((daysUntilEOS <= 30 && daysUntilEOS >= 0) || daysUntilExtendedEOS && daysUntilExtendedEOS <14){
-                         notify_on_end_of_support(VersionData, daysUntilEOS, daysUntilExtendedEOS && daysUntilExtendedEOS, UsersArray);
+                         NotifyOnEndOfSupport(VersionData, daysUntilEOS, daysUntilExtendedEOS && daysUntilExtendedEOS, UsersArray);
                         }
                     }
                     ProductVersionIndex++;
@@ -233,7 +244,7 @@ class Database {
     }
     catch(error){
 
-        logger.error('Error in HandleData', error);
+        logger.error('Error in handleData', error);
    
         return error;
     }
@@ -301,7 +312,7 @@ class Database {
         }
     }
 
-    async recordExists<T>(
+    async RecordExists<T>(
         model: any,
         where: object
     ): Promise<T | false> {
@@ -480,7 +491,7 @@ class Database {
         }
 
     async CheckUserExists(email: string): Promise<number | false> {
-        let user = await this.recordExists<User>(User, { email });
+        let user = await this.RecordExists<User>(User, { email });
         return user ? user.id : false;
     }
 
@@ -636,9 +647,7 @@ class Database {
     }
 }
 
+export default Database;
 
 
-
-
-export {  Database };
 

@@ -14,12 +14,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.db = exports.isinit = exports.sqlLogger = exports.logger = void 0;
 const node_cron_1 = __importDefault(require("node-cron"));
-const Db_1 = require("./Database/Db");
-const Functions_1 = require("./Functions");
+const LogicFunctions_1 = require("./Functions/LogicFunctions");
 const winston_1 = __importDefault(require("winston"));
 const winston_daily_rotate_file_1 = __importDefault(require("winston-daily-rotate-file"));
-const startup_1 = require("../api/startup");
+const Startup_1 = require("../api/Startup");
 const ORM_1 = require("./Database/ORM");
+const DatabaseRunner_1 = __importDefault(require("./Database/DatabaseRunner"));
 let errorCount = 0;
 let croninterval = process.env.CRON_INTERVAL;
 let unit = process.env.UNIT;
@@ -67,7 +67,8 @@ if (process.env.NODE_ENV !== 'production') {
     }));
 }
 // Configuration
-const db = new Db_1.Database();
+console.log('trying to init db');
+const db = new DatabaseRunner_1.default();
 exports.db = db;
 let cronJob;
 // Start the cron job
@@ -129,7 +130,7 @@ function startCronJob() {
                         "row6": "Please check the logs for more details.",
                         "row7": "",
                     };
-                    yield (0, Functions_1.sendEmail)({
+                    yield (0, LogicFunctions_1.sendEmail)({
                         subject: `Error in Version Manager`,
                         content: emailBody,
                         vendor_name: 'NA'
@@ -180,7 +181,7 @@ process.on('unhandledRejection', (reason) => {
         // Then start handling data
         yield db.HandleData();
         logger.info('Initiation finished successfully');
-        (0, startup_1.startServer)();
+        (0, Startup_1.startServer)();
         logger.info('Initiate version manager...');
         // Finally start the cron job
         startCronJob();

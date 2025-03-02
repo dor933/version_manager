@@ -2,17 +2,17 @@ import dotenv from 'dotenv';
 dotenv.config();
 import nodemailer from 'nodemailer';
 import { VersionData } from '../../Types/MainDataTypes';
-import { createEmailTemplate } from '../emailTemplate';
-import { version_extracted } from '../../Types/WebTypes';
+import { createEmailTemplate } from '../EmailTemplate';
+import { VersionExtracted } from '../../Types/WebTypes';
 import { isinit, logger } from '../index';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 import { db } from '../index';
-import { EmailBodyCreator, FortraVersionObjectCreator, getMilliseconds, isType1Product } from './HelperFunctions';
+import { EmailBodyCreator, FortraVersionObjectCreator, GetMilliseconds, isType1Product } from './HelperFunctions';
 
 let identifier=0;
 
-function parseDate(dateStr: string): Date | null {
+function ParseDate(dateStr: string): Date | null {
     if (!dateStr) return null;
     
     // Try parsing various date formats
@@ -56,7 +56,7 @@ function parseDate(dateStr: string): Date | null {
     return null;
 }
 
-async function notify_on_end_of_support(versionData: VersionData , daysUntilEOS: number, daysUntilExtendedEOS?:number, users_array?: any) {
+async function NotifyOnEndOfSupport(versionData: VersionData , daysUntilEOS: number, daysUntilExtendedEOS?:number, users_array?: any) {
     const product = versionData.ProductName;
     const version = versionData.VersionName;
     
@@ -89,7 +89,7 @@ async function notify_on_end_of_support(versionData: VersionData , daysUntilEOS:
 
     try{
 
-    await sendEmail({
+        await SendEmail({
         subject: `End of Support Alert: ${product} ${version}`,
         content: emailBody,
         vendor_name: versionData.VendorName,
@@ -102,11 +102,9 @@ catch(error){
 
 }
 
-async function extract_fortra_versions(productname:string,listoffortraversions:any):Promise<version_extracted[]>{
+async function ExtractFortraVersions(productname:string,listoffortraversions:any):Promise<VersionExtracted[]>{
 
-    
-    
-    let fortra_version_extracted:version_extracted[]=[]
+    let fortra_version_extracted:VersionExtracted[]=[]
     let listnew= listoffortraversions[productname];
    
 
@@ -128,7 +126,7 @@ async function extract_fortra_versions(productname:string,listoffortraversions:a
     
 
 
-async function extract_fortra_versions_to_json(json_url:string):Promise<any> {
+async function ExtractFortraVersionsToJson(json_url:string):Promise<any> {
 
     let listofVersions:any= await axios.get(json_url)
     listofVersions= listofVersions.data.content;
@@ -142,9 +140,9 @@ async function extract_fortra_versions_to_json(json_url:string):Promise<any> {
 
     let listofVersions_ret:any={
 
-        Goanywhere_MFT:[] as version_extracted[],
-        Goanywhere_Gateway:[] as version_extracted[],
-        Goanywhere_Agent:[] as version_extracted[],
+        Goanywhere_MFT:[] as VersionExtracted[],
+        Goanywhere_Gateway:[] as VersionExtracted[],
+        Goanywhere_Agent:[] as VersionExtracted[],
     }
 
 
@@ -155,7 +153,7 @@ async function extract_fortra_versions_to_json(json_url:string):Promise<any> {
 
         switch(cheerio.load(listofVersions)(listoftd[i]).text().toLowerCase()){
             case 'mft':
-
+            
              VersionObject= FortraVersionObjectCreator(cheerio.load(listofVersions)(listoftd[i+1]).text(), cheerio.load(listofVersions)(listoftd[i+3]).text(), cheerio.load(listofVersions)(listoftd[i+6]).text(), cheerio.load(listofVersions)(listoftd[i+2]).text(), cheerio.load(listofVersions)(listoftd[i+5]).text(), cheerio.load(listofVersions)(listoftd[i+4]).text())
 
                 listofVersions_ret.Goanywhere_MFT.push(VersionObject);
@@ -165,6 +163,7 @@ async function extract_fortra_versions_to_json(json_url:string):Promise<any> {
                
             case 'gateway':
                 VersionObject= FortraVersionObjectCreator(cheerio.load(listofVersions)(listoftd[i+1]).text(), cheerio.load(listofVersions)(listoftd[i+3]).text(), cheerio.load(listofVersions)(listoftd[i+6]).text(), cheerio.load(listofVersions)(listoftd[i+2]).text(), cheerio.load(listofVersions)(listoftd[i+5]).text(), cheerio.load(listofVersions)(listoftd[i+4]).text())
+                listofVersions_ret.Goanywhere_Gateway.push(VersionObject);
 
                 break;
             case 'agents':
@@ -183,8 +182,7 @@ async function extract_fortra_versions_to_json(json_url:string):Promise<any> {
 
 }
 
-async function notify_on_end_of_support_changes(product: string, vendor: string, version: string, oldDate?: Date, newDate?: Date, users_array?: any) {
-
+async function NotifyOnEndOfSupportChanges(product: string, vendor: string, version: string, oldDate?: Date, newDate?: Date, users_array?: any) {
 
 
     const emailBody = EmailBodyCreator('Team', `End of Support Date Change: ${product.replace(/_/g, ' ')} ${version}`, `Hey Team`, `The end of support date for ${product.replace(/_/g, ' ')} ${version} has been changed.`, `Changes Detected:`, `End of Support Date changed from `, `${oldDate ? oldDate.toDateString() : 'No old date'}`, `to`, `${newDate ? newDate.toDateString() : 'No new date'}`)
@@ -192,7 +190,7 @@ async function notify_on_end_of_support_changes(product: string, vendor: string,
   
         try{
 
-        await sendEmail({
+        await SendEmail({
             subject: `End of Support Date Change: ${product.replace(/_/g, ' ')} ${version}`,
             content: emailBody,
             vendor_name: vendor,
@@ -206,7 +204,7 @@ async function notify_on_end_of_support_changes(product: string, vendor: string,
 }
 
 
-async function extract_Opswat_Key_Indexes(url:string){
+async function ExtractOpswatKeyIndexes(url:string){
 
     try {
 
@@ -271,10 +269,9 @@ catch(error){
 
 
 
-function extract_versions_from_json(response_json: any, manufacturer: string, productName: string): version_extracted[]  {
+function ExtractVersionsFromJson(response_json: any, manufacturer: string, productName: string): VersionExtracted[]  {
 
-
-    let version_extracted_ret: version_extracted[] = []
+    let version_extracted_ret: VersionExtracted[] = []
 
     if(manufacturer === 'OPSWAT'){
 
@@ -310,15 +307,14 @@ catch(error){
         try{
 
         let listofVersions = response_json.data.publicVersions;
-        let listtoreturn:version_extracted[]=[];
+        let listtoreturn:VersionExtracted[]=[];
         let i=0;
-
 
         for(const version of listofVersions){
 
             
             let version_name=version.name;        
-            let versobject:version_extracted=[version_name,null,null];
+            let versobject:VersionExtracted=[version_name,null,null];
             
             listtoreturn.push(versobject);
 
@@ -351,7 +347,7 @@ return version_extracted_ret;
 }
 
 
-async function notify_new_version(newVersion: VersionData, users_array?: any) {
+async function NotifyNewVersion(newVersion: VersionData, users_array?: any) {
     
     // Compare relevant fields
     
@@ -361,7 +357,7 @@ async function notify_new_version(newVersion: VersionData, users_array?: any) {
 
         try{
 
-        await sendEmail({
+        await SendEmail({
             subject: `Version Changes Detected: ${newVersion.ProductName.replace(/_/g, ' ')}`,
             content: emailBody,
             vendor_name: newVersion.VendorName,
@@ -375,7 +371,7 @@ async function notify_new_version(newVersion: VersionData, users_array?: any) {
 }
 
 
-async function sendEmail({ 
+async function SendEmail({ 
     subject, 
     content, 
     vendor_name, 
@@ -412,7 +408,7 @@ async function sendEmail({
           const lastUpdateMs = new Date(mailbox.LastUpdate).getTime();
           console.log('Last Update in ms:', lastUpdateMs);
   
-          const frequencyMs = getMilliseconds(mailbox.UnitOfTime);
+          const frequencyMs = GetMilliseconds(mailbox.UnitOfTime);
           const totalOffset = mailbox.Frequency * frequencyMs;
           console.log('Total time offset:', totalOffset);
   
@@ -466,4 +462,4 @@ async function sendEmail({
 
 
 
-export { notify_on_end_of_support, notify_new_version, sendEmail, parseDate, notify_on_end_of_support_changes, extract_versions_from_json,extract_fortra_versions_to_json,extract_Opswat_Key_Indexes, extract_fortra_versions };
+export { NotifyOnEndOfSupport, NotifyNewVersion, SendEmail, ParseDate, NotifyOnEndOfSupportChanges, ExtractVersionsFromJson,ExtractFortraVersionsToJson,ExtractOpswatKeyIndexes, ExtractFortraVersions };

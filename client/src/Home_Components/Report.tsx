@@ -22,7 +22,6 @@ interface ReportProps {
 }
 
 
-
 export default function FormDialog({versions, productsandmodules}: ReportProps) {
   const { opendialog, setOpenDialog } = useMain();
   const [vendor, setVendor] = useState('');
@@ -235,8 +234,19 @@ const handlePopup = (title: string, issucceeded: boolean, mainMessage: string, b
                 <Grid item xs={4}>
                 <FormControl sx={{ width: '100%' }}>
                   <InputLabel id="module-label">Module</InputLabel>
-                  <GenericSelect singleitem={chosenmodule} isitemdisabled={ispopupopen} ispopupopen={ispopupopen} setSingleItem={setChosenModule} options={modules}/>
-            
+                  <Select 
+                    labelId="module-label"
+                    label="Module"
+                    value={chosenmodule}
+                    sx={{width:'100%', fontFamily:'Kumbh Sans', fontWeight:'500', fontSize:'14px', color:'#152259'}}
+                    required
+                    onChange={(e) => setChosenModule(e.target.value)}
+                    disabled={ispopupopen}
+                  >
+                    {modules.map((module: any) => (
+                      <MenuItem value={module.ModuleName}>{module.ModuleName}</MenuItem>
+                    ))}
+                  </Select>            
                 </FormControl>
 
 

@@ -1,7 +1,7 @@
 import express from 'express';
-import versionRoutes from './routes/version.routes';
-import issueRoutes from './routes/issue.routes';
-import subscriptionRoutes from './routes/subscription.routes';
+import versionRoutes from './routes/Versions';
+import issueRoutes from './routes/Issues';
+import subscriptionRoutes from './routes/Subscriptions';
 import path from 'path';
 import fs from 'fs';
 

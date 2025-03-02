@@ -6,7 +6,7 @@ import Grid from '@mui/material/Grid';
 import DrawerComponent from './Drawer';
 import Table from './Home_Components/Table';
 import { useMain } from './UseContext/MainContext';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
 import Report from './Home_Components/Report';
 import CheckIcon from '@mui/icons-material/Check';
@@ -29,10 +29,10 @@ const [finishedSyncing, setFinishedSyncing] = React.useState(false);
 const [failedSyncing, setFailedSyncing] = React.useState(false);
 const [isSyncing, setIsSyncing] = React.useState(false);
 const [openNotification, setOpenNotification] = React.useState(false);
-const [readnotifications, setReadnotifications] = React.useState<boolean>(false);
-const [versions_to_notify, setVersionsToNotify] = React.useState<any[]>([]);
+const [readNotifications, setReadNotifications] = React.useState<boolean>(false);
+const [versionsToNotify, setVersionsToNotify] = React.useState<any[]>([]);
 const [openSubscribe, setOpenSubscribe] = React.useState<boolean>(false);
-const [productsandmodules, setProductsAndModules] = React.useState<any>(null);
+const [productsAndModules, setProductsAndModules] = React.useState<any>(null);
 
 
 useEffect(() => {
@@ -90,7 +90,7 @@ useEffect(() => {
     const merged_versions = [...versions_near_eosl, ...versions_newer_than_2_days];
     console.log('merged_versions', merged_versions);
     setVersionsToNotify(merged_versions);
-    setReadnotifications(false);
+    setReadNotifications(false);
   }
 }, [versions]);
 
@@ -124,7 +124,7 @@ const handleSync = async () => {
 
 const onCloseNotification = () => {
   setOpenNotification(false);
-  setReadnotifications(true);
+  setReadNotifications(true);
 }
 
 const onCloseSubscribe = () => {
@@ -167,7 +167,7 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
     
     <Box sx={{ display: 'flex' }}>
 
-<Report versions={versions? versions: []} productsandmodules={productsandmodules} />
+<Report versions={versions? versions: []} productsandmodules={productsAndModules} />
       <DrawerComponent open={open} setOpen={setOpen}/>
 
       <Main open={open}>
@@ -206,14 +206,14 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
            <Box sx={{ position: 'relative' }}>
              <Box onClick={() => setOpenNotification(!openNotification)} sx={{cursor:'pointer'}}>
              
-             {readnotifications ? <NotificationsOutlinedIcon sx={{color:'#2D88D4'}}/> : <NotificationsActiveOutlinedIcon sx={{color:'#2D88D4'}}/>}
+             {readNotifications ? <NotificationsOutlinedIcon sx={{color:'#2D88D4'}}/> : <NotificationsActiveOutlinedIcon sx={{color:'#2D88D4'}}/>}
 
              </Box>
              
              <Notification 
                open={openNotification} 
                onClose={onCloseNotification}    
-               versions_to_notify={versions_to_notify}
+               versions_to_notify={versionsToNotify}
                type='notifications'
                versions={versions? versions: []}
              
@@ -233,7 +233,7 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
                  <Notification
                  open={openSubscribe}
                  onClose={onCloseSubscribe}
-                 versions_to_notify={versions_to_notify}
+                 versions_to_notify={versionsToNotify}
                  type='subscribe'
                  distinctVendors={distinctVendors}
                  versions={versions? versions: []}
@@ -247,7 +247,7 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
       
         <Grid container xs={12} style={{display:'flex', justifyContent:'flex-start', alignItems:'center', flexDirection:'row', paddingLeft:'80px'}}>
 
-            <Table versions={versions? versions: []}  distinctVendors={distinctVendors} productsandmodules={productsandmodules} />
+            <Table versions={versions? versions: []}  distinctVendors={distinctVendors} productsandmodules={productsAndModules} />
        
        </Grid>
       </Grid>

@@ -5,9 +5,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.startServer = startServer;
 const express_1 = __importDefault(require("express"));
-const version_routes_1 = __importDefault(require("./routes/version.routes"));
-const issue_routes_1 = __importDefault(require("./routes/issue.routes"));
-const subscription_routes_1 = __importDefault(require("./routes/subscription.routes"));
+const Versions_1 = __importDefault(require("./routes/Versions"));
+const Issues_1 = __importDefault(require("./routes/Issues"));
+const Subscriptions_1 = __importDefault(require("./routes/Subscriptions"));
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 const app = (0, express_1.default)();
@@ -30,9 +30,9 @@ app.use((req, res, next) => {
     next();
 });
 // Routes
-app.use('/api', version_routes_1.default);
-app.use('/api/issues', issue_routes_1.default);
-app.use('/api', subscription_routes_1.default);
+app.use('/api', Versions_1.default);
+app.use('/api/issues', Issues_1.default);
+app.use('/api', Subscriptions_1.default);
 // Error handling middleware should be last
 app.use((err, req, res, next) => {
     console.error(err.stack);
