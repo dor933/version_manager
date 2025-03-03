@@ -3,24 +3,11 @@ import { Box, Grid, Typography, Button } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
 import ErrorIcon from '@mui/icons-material/Error';
 import useMediaQuery from '@mui/material/useMediaQuery';
-
-interface PopupProps {
-    ispopupopen: boolean;
-    setIsPopupOpen: (value: boolean) => void;
-    issucceeded: boolean;
-    setIssucceeded: (value: boolean) => void;
-    title: string;
-    setTitle: (value: string) => void;
-    mainMessage: string;
-    setMainMessage: (value: string) => void;
-    subMessage: string;
-    setSubMessage: (value: string) => void;
-    buttonText: string;
-    setButtonText: (value: string) => void;
-}
+import { PopupProps } from '../Component Interfaces/HelpComponentsProps';
 
 
-const Popup = ({
+
+export default function Popup({
     ispopupopen,
     setIsPopupOpen,
     issucceeded,
@@ -33,7 +20,7 @@ const Popup = ({
     setSubMessage,
     buttonText,
     setButtonText,
-}: PopupProps) => {
+}: PopupProps) {
 
     const isSmall = useMediaQuery('(max-width:600px)');
     if (!ispopupopen) return null;
@@ -136,4 +123,3 @@ const Popup = ({
     );
 }
 
-export default Popup;

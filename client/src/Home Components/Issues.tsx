@@ -7,8 +7,14 @@ import IssuesTable from './IssuesTable';
 import { useEffect, useState } from 'react';
 import Popup from '../Help Components/Popup';
 
-export default function Issues({chosenproduct, issuesdialog, setIssuesDialog, chosenversion }: { chosenproduct: any, issuesdialog: boolean, setIssuesDialog: any, chosenversion: any}) {
+interface IssuesProps {
+  chosenproduct: any;
+  issuesdialog: boolean;
+  setIssuesDialog: any;
+  chosenversion: any;
+}
 
+export default function Issues({chosenproduct, issuesdialog, setIssuesDialog, chosenversion }: IssuesProps) {
 
 
 

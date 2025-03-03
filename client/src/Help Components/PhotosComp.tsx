@@ -2,13 +2,9 @@ import React, {  useEffect, useState } from "react";
 import { Dialog, DialogContent, Grid, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { apiService } from "../API/apiService";
+import { PhotosCompProps } from "../Component Interfaces/HelpComponentsProps";
 
 
-interface PhotosCompProps {
-  photos: string[];
-  isphotosopen: boolean;
-  setIsPhotosOpen: (open: boolean) => void;
-}
 
 export const PhotosComp = ({ photos, isphotosopen, setIsPhotosOpen }: PhotosCompProps) => {
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);

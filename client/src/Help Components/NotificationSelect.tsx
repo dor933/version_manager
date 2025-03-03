@@ -1,22 +1,15 @@
 import React from 'react'
-import FormControl from '@mui/material/FormControl';
+import FormControl, { FormControlProps } from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import { Theme } from '@mui/material/styles';
 import { SxProps } from '@mui/material';
+import { NotificationSelectProps } from '../Component Interfaces/HelpComponentsProps';
 
-interface FormControlProps {
-  singleitem: string;
-  setSingleItem: (value: string) => void;
-  items: string[];
-  label: string;
-  customSelectStyle: SxProps<Theme>;
-  isitemdisabled?: boolean;
 
-}
 
-const FormControlSelect: React.FC<FormControlProps> = ({singleitem, setSingleItem, isitemdisabled, items, label, customSelectStyle}) => {
+export default function FormControlSelect({singleitem, setSingleItem, isitemdisabled, items, label, customSelectStyle}: NotificationSelectProps) {
   return (
     <FormControl fullWidth>
     <InputLabel id="version-label" sx={{ fontFamily: 'Kumbh Sans' }}>{label}</InputLabel>
@@ -38,4 +31,3 @@ const FormControlSelect: React.FC<FormControlProps> = ({singleitem, setSingleIte
   </FormControl>  )
 }
 
-export default FormControlSelect
