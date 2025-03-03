@@ -25,7 +25,7 @@ interface IssuesTableProps {
 
 
 
-const IssuesTable = ({ chosenproduct, chosenversion,ispopupopen, handlePopup }: IssuesTableProps) => {
+export default function IssuesTable ({ chosenproduct, chosenversion,ispopupopen, handlePopup }: IssuesTableProps) {
 
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
@@ -42,7 +42,6 @@ const IssuesTable = ({ chosenproduct, chosenversion,ispopupopen, handlePopup }: 
 
 
       const issuesrelevnetversion= chosenproduct.issues.filter((issue: any) => issue.VersionId === chosenversion.VersionId);
-      console.log('issuesrelevnetversion', issuesrelevnetversion);
         setFilteredIssues(issuesrelevnetversion);
     }, [chosenproduct]);
 
@@ -66,10 +65,8 @@ const IssuesTable = ({ chosenproduct, chosenversion,ispopupopen, handlePopup }: 
    
 
     const getissuephotos= async (issueId: number) => {
-        console.log('issueId', issueId)
-            const response = await apiService.getIssuePhotos(issueId);
+        const response = await apiService.getIssuePhotos(issueId);
         const data = response.data;
-        console.log('data', data)
         if(data.photos.length>0){
             setPhotos(data.photos);
             setIsPhotosOpen(true);
@@ -106,11 +103,8 @@ const IssuesTable = ({ chosenproduct, chosenversion,ispopupopen, handlePopup }: 
             response = await apiService.addWorkaround(issueId, editingCell.value);
         }
         else if(editingCell.column==='Resolution'){
-          console.log('editingCell.value', editingCell.value)
             response =  await apiService.addResolution(issueId, editingCell.value);
-            console.log('response', response)
         }
-        console.log('response', response)
         if(response?.data?.success){
             setEditingCell({ rowId: -1, column: '', value: '' });
             const relevantissues= chosenproduct.issues.filter((issue: any) => issue.IssueId === issueId)[0]
@@ -317,4 +311,3 @@ const IssuesTable = ({ chosenproduct, chosenversion,ispopupopen, handlePopup }: 
   );
 };
 
-export default IssuesTable;

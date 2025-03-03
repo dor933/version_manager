@@ -1,7 +1,10 @@
 import React from 'react';
 import { Select, MenuItem } from '@mui/material';
+import { GenericSelectProps } from '../Component Interfaces/HelpComponentsProps';
 
-const GenericSelect = ({singleitem, isitemdisabled, ispopupopen, setSingleItem, options}: {singleitem: string, isitemdisabled: boolean, ispopupopen: boolean, setSingleItem: (value: string) => void, options: string[]}) => {
+
+
+export default function GenericSelect({singleitem, isitemdisabled, ispopupopen, setSingleItem, options}: GenericSelectProps) {
     return (
         <Select 
         labelId="version-label"
@@ -21,4 +24,3 @@ const GenericSelect = ({singleitem, isitemdisabled, ispopupopen, setSingleItem, 
     )
 }
 
-export default GenericSelect;

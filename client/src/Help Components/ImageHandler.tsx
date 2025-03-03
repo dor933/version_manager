@@ -3,20 +3,14 @@ import { Box, Button, Grid, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';  
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CheckIcon from '@mui/icons-material/Check';
+import { VisuallyHiddenInput } from '../css/ImageHandlerCSS';
+import { ImageHandlerProps } from '../Component Interfaces/HelpComponentsProps';
 
-const VisuallyHiddenInput = styled('input')({
-  clip: 'rect(0 0 0 0)',
-  clipPath: 'inset(50%)',
-  height: 1,
-  overflow: 'hidden',
-  position: 'absolute',
-  bottom: 0,
-  left: 0,
-  whiteSpace: 'nowrap',
-  width: 1,
-});
 
-export default function ImageHandler({setImages, handleAddPhotos, isreport, ispopupopen}: {setImages: (images: File[]) => void, handleAddPhotos?: () => void, isreport?: boolean, ispopupopen?: boolean}) {
+
+
+
+export default function ImageHandler({setImages, handleAddPhotos, isreport, ispopupopen}: ImageHandlerProps) {
   const [isUploaded, setIsUploaded] = React.useState(false);
   const [previews, setPreviews] = React.useState<string[]>([]);
 

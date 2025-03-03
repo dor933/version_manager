@@ -2,26 +2,18 @@ import React, {  useEffect, useState } from 'react';
 import { Box, Typography, Paper, Grid, TextField, FormControl } from '@mui/material';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { z } from 'zod';
-import axios from 'axios';
 import FormControlSelect from './NotificationSelect';
 import { apiService } from '../API/apiService';
 import Popup from './Popup';
 import { customTextFieldStyle, customSelectStyle } from '../css/NotificationCSS';
-interface NotificationProps {
-  open: boolean;
-  onClose: () => void;
-  versions_to_notify: any[];
-  type: string;
-  distinctVendors?: string[];
-  versions: any[];
-}
+import { NotificationProps } from '../Component Interfaces/HelpComponentsProps';
+
 
 const emailSchema = z.string().email();
 
 
 
-const Notification = ({ open, onClose, versions_to_notify, type, distinctVendors, versions }: NotificationProps) => {
-
+export default function Notification({ open, onClose, versions_to_notify, type, distinctVendors, versions }: NotificationProps) {
 
   const [email, setEmail] = useState<string>('');
   const [vendor, setVendor] = useState('');
@@ -324,4 +316,3 @@ const Notification = ({ open, onClose, versions_to_notify, type, distinctVendors
   );
 };
 
-export default Notification; 
