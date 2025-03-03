@@ -9,6 +9,8 @@ import { Model, Sequelize } from 'sequelize';
 import { User, UserChosenProduct, Vendor, Product, Version, Module, Issue } from './ORM';
 import { sequelize } from './ORM';
 import axios from 'axios';
+
+
  class Database {
 
     sequelize: Sequelize;
@@ -21,7 +23,7 @@ import axios from 'axios';
 
   
 
-    async HandleData() : Promise<boolean | any> {
+    async HandleData() : Promise<boolean | unknown> {
 
         let listoffortraversions= await ExtractFortraVersionsToJson(Data.Vendors[1].JSON_URL!);
 

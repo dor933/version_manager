@@ -222,7 +222,7 @@ const handlePopup = (title: string, issucceeded: boolean, mainMessage: string, b
                         >
                             {
                               //distinct vendors
-                              [...new Set(versions.map((version: any) => version.VendorName))].map((vendor: any) => (
+                              [...new Set(versions.map((version: any) => version.VendorName.replace(/_/g, ' ')))].map((vendor: any) => (
                                 <MenuItem value={vendor}>{vendor}</MenuItem>
                               ))
                             }
