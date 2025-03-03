@@ -11,17 +11,12 @@ import { TextField } from '@mui/material';
 import { IconButton } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
 import ImageHandler from '../Help Components/ImageHandler';
-import { apiService } from '../API/apiService';
+import { apiService } from '../API/ApiService';
 import columns from '../css/IssuesColumns';
 import isHebrewText from '../Help Functions/IsHebrew';
+import { IssuesTableProps } from '../Component Props/HomeComponentsProps';
 
-interface IssuesTableProps {
-    chosenproduct: any;
-    chosenversion: any;
-    ispopupopen: boolean;
-    setIsPopupOpen: (ispopupopen: boolean) => void;
-    handlePopup: (title: string, message: string, isSuccess: boolean, buttonText: string) => void;
-  }
+
 
 
 

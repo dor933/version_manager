@@ -4,7 +4,7 @@ import { styled } from '@mui/material/styles';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CheckIcon from '@mui/icons-material/Check';
 import { VisuallyHiddenInput } from '../css/ImageHandlerCSS';
-import { ImageHandlerProps } from '../Component Interfaces/HelpComponentsProps';
+import { ImageHandlerProps } from '../Component Props/HelpComponentsProps';
 
 
 

@@ -19,16 +19,16 @@ import { HomeSVG } from '../svg/HomeSVG';
 import { EmailSVG } from '../svg/EmailSVG';
 import { InfoSVG } from '../svg/InfoSVG';
 import { VersionData } from '../Types/MainDataTypes';
-import { styled } from '@mui/material/styles';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import { sortedVersions } from '../Help Functions/Sorting';
 import { columns, AnimatedGrid } from '../css/TableColumns';
+import { TableProps } from '../Component Props/HomeComponentsProps';
 
 type Order = 'asc' | 'desc';
 
 
 
-export default function StickyHeadTable({versions, distinctVendors, productsandmodules }: {versions: VersionData[], distinctVendors: string[], productsandmodules: any[]}) {
+export default function StickyHeadTable({versions, distinctVendors, productsandmodules }: TableProps) {
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [filteredVersions, setFilteredVersions] = React.useState(versions);
   const [SearchValue, setSearchValue] = React.useState('');

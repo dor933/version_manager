@@ -1,13 +1,10 @@
 import * as React from 'react';
 import { useEffect } from 'react';
 import { StyledTabs, StyledTab } from '../css/TabsStyle';
+import { TabsProps } from '../Component Props/HomeComponentsProps';
 
 
-
-
-
-
-export default function MyTabs({chosenmodule, setChosenModule, modules}: {chosenmodule: string, setChosenModule: (newValue: string) => void, modules: any[]}) {
+export default function MyTabs({chosenmodule, setChosenModule, modules}: TabsProps) {
 
    useEffect(() => {
     setChosenModule('All');
