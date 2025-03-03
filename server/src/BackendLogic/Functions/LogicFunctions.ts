@@ -439,7 +439,7 @@ async function SendEmail({
             );
 
             if(affectedCount)
-                logger.info('Email sent and last_update updated:', { info, mailbox });
+                logger.info('Email sent and last_update updated:', {  mailbox });
             else
                 logger.error('Error updating last_update in database:', { mailbox });
             

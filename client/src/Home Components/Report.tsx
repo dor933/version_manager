@@ -9,9 +9,9 @@ import { Box, FormControl, Grid, InputLabel, MenuItem, Select, Typography } from
 import { useEffect, useState } from 'react';
 import { z } from 'zod';
 import CancelIcon from '@mui/icons-material/Cancel';
-import ImageHandler from '../Help_Components/ImageHandler';
-import Popup from '../Help_Components/Popup';
-import GenericSelect from '../Help_Components/GenericSelect';
+import ImageHandler from '../Help Components/ImageHandler';
+import Popup from '../Help Components/Popup';
+import GenericSelect from '../Help Components/GenericSelect';
 import { apiService } from '../API/apiService';
 
 const severities = ['Low', 'Medium', 'High','Urgent'];

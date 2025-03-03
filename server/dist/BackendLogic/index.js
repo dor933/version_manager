@@ -130,7 +130,7 @@ function startCronJob() {
                         "row6": "Please check the logs for more details.",
                         "row7": "",
                     };
-                    yield (0, LogicFunctions_1.sendEmail)({
+                    yield (0, LogicFunctions_1.SendEmail)({
                         subject: `Error in Version Manager`,
                         content: emailBody,
                         vendor_name: 'NA'

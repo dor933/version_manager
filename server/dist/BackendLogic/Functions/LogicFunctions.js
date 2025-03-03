@@ -45,15 +45,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.notify_on_end_of_support = notify_on_end_of_support;
-exports.notify_new_version = notify_new_version;
-exports.sendEmail = sendEmail;
-exports.parseDate = parseDate;
-exports.notify_on_end_of_support_changes = notify_on_end_of_support_changes;
-exports.extract_versions_from_json = extract_versions_from_json;
-exports.extract_fortra_versions_to_json = extract_fortra_versions_to_json;
-exports.extract_Opswat_Key_Indexes = extract_Opswat_Key_Indexes;
-exports.extract_fortra_versions = extract_fortra_versions;
+exports.NotifyOnEndOfSupport = NotifyOnEndOfSupport;
+exports.NotifyNewVersion = NotifyNewVersion;
+exports.SendEmail = SendEmail;
+exports.ParseDate = ParseDate;
+exports.NotifyOnEndOfSupportChanges = NotifyOnEndOfSupportChanges;
+exports.ExtractVersionsFromJson = ExtractVersionsFromJson;
+exports.ExtractFortraVersionsToJson = ExtractFortraVersionsToJson;
+exports.ExtractOpswatKeyIndexes = ExtractOpswatKeyIndexes;
+exports.ExtractFortraVersions = ExtractFortraVersions;
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const nodemailer_1 = __importDefault(require("nodemailer"));
@@ -64,7 +64,7 @@ const cheerio = __importStar(require("cheerio"));
 const index_2 = require("../index");
 const HelperFunctions_1 = require("./HelperFunctions");
 let identifier = 0;
-function parseDate(dateStr) {
+function ParseDate(dateStr) {
     if (!dateStr)
         return null;
     // Try parsing various date formats
@@ -93,7 +93,7 @@ function parseDate(dateStr) {
     }
     return null;
 }
-function notify_on_end_of_support(versionData, daysUntilEOS, daysUntilExtendedEOS, users_array) {
+function NotifyOnEndOfSupport(versionData, daysUntilEOS, daysUntilExtendedEOS, users_array) {
     return __awaiter(this, void 0, void 0, function* () {
         var _a, _b, _c;
         const product = versionData.ProductName;
@@ -112,7 +112,7 @@ function notify_on_end_of_support(versionData, daysUntilEOS, daysUntilExtendedEO
             }
         }
         try {
-            yield sendEmail({
+            yield SendEmail({
                 subject: `End of Support Alert: ${product} ${version}`,
                 content: emailBody,
                 vendor_name: versionData.VendorName,
@@ -124,7 +124,7 @@ function notify_on_end_of_support(versionData, daysUntilEOS, daysUntilExtendedEO
         }
     });
 }
-function extract_fortra_versions(productname, listoffortraversions) {
+function ExtractFortraVersions(productname, listoffortraversions) {
     return __awaiter(this, void 0, void 0, function* () {
         let fortra_version_extracted = [];
         let listnew = listoffortraversions[productname];
@@ -141,7 +141,7 @@ function extract_fortra_versions(productname, listoffortraversions) {
         return fortra_version_extracted;
     });
 }
-function extract_fortra_versions_to_json(json_url) {
+function ExtractFortraVersionsToJson(json_url) {
     return __awaiter(this, void 0, void 0, function* () {
         let listofVersions = yield axios_1.default.get(json_url);
         listofVersions = listofVersions.data.content;
@@ -179,11 +179,11 @@ function extract_fortra_versions_to_json(json_url) {
         }
     });
 }
-function notify_on_end_of_support_changes(product, vendor, version, oldDate, newDate, users_array) {
+function NotifyOnEndOfSupportChanges(product, vendor, version, oldDate, newDate, users_array) {
     return __awaiter(this, void 0, void 0, function* () {
         const emailBody = (0, HelperFunctions_1.EmailBodyCreator)('Team', `End of Support Date Change: ${product.replace(/_/g, ' ')} ${version}`, `Hey Team`, `The end of support date for ${product.replace(/_/g, ' ')} ${version} has been changed.`, `Changes Detected:`, `End of Support Date changed from `, `${oldDate ? oldDate.toDateString() : 'No old date'}`, `to`, `${newDate ? newDate.toDateString() : 'No new date'}`);
         try {
-            yield sendEmail({
+            yield SendEmail({
                 subject: `End of Support Date Change: ${product.replace(/_/g, ' ')} ${version}`,
                 content: emailBody,
                 vendor_name: vendor,
@@ -195,7 +195,7 @@ function notify_on_end_of_support_changes(product, vendor, version, oldDate, new
         }
     });
 }
-function extract_Opswat_Key_Indexes(url) {
+function ExtractOpswatKeyIndexes(url) {
     return __awaiter(this, void 0, void 0, function* () {
         var _a;
         try {
@@ -236,7 +236,7 @@ function extract_Opswat_Key_Indexes(url) {
         }
     });
 }
-function extract_versions_from_json(response_json, manufacturer, productName) {
+function ExtractVersionsFromJson(response_json, manufacturer, productName) {
     let version_extracted_ret = [];
     if (manufacturer === 'OPSWAT') {
         if ((0, HelperFunctions_1.isType1Product)(productName)) {
@@ -279,12 +279,12 @@ function extract_versions_from_json(response_json, manufacturer, productName) {
     }
     return version_extracted_ret;
 }
-function notify_new_version(newVersion, users_array) {
+function NotifyNewVersion(newVersion, users_array) {
     return __awaiter(this, void 0, void 0, function* () {
         // Compare relevant fields
         const emailBody = (0, HelperFunctions_1.EmailBodyCreator)('Team', `Version Changes Detected: ${newVersion.ProductName.replace(/_/g, ' ')}`, `Hey Team`, `A new version has been detected for ${newVersion.ProductName.replace(/_/g, ' ')}`, `Version:`, ``, `${newVersion.VersionName}`, `Release Date:`, `${newVersion.ReleaseDate ? newVersion.ReleaseDate.toDateString() : 'No release date'}`);
         try {
-            yield sendEmail({
+            yield SendEmail({
                 subject: `Version Changes Detected: ${newVersion.ProductName.replace(/_/g, ' ')}`,
                 content: emailBody,
                 vendor_name: newVersion.VendorName,
@@ -296,7 +296,7 @@ function notify_new_version(newVersion, users_array) {
         }
     });
 }
-function sendEmail(_a) {
+function SendEmail(_a) {
     return __awaiter(this, arguments, void 0, function* ({ subject, content, vendor_name, users_array }) {
         // Early return if no users or initialization
         if (users_array === undefined || users_array === '' || index_1.isinit === true) {
@@ -317,7 +317,7 @@ function sendEmail(_a) {
                     // Calculate each part separately for better debugging
                     const lastUpdateMs = new Date(mailbox.LastUpdate).getTime();
                     console.log('Last Update in ms:', lastUpdateMs);
-                    const frequencyMs = (0, HelperFunctions_1.getMilliseconds)(mailbox.UnitOfTime);
+                    const frequencyMs = (0, HelperFunctions_1.GetMilliseconds)(mailbox.UnitOfTime);
                     const totalOffset = mailbox.Frequency * frequencyMs;
                     console.log('Total time offset:', totalOffset);
                     const nextUpdateTime = lastUpdateMs + totalOffset;
@@ -334,7 +334,7 @@ function sendEmail(_a) {
                         // Update the last_update field in the database
                         let affectedCount = yield index_2.db.UpdateRecord('UserChosenProduct', ['LastUpdate'], [new Date().toISOString()], ['UserID', 'ProductId', 'VendorId'], [mailbox.UserID, mailbox.ProductId, mailbox.VendorId]);
                         if (affectedCount)
-                            index_1.logger.info('Email sent and last_update updated:', { info, mailbox });
+                            index_1.logger.info('Email sent and last_update updated:', { mailbox });
                         else
                             index_1.logger.error('Error updating last_update in database:', { mailbox });
                     }

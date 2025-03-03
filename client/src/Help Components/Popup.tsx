@@ -38,12 +38,6 @@ const Popup = ({
     const isSmall = useMediaQuery('(max-width:600px)');
     if (!ispopupopen) return null;
 
-    console.log('ispopupopen', ispopupopen)
-    console.log('issucceeded', issucceeded)
-    console.log('title', title)
-    console.log('mainMessage', mainMessage)
-    console.log('subMessage', subMessage)
-    console.log('buttonText', buttonText)
 
     return (
         <Box

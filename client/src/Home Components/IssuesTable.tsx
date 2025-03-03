@@ -5,14 +5,15 @@ import React, { useEffect, useState } from 'react';
 import { TableCell } from '@mui/material';
 import { TableHead } from '@mui/material';
 import MyTabs from './Tabs';
-import CustomButton from '../Help_Components/Button';
-import { PhotosComp } from '../Help_Components/PhotosComp';
+import CustomButton from '../Help Components/Button';
+import { PhotosComp } from '../Help Components/PhotosComp';
 import { TextField } from '@mui/material';
 import { IconButton } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
-import ImageHandler from '../Help_Components/ImageHandler';
+import ImageHandler from '../Help Components/ImageHandler';
 import { apiService } from '../API/apiService';
 import columns from '../css/IssuesColumns';
+import isHebrewText from '../Help Functions/IsHebrew';
 
 interface IssuesTableProps {
     chosenproduct: any;
@@ -128,11 +129,6 @@ const IssuesTable = ({ chosenproduct, chosenversion,ispopupopen, handlePopup }: 
         }
     };
 
-    const isHebrewText = (text: string): boolean => {
-        if (!text) return false;
-        const hebrewPattern = /[\u0590-\u05FF]/;
-        return hebrewPattern.test(text);
-    };
 
 
     const handleAddPhotos = async (issueId: number | undefined) => {
