@@ -5,7 +5,7 @@ import { Box, Grid } from '@mui/material';
 import CancelIcon from '@mui/icons-material/Cancel';
 import IssuesTable from './IssuesTable';
 import { useEffect, useState } from 'react';
-import Popup from '../Help_Components/Popup';
+import Popup from '../Help Components/Popup';
 
 export default function Issues({chosenproduct, issuesdialog, setIssuesDialog, chosenversion }: { chosenproduct: any, issuesdialog: boolean, setIssuesDialog: any, chosenversion: any}) {
 

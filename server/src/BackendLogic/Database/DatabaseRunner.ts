@@ -5,7 +5,7 @@ import { DataStructure, VersionData } from '../../Types/MainDataTypes';
 const Data=require('../../../Data.json') as DataStructure;
 import { logger } from '../index';
 import { VersionExtracted } from '../../Types/WebTypes';
-import { Sequelize } from 'sequelize';
+import { Model, Sequelize } from 'sequelize';
 import { User, UserChosenProduct, Vendor, Product, Version, Module, Issue } from './ORM';
 import { sequelize } from './ORM';
 import axios from 'axios';
@@ -74,7 +74,6 @@ import axios from 'axios';
                     if(product.BASE_URL){
                         try {
                             const ids = await ExtractOpswatKeyIndexes(product.JSON_URL!);
-                            console.log('id', ids);
                             const merged_listofversions:any[]=[]
                             
                             for(const index of ids){
@@ -283,7 +282,7 @@ import axios from 'axios';
     }
 
     async getAll<T>(
-        model: any,
+        model: typeof Model & { findAll: (options: any) => Promise<T[]> },
         where: object = {},
         include: any[] = []
     ): Promise<T[]> {
@@ -313,7 +312,7 @@ import axios from 'axios';
     }
 
     async RecordExists<T>(
-        model: any,
+        model: typeof Model & { findOne: (options: any) => Promise<T> },
         where: object
     ): Promise<T | false> {
         try {
@@ -394,7 +393,6 @@ import axios from 'axios';
                 ReleaseNotes: product.ReleaseNotes? product.ReleaseNotes:undefined,
             }
         })
-        console.log('productsdata', productsdata);
         return productsdata;
     }
     catch(error){
@@ -429,7 +427,6 @@ import axios from 'axios';
                 VendorName: module.Vendor.VendorName
             }
         })
-        console.log('modulesdata', modulesdata);
         return modulesdata;
     }
     catch(error){
@@ -481,7 +478,6 @@ import axios from 'axios';
     
 
         })
-        console.log('issuesdata', issuesdata);
         return issuesdata;
     }
     catch(error){
@@ -590,10 +586,10 @@ import axios from 'axios';
                     email,
                     role
                 }).then(() => {
-                    console.log('User registered successfully');
+                    logger.info('User registered successfully- '+email);
                     resolve(true);
                 }).catch(err => {
-                    console.error('Error registering user', err.message);
+                    logger.error('Error registering user- '+email, err.message);
                     reject(false);
                 });
             }

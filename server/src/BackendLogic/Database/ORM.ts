@@ -16,6 +16,8 @@ export const sequelize = new Sequelize({
 });
 
 
+
+
 // Model definitions
 class User extends Model {
     declare id: number;

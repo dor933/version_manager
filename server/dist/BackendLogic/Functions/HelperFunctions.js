@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getMilliseconds = exports.isType1Product = exports.FortraVersionObjectCreator = exports.EmailBodyCreator = void 0;
+exports.GetMilliseconds = exports.isType1Product = exports.FortraVersionObjectCreator = exports.EmailBodyCreator = void 0;
 const EmailBodyCreator = (name, subject, row1, row2, row3, row4, row5, row6, row7) => {
     return {
         name: name,
@@ -31,7 +31,7 @@ const isType1Product = (productName) => {
 };
 exports.isType1Product = isType1Product;
 // Modify the getMilliseconds function to handle case-sensitivity
-const getMilliseconds = (frequency) => {
+const GetMilliseconds = (frequency) => {
     const conversions = {
         'HOURS': 3600000,
         'DAYS': 86400000,
@@ -47,4 +47,4 @@ const getMilliseconds = (frequency) => {
     }
     return result;
 };
-exports.getMilliseconds = getMilliseconds;
+exports.GetMilliseconds = GetMilliseconds;
