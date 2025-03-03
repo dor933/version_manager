@@ -3,7 +3,7 @@ import TextField from '@mui/material/TextField';
 import { outlinedInputClasses } from '@mui/material/OutlinedInput';
 import { createTheme, ThemeProvider, Theme, useTheme } from '@mui/material/styles';
 import { customTheme } from '../css/FilterTheme';
-import { FilterProps } from '../Component Interfaces/HelpComponentsProps';
+import { FilterProps } from '../Component Props/HelpComponentsProps';
 
   export default function Filter({filtervalue, setFiltervalue}: FilterProps) {
 

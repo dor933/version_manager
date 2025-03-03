@@ -1,6 +1,6 @@
 import React from 'react';
 import { Select, MenuItem } from '@mui/material';
-import { GenericSelectProps } from '../Component Interfaces/HelpComponentsProps';
+import { GenericSelectProps } from '../Component Props/HelpComponentsProps';
 
 
 

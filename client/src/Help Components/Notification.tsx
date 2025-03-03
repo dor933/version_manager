@@ -3,10 +3,10 @@ import { Box, Typography, Paper, Grid, TextField, FormControl } from '@mui/mater
 import CancelIcon from '@mui/icons-material/Cancel';
 import { z } from 'zod';
 import FormControlSelect from './NotificationSelect';
-import { apiService } from '../API/apiService';
+import { apiService } from '../API/ApiService';
 import Popup from './Popup';
 import { customTextFieldStyle, customSelectStyle } from '../css/NotificationCSS';
-import { NotificationProps } from '../Component Interfaces/HelpComponentsProps';
+import { NotificationProps } from '../Component Props/HelpComponentsProps';
 
 
 const emailSchema = z.string().email();

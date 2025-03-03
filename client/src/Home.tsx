@@ -14,7 +14,7 @@ import ErrorIcon from '@mui/icons-material/Error';
 import Notification from './Help Components/Notification';
 import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
 import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined';
-import { apiService } from './API/apiService';
+import { apiService } from './API/ApiService';
 
 export default function Home() {
 

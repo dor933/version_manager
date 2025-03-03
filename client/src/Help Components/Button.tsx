@@ -1,6 +1,10 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
-import { ButtonProps } from '../Component Interfaces/HelpComponentsProps';
+import { ButtonProps } from '../Component Props/HelpComponentsProps';
+
+
+
+
 
 export default function CustomButton({label, onClick, opacity=1, ispopupopen}: ButtonProps) {
     return (

@@ -12,11 +12,9 @@ import { useTheme } from '@mui/material/styles';
 import { Inbox, Mail } from '@mui/icons-material';
 import { Menu } from '@mui/icons-material';
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
+import { DrawerProps } from './Component Props/RootComponentsProps';
 
-interface DrawerProps {
-  open: boolean;
-  setOpen: (open: boolean) => void;
-}
+
 
 export default function DrawerComponent({ open, setOpen }: DrawerProps) {
     const theme = useTheme();

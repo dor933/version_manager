@@ -5,7 +5,7 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import { Theme } from '@mui/material/styles';
 import { SxProps } from '@mui/material';
-import { NotificationSelectProps } from '../Component Interfaces/HelpComponentsProps';
+import { NotificationSelectProps } from '../Component Props/HelpComponentsProps';
 
 
 
