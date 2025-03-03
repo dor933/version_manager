@@ -2,7 +2,7 @@ import nodecron from 'node-cron';
 import { SendEmail } from './Functions/LogicFunctions';
 import winston from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
-import { startServer } from '../api/Startup';
+import { startServer } from '../api/startup'
 import { syncModels } from './Database/ORM';
 import Database from './Database/DatabaseRunner';
 let errorCount=0;
