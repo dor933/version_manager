@@ -17,7 +17,7 @@ const node_cron_1 = __importDefault(require("node-cron"));
 const LogicFunctions_1 = require("./Functions/LogicFunctions");
 const winston_1 = __importDefault(require("winston"));
 const winston_daily_rotate_file_1 = __importDefault(require("winston-daily-rotate-file"));
-const Startup_1 = require("../api/Startup");
+const startup_1 = require("../api/startup");
 const ORM_1 = require("./Database/ORM");
 const DatabaseRunner_1 = __importDefault(require("./Database/DatabaseRunner"));
 let errorCount = 0;
@@ -181,7 +181,7 @@ process.on('unhandledRejection', (reason) => {
         // Then start handling data
         yield db.HandleData();
         logger.info('Initiation finished successfully');
-        (0, Startup_1.startServer)();
+        (0, startup_1.startServer)();
         logger.info('Initiate version manager...');
         // Finally start the cron job
         startCronJob();

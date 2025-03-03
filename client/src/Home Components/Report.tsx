@@ -12,7 +12,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import ImageHandler from '../Help Components/ImageHandler';
 import Popup from '../Help Components/Popup';
 import GenericSelect from '../Help Components/GenericSelect';
-import { apiService } from '../API/ApiService';
+import { apiService } from '../API/apiService';
 import { ReportProps } from '../Component Props/HomeComponentsProps';
 
 const severities = ['Low', 'Medium', 'High','Urgent'];

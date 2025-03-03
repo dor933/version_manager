@@ -11,7 +11,7 @@ import { TextField } from '@mui/material';
 import { IconButton } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
 import ImageHandler from '../Help Components/ImageHandler';
-import { apiService } from '../API/ApiService';
+import { apiService } from '../API/apiService';
 import columns from '../css/IssuesColumns';
 import isHebrewText from '../Help Functions/IsHebrew';
 import { IssuesTableProps } from '../Component Props/HomeComponentsProps';

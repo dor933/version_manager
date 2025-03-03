@@ -3,7 +3,7 @@ import { Box, Typography, Paper, Grid, TextField, FormControl } from '@mui/mater
 import CancelIcon from '@mui/icons-material/Cancel';
 import { z } from 'zod';
 import FormControlSelect from './NotificationSelect';
-import { apiService } from '../API/ApiService';
+import { apiService } from '../API/apiService';
 import Popup from './Popup';
 import { customTextFieldStyle, customSelectStyle } from '../css/NotificationCSS';
 import { NotificationProps } from '../Component Props/HelpComponentsProps';
@@ -259,7 +259,7 @@ export default function Notification({ open, onClose, versions_to_notify, type, 
                     label="Unit"
                     singleitem={Unit}
                     setSingleItem={setUnit}
-                    items={ ["Hours", "Days", "Months"] && !isPopupOpen ? ["Hours", "Days", "Months"] : []}
+                    items={ !isPopupOpen ? ["Hours", "Days", "Months"] : []}
                     customSelectStyle={customSelectStyle}
                     />
                   </Grid>
