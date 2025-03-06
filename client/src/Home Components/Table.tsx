@@ -67,11 +67,14 @@ export default function StickyHeadTable({versions, distinctVendors, productsandm
         return matchesSearch && matchesVendor;
       });
 
+      let filtered= sortedVersions(newFiltered,'ReleaseDate','desc')
+      setFilteredVersions(filtered)
+
     
     } else if (vendor) {
       // No search, but vendor chosen
       let filtered_versions= versions.filter((v) => v.VendorName === vendor);
-      filtered_versions= sortedVersions(filteredVersions,'ReleaseDate','desc')
+      filtered_versions= sortedVersions(filtered_versions,'ReleaseDate','desc')
       setFilteredVersions(filtered_versions);
       setChosenProduct(productsandmodules?.find((product: any) => product.ProductName === filtered_versions[0].ProductName))
       if(ChosenVersion?.VendorName!==vendor){
