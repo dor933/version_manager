@@ -52,6 +52,8 @@ export default function StickyHeadTable({versions, distinctVendors, productsandm
     if (!versions) return;
 
     console.log('not returned')
+
+    console.log('versions in the start',versions)
   
     if (SearchValue !== '') {
       // Filter by search + vendor
@@ -65,13 +67,11 @@ export default function StickyHeadTable({versions, distinctVendors, productsandm
         return matchesSearch && matchesVendor;
       });
 
-      //sort by release date descending
-    newFiltered=newFiltered.sort((a: any, b: any) => new Date(b.ReleaseDate).getTime() - new Date(a.ReleaseDate).getTime());
-      setFilteredVersions(newFiltered);
+    
     } else if (vendor) {
       // No search, but vendor chosen
       let filtered_versions= versions.filter((v) => v.VendorName === vendor);
-      filtered_versions=filtered_versions.sort((a: any, b: any) => new Date(b.ReleaseDate).getTime() - new Date(a.ReleaseDate).getTime());  
+      filtered_versions= sortedVersions(filteredVersions,'ReleaseDate','desc')
       setFilteredVersions(filtered_versions);
       setChosenProduct(productsandmodules?.find((product: any) => product.ProductName === filtered_versions[0].ProductName))
       if(ChosenVersion?.VendorName!==vendor){
@@ -80,7 +80,10 @@ export default function StickyHeadTable({versions, distinctVendors, productsandm
       }
     } else {
       // No search, no vendor
-      let filtered_versions= versions.sort((a: any, b: any) => new Date(b.ReleaseDate).getTime() - new Date(a.ReleaseDate).getTime());  
+      let filtered_versions = sortedVersions(versions,orderBy,order)
+            console.log('last filtered versions',filteredVersions)
+      console.log('order by', orderBy)
+      console.log('order',order)
       setFilteredVersions(filtered_versions);
       setChosenVersion(filtered_versions[0])
       setChosenProduct(productsandmodules?.find((product: any) => product.ProductName === filtered_versions[0].ProductName))

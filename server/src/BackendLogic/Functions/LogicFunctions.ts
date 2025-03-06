@@ -90,7 +90,7 @@ async function NotifyOnEndOfSupport(versionData: VersionData , daysUntilEOS: num
     try{
 
         await SendEmail({
-        subject: `End of Support Alert: ${product} ${version}`,
+        subject: `End of Support Alert: ${product.replace(/_/g, ' ')} ${version}`,
         content: emailBody,
         vendor_name: versionData.VendorName,
         users_array: users_array
