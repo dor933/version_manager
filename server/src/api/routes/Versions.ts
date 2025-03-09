@@ -7,9 +7,7 @@ const router = express.Router();
 router.get('/versions', async (req, res) => {
     try{
     const versions = await db.getVersions();
-    if(versions.length>0){
-        console.log('versions exist');
-    }
+   
     let products:any= await db.getProducts();
   
     let productsandmodules:any= [];
