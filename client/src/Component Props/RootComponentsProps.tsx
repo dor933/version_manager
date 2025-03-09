@@ -1,6 +1,14 @@
+import { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
+
 interface DrawerProps {
     open: boolean;
     setOpen: (open: boolean) => void;
   }
 
-  export type { DrawerProps };
+  interface AppBarProps extends MuiAppBarProps {
+    open?: boolean;
+  }
+
+
+
+  export type { DrawerProps, AppBarProps };

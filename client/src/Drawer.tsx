@@ -11,53 +11,21 @@ import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';
 import { Inbox, Mail } from '@mui/icons-material';
 import { Menu } from '@mui/icons-material';
-import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import { DrawerProps } from './Component Props/RootComponentsProps';
-
+import { AppBar, DrawerHeader } from './css/DrawerCSS';
 
 
 export default function DrawerComponent({ open, setOpen }: DrawerProps) {
     const theme = useTheme();
-    
-    interface AppBarProps extends MuiAppBarProps {
-        open?: boolean;
-      }
-      
-      const AppBar = styled(MuiAppBar, {
-        shouldForwardProp: (prop) => prop !== 'open',
-      })<AppBarProps>(({ theme }) => ({
-      
-        variants: [
-          {
-            props: ({ open }) => open,
-            style: {
-         
-            },
-          },
-        ],
-      }));
-
- 
-  
-      
-      const DrawerHeader = styled('div')(({ theme }) => ({
-        display: 'flex',
-        alignItems: 'center',
-        padding: theme.spacing(0, 1),
-        // necessary for content to be below app bar
-        ...theme.mixins.toolbar,
-        justifyContent: 'flex-end',
-      }));
-      
-      
-      
-        const handleDrawerOpen = () => {
+        
+    const handleDrawerOpen = () => {
           setOpen(true);
         };
       
     const handleDrawerClose = () => {
         setOpen(false);
     };
+
     return (
                 
         <>
