@@ -18,9 +18,6 @@ const router = express_1.default.Router();
 router.get('/versions', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const versions = yield index_1.db.getVersions();
-        if (versions.length > 0) {
-            console.log('versions exist');
-        }
         let products = yield index_1.db.getProducts();
         let productsandmodules = [];
         for (let product of products) {
