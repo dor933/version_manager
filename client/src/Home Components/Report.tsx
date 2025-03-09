@@ -20,7 +20,7 @@ const severities = ['Low', 'Medium', 'High','Urgent'];
 
 
 
-export default function FormDialog({versions, productsandmodules}: ReportProps) {
+export default function FormDialog({versions, productsandmodules, setProductsAndModules}: ReportProps) {
   const { opendialog, setOpenDialog } = useMain();
   const [vendor, setVendor] = useState('');
   const [products, setProducts] = useState([]);
@@ -117,9 +117,11 @@ const handlePopup = (title: string, issucceeded: boolean, mainMessage: string, b
 
     try {
       const report = await apiService.submitReport(formData);
+      console.log(report.data);
       
       if(report.data.report) {
-        const issueId = report.data.issueId;
+        const productsandmodules = report.data.productsandmodules;
+        setProductsAndModules(productsandmodules);
         handlePopup('Success', true, 'Report submitted successfully', 'OK');
         // Clear files after successful upload
         setSelectedFiles([]);

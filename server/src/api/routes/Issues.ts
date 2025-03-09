@@ -2,6 +2,8 @@ import express from 'express';
 import multer from 'multer';
 import fs from 'fs';
 import { db, logger } from '../../BackendLogic/index';
+import { Issue } from '../../BackendLogic/Database/ORM';
+import { getproductsandmodules } from '../../BackendLogic/Functions/LogicFunctions';
 
 const router = express.Router();
 
@@ -28,15 +30,18 @@ router.post('/:issueId/addresolution', async (req, res) => {
         const { resolution } = req.body;
         console.log('Adding resolution for issue:', issueId, resolution);
         
-        await db.UpdateRecord(
+         await db.UpdateRecord(
           'Issue',
           ['Resolution'],
           [resolution],
           ['IssueId'],
           [issueId]
         );
+
+        const products= await db.getProducts();
+        const productsandmodules= await getproductsandmodules(products);
         
-        res.json({ success: true });
+        res.json({ success: true, productsandmodules: productsandmodules });
       } catch (error) {
         logger.error('Error adding resolution:', error);
         res.status(500).json({ success: false });
@@ -49,15 +54,18 @@ router.post('/:issueId/addworkaround', async (req, res) => {
         const { workaround } = req.body;
         console.log('Adding workaround for issue:', issueId, workaround);
         
-            await db.UpdateRecord(
+         await db.UpdateRecord(
           'Issue',
           ['Workaround'],
           [workaround],
           ['IssueId'],
           [issueId]
-        );
+        );  
+
+        const products= await db.getProducts();
+        const productsandmodules= await getproductsandmodules(products);
         
-        res.json({ success: true });
+        res.json({ success: true, productsandmodules: productsandmodules });
       } catch (error) {
         logger.error('Error adding workaround:', error);
         res.status(500).json({ success: false });
@@ -138,11 +146,16 @@ router.post('/:issueId/addphotos', upload.array('photos'), async (req, res) => {
             fs.renameSync(photo.path, newPath);
           }
         }
-  
+
+        let products= await db.getProducts();
+        let productsandmodules= await getproductsandmodules(products);
+        
         res.json({
           report: true,
-          issueId: issueId
+          issueId: issueId,
+          productsandmodules: productsandmodules
         });
+
       } else {
         res.json({ report: false });
       }

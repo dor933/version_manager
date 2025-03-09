@@ -17,6 +17,7 @@ interface TableProps {
   interface ReportProps {
     versions: any;
     productsandmodules: any;
+    setProductsAndModules: (newValue: any) => void;
 }
 
 interface IssuesTableProps {

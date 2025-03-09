@@ -14,17 +14,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const index_1 = require("../../BackendLogic/index");
+const LogicFunctions_1 = require("../../BackendLogic/Functions/LogicFunctions");
 const router = express_1.default.Router();
 router.get('/versions', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const versions = yield index_1.db.getVersions();
         let products = yield index_1.db.getProducts();
-        let productsandmodules = [];
-        for (let product of products) {
-            let modules = yield index_1.db.getModules(product.ProductName, product.VendorName);
-            let issues = yield index_1.db.getIssues(product.ProductName, product.VendorName);
-            productsandmodules.push({ ProductName: product.ProductName, modules: modules, issues: issues });
-        }
+        let productsandmodules = yield (0, LogicFunctions_1.getproductsandmodules)(products);
+        console.log('productsandmodules', productsandmodules);
         res.json({ versions, productsandmodules });
     }
     catch (error) {

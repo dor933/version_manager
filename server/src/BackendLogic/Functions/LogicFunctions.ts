@@ -56,6 +56,21 @@ function ParseDate(dateStr: string): Date | null {
     return null;
 }
 
+async function getproductsandmodules(products:any){
+
+    let productsandmodules:any= [];
+
+for(let product of products){
+    let modules= await db.getModules(product.ProductName, product.VendorName);
+ 
+    let issues= await db.getIssues(product.ProductName, product.VendorName);
+  
+    productsandmodules.push({ProductName: product.ProductName, modules: modules, issues: issues});
+   }
+
+   return productsandmodules;
+}
+
 async function NotifyOnEndOfSupport(versionData: VersionData , daysUntilEOS: number, daysUntilExtendedEOS?:number, users_array?: any) {
     const product = versionData.ProductName;
     const version = versionData.VersionName;
@@ -422,7 +437,7 @@ async function SendEmail({
             nextUpdateTime < new Date().getTime();
   
           if (shouldSendEmail) {
-            const info = await transporter.sendMail({
+             await transporter.sendMail({
               from: process.env.USER_EMAIL,
               to: mailbox.Email,
               subject: subject,
@@ -462,4 +477,4 @@ async function SendEmail({
 
 
 
-export { NotifyOnEndOfSupport, NotifyNewVersion, SendEmail, ParseDate, NotifyOnEndOfSupportChanges, ExtractVersionsFromJson,ExtractFortraVersionsToJson,ExtractOpswatKeyIndexes, ExtractFortraVersions };
+export { NotifyOnEndOfSupport, NotifyNewVersion, SendEmail, ParseDate, NotifyOnEndOfSupportChanges, ExtractVersionsFromJson,ExtractFortraVersionsToJson,ExtractOpswatKeyIndexes, ExtractFortraVersions, getproductsandmodules };

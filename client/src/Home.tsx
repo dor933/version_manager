@@ -138,7 +138,7 @@ const onCloseSubscribe = () => {
     
     <Box sx={{ display: 'flex' }}>
 
-<Report versions={versions? versions: []} productsandmodules={productsAndModules} />
+<Report versions={versions? versions: []} productsandmodules={productsAndModules} setProductsAndModules={setProductsAndModules} />
       <DrawerComponent open={open} setOpen={setOpen}/>
 
       <Main open={open}>

@@ -1,5 +1,6 @@
 import express from 'express';
 import { db, logger } from '../../BackendLogic/index';
+import { getproductsandmodules } from '../../BackendLogic/Functions/LogicFunctions';
 
 const router = express.Router();
 
@@ -10,18 +11,9 @@ router.get('/versions', async (req, res) => {
    
     let products:any= await db.getProducts();
   
-    let productsandmodules:any= [];
  
-    for(let product of products){
-     let modules= await db.getModules(product.ProductName, product.VendorName);
-  
-     let issues= await db.getIssues(product.ProductName, product.VendorName);
-   
-     productsandmodules.push({ProductName: product.ProductName, modules: modules, issues: issues});
-    }
- 
-
-   
+    let productsandmodules= await getproductsandmodules(products);
+    
     res.json({versions, productsandmodules});
     }
     catch(error){

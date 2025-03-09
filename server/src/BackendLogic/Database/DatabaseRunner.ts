@@ -255,7 +255,7 @@ import axios from 'axios';
 
 
     
-   async UpdateRecord(table: string, columns: string[], values: any[], whereColumn: string[], whereValue: any[]): Promise<boolean> {
+   async UpdateRecord(table: string, columns: string[], values: any[], whereColumn: string[], whereValue: any[]): Promise<any> {
         try {
             // Create update object from columns and values
             const updateValues = columns.reduce((obj, col, index) => {
@@ -272,11 +272,19 @@ import axios from 'axios';
             // Get the model dynamically
             const model = sequelize.models[table];
             
+            //get back the record that was updated
             const [affectedCount] = await model.update(updateValues, {
                 where: whereConditions
             });
 
-            return affectedCount > 0;
+            
+            if (affectedCount === 0) {
+                return false;
+            }
+            else{
+                const updatedRecord = await model.findOne({ where: whereConditions });
+                return updatedRecord;
+            }
         } catch (err) {
             logger.error('Error in UpdateRecord:', err);
             throw err;

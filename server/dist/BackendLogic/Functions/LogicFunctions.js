@@ -54,6 +54,7 @@ exports.ExtractVersionsFromJson = ExtractVersionsFromJson;
 exports.ExtractFortraVersionsToJson = ExtractFortraVersionsToJson;
 exports.ExtractOpswatKeyIndexes = ExtractOpswatKeyIndexes;
 exports.ExtractFortraVersions = ExtractFortraVersions;
+exports.getproductsandmodules = getproductsandmodules;
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const nodemailer_1 = __importDefault(require("nodemailer"));
@@ -92,6 +93,17 @@ function ParseDate(dateStr) {
         return new Date(Date.UTC(tempDate.getUTCFullYear(), tempDate.getUTCMonth(), tempDate.getUTCDate()));
     }
     return null;
+}
+function getproductsandmodules(products) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let productsandmodules = [];
+        for (let product of products) {
+            let modules = yield index_2.db.getModules(product.ProductName, product.VendorName);
+            let issues = yield index_2.db.getIssues(product.ProductName, product.VendorName);
+            productsandmodules.push({ ProductName: product.ProductName, modules: modules, issues: issues });
+        }
+        return productsandmodules;
+    });
 }
 function NotifyOnEndOfSupport(versionData, daysUntilEOS, daysUntilExtendedEOS, users_array) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -325,7 +337,7 @@ function SendEmail(_a) {
                         subject.includes('Version Changes Detected:') ||
                         nextUpdateTime < new Date().getTime();
                     if (shouldSendEmail) {
-                        const info = yield transporter.sendMail({
+                        yield transporter.sendMail({
                             from: process.env.USER_EMAIL,
                             to: mailbox.Email,
                             subject: subject,

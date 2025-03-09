@@ -16,6 +16,7 @@ const express_1 = __importDefault(require("express"));
 const multer_1 = __importDefault(require("multer"));
 const fs_1 = __importDefault(require("fs"));
 const index_1 = require("../../BackendLogic/index");
+const LogicFunctions_1 = require("../../BackendLogic/Functions/LogicFunctions");
 const router = express_1.default.Router();
 const storage = multer_1.default.diskStorage({
     destination: (req, file, cb) => {
@@ -39,7 +40,9 @@ router.post('/:issueId/addresolution', (req, res) => __awaiter(void 0, void 0, v
         const { resolution } = req.body;
         console.log('Adding resolution for issue:', issueId, resolution);
         yield index_1.db.UpdateRecord('Issue', ['Resolution'], [resolution], ['IssueId'], [issueId]);
-        res.json({ success: true });
+        const products = yield index_1.db.getProducts();
+        const productsandmodules = yield (0, LogicFunctions_1.getproductsandmodules)(products);
+        res.json({ success: true, productsandmodules: productsandmodules });
     }
     catch (error) {
         index_1.logger.error('Error adding resolution:', error);
@@ -52,7 +55,9 @@ router.post('/:issueId/addworkaround', (req, res) => __awaiter(void 0, void 0, v
         const { workaround } = req.body;
         console.log('Adding workaround for issue:', issueId, workaround);
         yield index_1.db.UpdateRecord('Issue', ['Workaround'], [workaround], ['IssueId'], [issueId]);
-        res.json({ success: true });
+        const products = yield index_1.db.getProducts();
+        const productsandmodules = yield (0, LogicFunctions_1.getproductsandmodules)(products);
+        res.json({ success: true, productsandmodules: productsandmodules });
     }
     catch (error) {
         index_1.logger.error('Error adding workaround:', error);
@@ -125,9 +130,12 @@ router.post('/report', upload.array('photos'), (req, res) => __awaiter(void 0, v
                     fs_1.default.renameSync(photo.path, newPath);
                 }
             }
+            let products = yield index_1.db.getProducts();
+            let productsandmodules = yield (0, LogicFunctions_1.getproductsandmodules)(products);
             res.json({
                 report: true,
-                issueId: issueId
+                issueId: issueId,
+                productsandmodules: productsandmodules
             });
         }
         else {

@@ -225,10 +225,17 @@ class Database {
                 }, {});
                 // Get the model dynamically
                 const model = ORM_2.sequelize.models[table];
+                //get back the record that was updated
                 const [affectedCount] = yield model.update(updateValues, {
                     where: whereConditions
                 });
-                return affectedCount > 0;
+                if (affectedCount === 0) {
+                    return false;
+                }
+                else {
+                    const updatedRecord = yield model.findOne({ where: whereConditions });
+                    return updatedRecord;
+                }
             }
             catch (err) {
                 index_1.logger.error('Error in UpdateRecord:', err);
