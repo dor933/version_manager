@@ -15,13 +15,11 @@ import Notification from './Help Components/Notification';
 import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
 import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined';
 import { apiService } from './API/apiService';
+import { Main } from './css/HomeCSS'
 
 export default function Home() {
-
-  
   
 const { versions, setVersions, setOpenDialog } = useMain();
-const drawerWidth = 240;
 const [open, setOpen] = React.useState(false);
 const [distinctVendors, setDistinctVendors] = React.useState<string[]>([]);
 const [lastSync, setLastSync] = React.useState<string>('');
@@ -60,7 +58,6 @@ useEffect(() => {
 useEffect(() => {
   if (versions) {
     const distinctVendors = [...new Set(versions.map((version: any) => version.VendorName))];
-    console.log('distinct vendors', distinctVendors);
     setDistinctVendors(distinctVendors);
     const versions_near_eosl = versions.filter((version: any) => {
       const endDate = new Date(version.EndOfSupportDate);
@@ -88,7 +85,6 @@ useEffect(() => {
     });
 
     const merged_versions = [...versions_near_eosl, ...versions_newer_than_2_days];
-    console.log('merged_versions', merged_versions);
     setVersionsToNotify(merged_versions);
     setReadNotifications(false);
   }
@@ -99,9 +95,8 @@ useEffect(() => {
 const handleSync = async () => {
   setIsSyncing(true);
   const response = await apiService.syncVersions();
-  console.log('response', response);
   setVersions(response.data.versions);
-  //take now date and time
+  //taking date and time
   if(response.data.sync){
     const now = new Date();
     setLastSync(now.toLocaleString('he-IL'));
@@ -133,31 +128,7 @@ const onCloseSubscribe = () => {
 
 
 
-const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
-  open?: boolean;
-}>(({ theme }) => ({
-  flexGrow: 1,
-  padding: theme.spacing(3),
-  transition: theme.transitions.create('margin', {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  marginLeft: `-${drawerWidth-50}px`,
-  variants: [
-    {
-      props: ({ open }) => open,
-      style: {
-        transition: theme.transitions.create('margin', {
-          easing: theme.transitions.easing.easeOut,
-          duration: theme.transitions.duration.enteringScreen,
-        }),
-        marginLeft: 0,
-      },
-    },
 
-
-  ],
-}));
 
 
 
