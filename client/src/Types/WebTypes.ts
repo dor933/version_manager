@@ -23,5 +23,8 @@ type Type2Products =
     'Metadefender_Software_Supply_Chain' |
     'Metadefender_Central_Management';
 
+    type Order = 'asc' | 'desc';
 
-export type { version_extracted, Type1Products, Type2Products }
+
+
+export type { version_extracted, Type1Products, Type2Products, Order }

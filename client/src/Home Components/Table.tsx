@@ -23,8 +23,8 @@ import TableSortLabel from '@mui/material/TableSortLabel';
 import { sortedVersions } from '../Help Functions/Sorting';
 import { columns, AnimatedGrid } from '../css/TableColumns';
 import { TableProps } from '../Component Props/HomeComponentsProps';
+import {Order} from '../Types/WebTypes'
 
-type Order = 'asc' | 'desc';
 
 
 
@@ -47,13 +47,7 @@ export default function StickyHeadTable({versions, distinctVendors, productsandm
  
   useEffect(() => {
 
-    console.log('entered useeffect');
-
     if (!versions) return;
-
-    console.log('not returned')
-
-    console.log('versions in the start',versions)
   
     if (SearchValue !== '') {
       // Filter by search + vendor
@@ -84,9 +78,6 @@ export default function StickyHeadTable({versions, distinctVendors, productsandm
     } else {
       // No search, no vendor
       let filtered_versions = sortedVersions(versions,orderBy,order)
-            console.log('last filtered versions',filteredVersions)
-      console.log('order by', orderBy)
-      console.log('order',order)
       setFilteredVersions(filtered_versions);
       setChosenVersion(filtered_versions[0])
       setChosenProduct(productsandmodules?.find((product: any) => product.ProductName === filtered_versions[0].ProductName))
