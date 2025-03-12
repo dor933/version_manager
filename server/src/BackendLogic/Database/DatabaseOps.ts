@@ -47,7 +47,8 @@ import axios from 'axios';
              let productRecord=await Product.findOrCreate({
                     where: { 
                         ProductName: product.ProductName,
-                        VendorId: vendor.VendorId 
+                        //Because we want to save consistenty when we re-initialize the database, we need to search the VendorId by vendor name
+                        VendorId: (await Vendor.findOne({ where: { VendorName: vendor.VendorName } }))?.VendorId 
                     },
                     defaults: {
                         JSON_URL: product.JSON_URL,
@@ -58,7 +59,8 @@ import axios from 'axios';
                 if(product.modules){
                     for(const module of product.modules){
                         await Module.findOrCreate({
-                            where: { ModuleName: module, ProductId: productRecord[0].ProductId, VendorId: vendor.VendorId },
+                            //Because we want to save consistenty when we re-initialize the database, we need to search the VendorId by vendor name
+                            where: {ModuleName: module, ProductId: productRecord[0].ProductId, VendorId: (await Vendor.findOne({ where: { VendorName: vendor.VendorName} }))?.VendorId },
                             defaults: { ModuleName: module }
                         });
                     }

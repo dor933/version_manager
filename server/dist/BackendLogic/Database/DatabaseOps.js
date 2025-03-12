@@ -25,7 +25,7 @@ class Database {
     }
     HandleData() {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a, _b, _c, _d, _e;
+            var _a, _b, _c, _d, _e, _f, _g;
             let listoffortraversions = yield (0, LogicFunctions_1.ExtractFortraVersionsToJson)(Data.Vendors[1].JSON_URL);
             try {
                 //vendor processing
@@ -42,7 +42,7 @@ class Database {
                         let productRecord = yield ORM_1.Product.findOrCreate({
                             where: {
                                 ProductName: product.ProductName,
-                                VendorId: vendor.VendorId
+                                VendorId: (_a = (yield ORM_1.Vendor.findOne({ where: { VendorName: vendor.VendorName } }))) === null || _a === void 0 ? void 0 : _a.VendorId
                             },
                             defaults: {
                                 JSON_URL: product.JSON_URL,
@@ -52,7 +52,7 @@ class Database {
                         if (product.modules) {
                             for (const module of product.modules) {
                                 yield ORM_1.Module.findOrCreate({
-                                    where: { ModuleName: module, ProductId: productRecord[0].ProductId, VendorId: vendor.VendorId },
+                                    where: { ModuleName: module, ProductId: productRecord[0].ProductId, VendorId: (_b = (yield ORM_1.Vendor.findOne({ where: { VendorName: vendor.VendorName } }))) === null || _b === void 0 ? void 0 : _b.VendorId },
                                     defaults: { ModuleName: module }
                                 });
                             }
@@ -133,18 +133,18 @@ class Database {
                                 where: {
                                     VersionName: VersionData.VersionName,
                                     //since product id defined in database and we want to let the db re-initialize the product if it is not found, we need to search it by product name and vendor id
-                                    ProductId: (_a = (yield ORM_1.Product.findOne({
+                                    ProductId: (_c = (yield ORM_1.Product.findOne({
                                         where: {
                                             ProductName: VersionData.ProductName,
                                             VendorId: vendor.VendorId
                                         }
-                                    }))) === null || _a === void 0 ? void 0 : _a.ProductId,
+                                    }))) === null || _c === void 0 ? void 0 : _c.ProductId,
                                     //since vendor id defined in database and we want to let the db re-initialize the vendor if it is not found, we need to search it by vendor name
-                                    VendorId: (_b = (yield ORM_1.Vendor.findOne({
+                                    VendorId: (_d = (yield ORM_1.Vendor.findOne({
                                         where: {
                                             VendorName: vendor.VendorName
                                         }
-                                    }))) === null || _b === void 0 ? void 0 : _b.VendorId
+                                    }))) === null || _d === void 0 ? void 0 : _d.VendorId
                                 },
                                 include: [{
                                         model: ORM_1.Product,
@@ -163,18 +163,18 @@ class Database {
                                 ],
                                 defaults: {
                                     //as mentioned before, we need to let the db re-initialize the product if it is not found, so we need to search it by product name and vendor id
-                                    ProductId: ((_c = (yield ORM_1.Product.findOne({
+                                    ProductId: ((_e = (yield ORM_1.Product.findOne({
                                         where: {
                                             ProductName: VersionData.ProductName,
                                             VendorId: vendor.VendorId
                                         }
-                                    }))) === null || _c === void 0 ? void 0 : _c.ProductId) || null,
+                                    }))) === null || _e === void 0 ? void 0 : _e.ProductId) || null,
                                     //as mentioned before, we need to let the db re-initialize the vendor if it is not found, so we need to search it by vendor name
-                                    VendorId: ((_d = (yield ORM_1.Vendor.findOne({
+                                    VendorId: ((_f = (yield ORM_1.Vendor.findOne({
                                         where: {
                                             VendorName: vendor.VendorName
                                         }
-                                    }))) === null || _d === void 0 ? void 0 : _d.VendorId) || null,
+                                    }))) === null || _f === void 0 ? void 0 : _f.VendorId) || null,
                                     ReleaseDate: VersionData.ReleaseDate,
                                     EndOfSupportDate: VersionData.EndOfSupportDate,
                                     LevelOfSupport: VersionData.LevelOfSupport,
@@ -185,7 +185,7 @@ class Database {
                                 }
                             });
                             if (!created) {
-                                if (((_e = versionRecord.EndOfSupportDate) === null || _e === void 0 ? void 0 : _e.getTime()) !== (EndOfSupportDate_DateTime === null || EndOfSupportDate_DateTime === void 0 ? void 0 : EndOfSupportDate_DateTime.getTime())) {
+                                if (((_g = versionRecord.EndOfSupportDate) === null || _g === void 0 ? void 0 : _g.getTime()) !== (EndOfSupportDate_DateTime === null || EndOfSupportDate_DateTime === void 0 ? void 0 : EndOfSupportDate_DateTime.getTime())) {
                                     yield versionRecord.update({
                                         EndOfSupportDate: EndOfSupportDate_DateTime
                                     });
