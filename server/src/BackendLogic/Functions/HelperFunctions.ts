@@ -41,7 +41,7 @@ const isType1Product = (productName: string): productName is Type1Products => {
       'MONTHS': 2629746000,
       'Hours': 3600000,
       'Days': 86400000,
-      'Months': 604800000,
+      'Months': 2629746000,
     };
     
     const result = conversions[frequency as keyof typeof conversions];

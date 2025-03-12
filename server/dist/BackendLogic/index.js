@@ -19,7 +19,7 @@ const winston_1 = __importDefault(require("winston"));
 const winston_daily_rotate_file_1 = __importDefault(require("winston-daily-rotate-file"));
 const startup_1 = require("../api/startup");
 const ORM_1 = require("./Database/ORM");
-const DatabaseRunner_1 = __importDefault(require("./Database/DatabaseRunner"));
+const DatabaseOps_1 = __importDefault(require("./Database/DatabaseOps"));
 let errorCount = 0;
 let croninterval = process.env.CRON_INTERVAL;
 let unit = process.env.UNIT;
@@ -68,7 +68,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 // Configuration
 console.log('trying to init db');
-const db = new DatabaseRunner_1.default();
+const db = new DatabaseOps_1.default();
 exports.db = db;
 let cronJob;
 // Start the cron job

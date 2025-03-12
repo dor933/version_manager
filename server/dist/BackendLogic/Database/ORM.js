@@ -47,7 +47,6 @@ exports.Module = Module;
 class Issue extends sequelize_1.Model {
 }
 exports.Issue = Issue;
-// Initialize models
 User.init({
     id: {
         type: sequelize_1.DataTypes.INTEGER,
@@ -280,7 +279,6 @@ UserChosenProduct.init({
     sequelize: exports.sequelize,
     modelName: 'UserChosenProduct',
 });
-// Define relationships
 UserChosenProduct.belongsTo(User, {
     foreignKey: 'UserID',
 });
