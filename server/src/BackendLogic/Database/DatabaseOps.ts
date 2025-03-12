@@ -30,7 +30,7 @@ import axios from 'axios';
         try{
 
       
-        
+        //vendor processing
         for (const vendor of Data.Vendors) {
 
             await Vendor.findOrCreate({
@@ -41,6 +41,7 @@ import axios from 'axios';
                 }
             });
 
+            //product processing
             for(const product of vendor.Products){
 
              let productRecord=await Product.findOrCreate({
@@ -64,7 +65,7 @@ import axios from 'axios';
                 }
 
                 
-
+                //versions extraction
                 let listofversions:VersionExtracted[]=[]
 
                 if(vendor.VendorName==='Fortra'){
@@ -100,6 +101,7 @@ import axios from 'axios';
                 //let us know how new is the version (the smaller the index the newer the version)
                 let ProductVersionIndex=0;
 
+                //version processing
                 for(const version of listofversions){
                     
                     let UsersArray= await this.GetUsersArray(product.ProductName, vendor.VendorName);
@@ -155,12 +157,14 @@ import axios from 'axios';
                     const [versionRecord, created] = await Version.findOrCreate({
                         where: {
                             VersionName: VersionData.VersionName,
+                            //since product id defined in database and we want to let the db re-initialize the product if it is not found, we need to search it by product name and vendor id
                             ProductId: (await Product.findOne({ 
                                 where: { 
                                     ProductName: VersionData.ProductName, 
                                     VendorId: vendor.VendorId 
                                 } 
                             }))?.ProductId,
+                            //since vendor id defined in database and we want to let the db re-initialize the vendor if it is not found, we need to search it by vendor name
                             VendorId: (await Vendor.findOne({ 
                                 where: { 
                                     VendorName: vendor.VendorName 
@@ -183,12 +187,14 @@ import axios from 'axios';
                         }
                     ],
                         defaults: {
+                            //as mentioned before, we need to let the db re-initialize the product if it is not found, so we need to search it by product name and vendor id
                             ProductId: (await Product.findOne({ 
                                 where: { 
                                     ProductName: VersionData.ProductName, 
                                     VendorId: vendor.VendorId 
                                 } 
                             }))?.ProductId || null,
+                            //as mentioned before, we need to let the db re-initialize the vendor if it is not found, so we need to search it by vendor name
                             VendorId: (await Vendor.findOne({ 
                                 where: { 
                                     VendorName: vendor.VendorName 
@@ -277,7 +283,7 @@ import axios from 'axios';
                 where: whereConditions
             });
 
-            
+
             if (affectedCount === 0) {
                 return false;
             }

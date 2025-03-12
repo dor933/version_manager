@@ -21,7 +21,6 @@ router.get('/versions', (req, res) => __awaiter(void 0, void 0, void 0, function
         const versions = yield index_1.db.getVersions();
         let products = yield index_1.db.getProducts();
         let productsandmodules = yield (0, LogicFunctions_1.getproductsandmodules)(products);
-        console.log('productsandmodules', productsandmodules);
         res.json({ versions, productsandmodules });
     }
     catch (error) {

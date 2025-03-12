@@ -85,7 +85,6 @@ class Issue extends Model {
 
 }
 
-// Initialize models
 User.init({
     id: {
         type: DataTypes.INTEGER,
@@ -327,7 +326,6 @@ UserChosenProduct.init({
     modelName: 'UserChosenProduct',
 });
 
-// Define relationships
 UserChosenProduct.belongsTo(User, {
     foreignKey: 'UserID',
     
