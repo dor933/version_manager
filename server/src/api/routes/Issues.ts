@@ -2,13 +2,12 @@ import express from 'express';
 import multer from 'multer';
 import fs from 'fs';
 import { db, logger } from '../../BackendLogic/index';
-import { Issue } from '../../BackendLogic/Database/ORM';
 import { getproductsandmodules } from '../../BackendLogic/Functions/LogicFunctions';
 
 const router = express.Router();
 
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
+    destination: (_, __, cb) => {
       // Store temporarily in uploads folder
       const tempDir = 'server/uploads/temp';
       // Create temp directory if it doesn't exist
@@ -17,7 +16,7 @@ const storage = multer.diskStorage({
       }
       cb(null, tempDir);
     },
-    filename: (req, file, cb) => {
+    filename: (_, file, cb) => {
       const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
       cb(null, file.originalname + '-' + uniqueSuffix + '.jpg');
     }
@@ -28,7 +27,7 @@ router.post('/:issueId/addresolution', async (req, res) => {
     try {
         const { issueId } = req.params;
         const { resolution } = req.body;
-        console.log('Adding resolution for issue:', issueId, resolution);
+        logger.info('Adding resolution for issue:', issueId, resolution);
         
          await db.UpdateRecord(
           'Issue',
@@ -52,7 +51,7 @@ router.post('/:issueId/addworkaround', async (req, res) => {
     try {
         const { issueId } = req.params;
         const { workaround } = req.body;
-        console.log('Adding workaround for issue:', issueId, workaround);
+        logger.info('Adding workaround for issue:', issueId, workaround);
         
          await db.UpdateRecord(
           'Issue',
@@ -76,17 +75,17 @@ router.get('/:issueId/photos', (req, res) => {
     try {
         const issueId = req.params.issueId;
         const issueDir = `server/uploads/issues/${issueId}`;
-        console.log('issueDir', issueDir)
+        logger.info('issueDir', issueDir)
         
     if (fs.existsSync(issueDir)) {
-      console.log('issueDir exists')
+      logger.info('issueDir exists')
       const photos = fs.readdirSync(issueDir);
-      console.log('photos', photos)
+      logger.info('photos', photos)
       res.json({
         photos: photos.map(filename => `server/uploads/issues/${issueId}/${filename}`)
       });
     } else {
-      console.log('issueDir does not exist')
+      logger.info('issueDir does not exist')
         res.json({ photos: [] });
     }
     } catch (error) {

@@ -6,8 +6,8 @@ const Data=require('../../../Data.json') as DataStructure;
 import { logger } from '../index';
 import { VersionExtracted } from '../../Types/WebTypes';
 import { Model, Sequelize } from 'sequelize';
-import { User, UserChosenProduct, Vendor, Product, Version, Module, Issue } from './ORM';
-import { sequelize } from './ORM';
+import { User, UserChosenProduct, Vendor, Product, Version, Module, Issue } from './Schemes';
+import { sequelize } from './Schemes';
 import axios from 'axios';
 
 
@@ -48,7 +48,7 @@ import axios from 'axios';
                     where: { 
                         ProductName: product.ProductName,
                         //Because we want to save consistenty when we re-initialize the database, we need to search the VendorId by vendor name
-                        VendorId: (await Vendor.findOne({ where: { VendorName: vendor.VendorName } }))?.VendorId 
+                        VendorId: (await Vendor.findOne({ where: { VendorName: vendor.VendorName } }))?.get('VendorId') 
                     },
                     defaults: {
                         JSON_URL: product.JSON_URL,
@@ -58,9 +58,9 @@ import axios from 'axios';
 
                 if(product.modules){
                     for(const module of product.modules){
-                        await Module.findOrCreate({
+                        await sequelize.models.Module.findOrCreate({
                             //Because we want to save consistenty when we re-initialize the database, we need to search the VendorId by vendor name
-                            where: {ModuleName: module, ProductId: productRecord[0].ProductId, VendorId: (await Vendor.findOne({ where: { VendorName: vendor.VendorName} }))?.VendorId },
+                            where: {ModuleName: module, ProductId: productRecord[0].get('ProductId'), VendorId: (await Vendor.findOne({ where: { VendorName: vendor.VendorName} }))?.get('VendorId') },
                             defaults: { ModuleName: module }
                         });
                     }
@@ -165,13 +165,13 @@ import axios from 'axios';
                                     ProductName: VersionData.ProductName, 
                                     VendorId: vendor.VendorId 
                                 } 
-                            }))?.ProductId,
+                            }))?.get('ProductId'),
                             //since vendor id defined in database and we want to let the db re-initialize the vendor if it is not found, we need to search it by vendor name
                             VendorId: (await Vendor.findOne({ 
                                 where: { 
                                     VendorName: vendor.VendorName 
                                 } 
-                            }))?.VendorId
+                            }))?.get('VendorId')
                         },
                         include: [{
                             model: Product,
@@ -193,15 +193,15 @@ import axios from 'axios';
                             ProductId: (await Product.findOne({ 
                                 where: { 
                                     ProductName: VersionData.ProductName, 
-                                    VendorId: vendor.VendorId 
+                                        VendorId: vendor.VendorId 
                                 } 
-                            }))?.ProductId || null,
+                            }))?.get('ProductId') || null,
                             //as mentioned before, we need to let the db re-initialize the vendor if it is not found, so we need to search it by vendor name
                             VendorId: (await Vendor.findOne({ 
                                 where: { 
                                     VendorName: vendor.VendorName 
                                 } 
-                            }))?.VendorId || null,
+                            }))?.get('VendorId') || null,
                             ReleaseDate: VersionData.ReleaseDate,
                             EndOfSupportDate: VersionData.EndOfSupportDate,
                             LevelOfSupport: VersionData.LevelOfSupport,
@@ -213,7 +213,7 @@ import axios from 'axios';
                     });
 
                     if (!created) {
-                        if (versionRecord.EndOfSupportDate?.getTime() !== EndOfSupportDate_DateTime?.getTime()) {
+                        if ((versionRecord.get('EndOfSupportDate') as Date)?.getTime() !== EndOfSupportDate_DateTime?.getTime()) {
                             await versionRecord.update({
                                 EndOfSupportDate: EndOfSupportDate_DateTime
                             });
@@ -221,7 +221,7 @@ import axios from 'axios';
                                 product.ProductName,
                                 vendor.VendorName,
                                 VersionData.VersionName,
-                                versionRecord.EndOfSupportDate,
+                                (versionRecord.get('EndOfSupportDate') as Date),
                                 EndOfSupportDate_DateTime!,
                                 UsersArray
                             );
@@ -346,13 +346,13 @@ import axios from 'axios';
         try{
         const where: any = {};
         let VendorId = vendor? await Vendor.findOne({ where: { VendorName: vendor } }) : null;
-        let ProductId = product? await Product.findOne({ where: { ProductName: product, VendorId: VendorId?.VendorId } }) : null;
+        let ProductId = product? await Product.findOne({ where: { ProductName: product, VendorId: VendorId?.get('VendorId') } }) : null;
         
-        if (vendor) where.VendorId = VendorId?.VendorId;
-        if (product) where.ProductId = ProductId?.ProductId;
+        if (vendor) where.VendorId = VendorId?.get('VendorId');
+        if (product) where.ProductId = ProductId?.get('ProductId');
 
 
-        let versions= await this.getAll<Version>(Version, where, [
+        let versions= await this.getAll<InstanceType<typeof Version>>(Version, where, [
             {
                 model: Product,
                 attributes: ['ProductName']
@@ -395,8 +395,8 @@ import axios from 'axios';
         const where: any = {};
         let VendorId= vendor? await Vendor.findOne({ where: { VendorName: vendor } }) : null;
     
-        if (vendor) where.VendorId = VendorId?.VendorId;
-        let products= await this.getAll<Product>(Product, where, [{
+        if (vendor) where.VendorId = VendorId?.get('VendorId');
+        let products= await this.getAll<InstanceType<typeof Product>>(Product, where, [{
             model: Vendor,
             attributes: ['VendorName', 'VendorId']
         }]);
@@ -423,10 +423,10 @@ import axios from 'axios';
     async getModules(product: string, vendor: string) {
         try{
         let VendorId= await Vendor.findOne({ where: { VendorName: vendor } });
-        let ProductId= await Product.findOne({ where: { ProductName: product, VendorId: VendorId?.VendorId } });
-        let modules= await this.getAll<Module>(Module, { 
-            ProductId: ProductId?.ProductId,
-            VendorId: VendorId?.VendorId
+        let ProductId= await Product.findOne({ where: { ProductName: product, VendorId: VendorId?.get('VendorId') } });
+        let modules= await this.getAll<InstanceType<typeof Module>>(Module, { 
+            ProductId: ProductId?.get('ProductId'),
+            VendorId: VendorId?.get('VendorId')
         }, [
             {
                 model: Vendor,
@@ -457,10 +457,10 @@ import axios from 'axios';
     async getIssues(product: string, vendor: string) {
         try{
         let VendorId= await Vendor.findOne({ where: { VendorName: vendor } });
-        let ProductId= await Product.findOne({ where: { ProductName: product, VendorId: VendorId?.VendorId } });
-        let issues= await this.getAll<Issue>(Issue, { 
-            ProductId: ProductId?.ProductId,
-            VendorId: VendorId?.VendorId
+        let ProductId= await Product.findOne({ where: { ProductName: product, VendorId: VendorId?.get('VendorId') } });
+        let issues= await this.getAll<InstanceType<typeof Issue>>(Issue, { 
+            ProductId: ProductId?.get('ProductId'),
+            VendorId: VendorId?.get('VendorId')
         }, [
             {
                 model: Product,
@@ -505,22 +505,22 @@ import axios from 'axios';
         }
 
     async CheckUserExists(email: string): Promise<number | false> {
-        let user = await this.RecordExists<User>(User, { email });
-        return user ? user.id : false;
+        let user = await this.RecordExists<InstanceType<typeof User>>(User, { email });
+        return user ? (user as any).id : false;
     }
 
     async GetUsersArray(product: string, vendor: string) {
         let VendorId= await Vendor.findOne({ where: { VendorName: vendor } });
-        let ProductId= await Product.findOne({ where: { ProductName: product, VendorId: VendorId?.VendorId } });
-        const userProducts = await this.getAll<UserChosenProduct>(UserChosenProduct, {
-            ProductId: ProductId?.ProductId,
-            VendorId: VendorId?.VendorId
+        let ProductId= await Product.findOne({ where: { ProductName: product, VendorId: VendorId?.get('VendorId') } });
+        const userProducts = await this.getAll<InstanceType<typeof UserChosenProduct>>(UserChosenProduct, {
+            ProductId: ProductId?.get('ProductId'),
+            VendorId: VendorId?.get('VendorId')
         }, [{
             model: User,
             attributes: ['email']
         }]);
 
-        return userProducts.map(userProduct => ({
+        return userProducts.map((userProduct:any) => ({
             Email: userProduct.User.email,
             LastUpdate: userProduct.LastUpdate,
             UnitOfTime: userProduct.UnitOfTime,
@@ -534,7 +534,7 @@ import axios from 'axios';
    async subscribe(userid: number, product: string, vendor: string, Unit_of_time: string, Frequency: string) {
 
     const VendorId= await Vendor.findOne({ where: { VendorName: vendor } });
-    const ProductId= await Product.findOne({ where: { ProductName: product, VendorId: VendorId?.VendorId } });
+    const ProductId= await Product.findOne({ where: { ProductName: product, VendorId: VendorId?.get('VendorId') } });
 
     return new Promise((resolve, reject) => {
 
@@ -542,7 +542,7 @@ import axios from 'axios';
             UserChosenProduct.count({
                 where: {
                     UserID: userid,
-                    ProductId: ProductId?.ProductId,
+                    ProductId: ProductId?.get('ProductId'),
                    
                 }
             }).then(count => {
@@ -555,7 +555,7 @@ import axios from 'axios';
                         {
                             where: {
                                 UserID: userid,
-                                ProductId: ProductId?.ProductId,
+                                ProductId: ProductId?.get('ProductId'),
                             }
                         }
                     ).then(() => {
@@ -568,8 +568,8 @@ import axios from 'axios';
 
                     UserChosenProduct.create({
                         UserID: userid,
-                        ProductId: ProductId?.ProductId,
-                        VendorId: VendorId?.VendorId,
+                        ProductId: ProductId?.get('ProductId'),
+                        VendorId: VendorId?.get('VendorId'),
                         UnitOfTime: Unit_of_time,
                         Frequency: Frequency,
                         LastUpdate: new Date(new Date().setFullYear(new Date().getFullYear() - 1))
@@ -622,16 +622,16 @@ import axios from 'axios';
    async report(vendor:string, product:string, version:string, module:string, email:string, severity:string, issueDescription:string, userid:number, rule?:string) {
 
     let VendorId= await Vendor.findOne({ where: { VendorName: vendor } });
-    let ProductId= await Product.findOne({ where: { ProductName: product, VendorId: VendorId?.VendorId } });
-    let VersionId= await Version.findOne({ where: { VersionName: version, ProductId: ProductId?.ProductId } });
-    let ModuleId= await Module.findOne({ where: { ModuleName: module, ProductId: ProductId?.ProductId, VendorId: VendorId?.VendorId } });
+    let ProductId= await Product.findOne({ where: { ProductName: product, VendorId: VendorId?.get('VendorId') } });
+    let VersionId= await Version.findOne({ where: { VersionName: version, ProductId: ProductId?.get('ProductId') } });
+    let ModuleId= await Module.findOne({ where: { ModuleName: module, ProductId: ProductId?.get('ProductId'), VendorId: VendorId?.get('VendorId') } });
 
     return new Promise((resolve, reject) => {
         Issue.create({
-            VendorId: VendorId?.VendorId,
-            ProductId: ProductId?.ProductId,
-            VersionId: VersionId?.VersionId,
-            ModuleId: ModuleId?.ModuleId,
+            VendorId: VendorId?.get('VendorId'),
+            ProductId: ProductId?.get('ProductId'),
+            VersionId: VersionId?.get('VersionId'),
+            ModuleId: ModuleId?.get('ModuleId'),
             Email: email,
             Rule: rule,
             Severity: severity,
@@ -640,7 +640,7 @@ import axios from 'axios';
             UserID: userid,
             Ratification: 1
         }).then(issue => {  
-            resolve(issue.IssueId);
+            resolve((issue as any).IssueId);
         }).catch(err => {
             console.error('Error reporting issue', err.message);
             reject(false);

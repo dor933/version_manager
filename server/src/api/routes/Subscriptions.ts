@@ -13,7 +13,7 @@ router.post('/subscribe', async (req, res) => {
   
     let existinguser= await db.CheckUserExists(email);
     if(existinguser===false){  
-      console.log('User not found, registering user');
+      logger.info('User not found, registering user');
     await db.registerUser(email);
   
     }

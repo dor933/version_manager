@@ -18,7 +18,7 @@ const LogicFunctions_1 = require("./Functions/LogicFunctions");
 const winston_1 = __importDefault(require("winston"));
 const winston_daily_rotate_file_1 = __importDefault(require("winston-daily-rotate-file"));
 const startup_1 = require("../api/startup");
-const ORM_1 = require("./Database/ORM");
+const Schemes_1 = require("./Database/Schemes");
 const DatabaseOps_1 = __importDefault(require("./Database/DatabaseOps"));
 let errorCount = 0;
 let croninterval = process.env.CRON_INTERVAL;
@@ -177,7 +177,7 @@ process.on('unhandledRejection', (reason) => {
     try {
         // Sync database without forcing recreation
         logger.info('Syncing database models...');
-        yield (0, ORM_1.syncModels)();
+        yield (0, Schemes_1.syncModels)();
         // Then start handling data
         yield db.HandleData();
         logger.info('Initiation finished successfully');

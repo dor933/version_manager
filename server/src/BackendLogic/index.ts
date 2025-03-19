@@ -3,7 +3,7 @@ import { SendEmail } from './Functions/LogicFunctions';
 import winston from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
 import { startServer } from '../api/startup'
-import { syncModels } from './Database/ORM';
+import { syncModels } from './Database/Schemes';
 import Database from './Database/DatabaseOps';
 let errorCount=0;
 let croninterval:any= process.env.CRON_INTERVAL;

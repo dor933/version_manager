@@ -16,12 +16,12 @@ const LogicFunctions_1 = require("../Functions/LogicFunctions");
 const LogicFunctions_2 = require("../Functions/LogicFunctions");
 const Data = require('../../../Data.json');
 const index_1 = require("../index");
-const ORM_1 = require("./ORM");
-const ORM_2 = require("./ORM");
+const Schemes_1 = require("./Schemes");
+const Schemes_2 = require("./Schemes");
 const axios_1 = __importDefault(require("axios"));
 class Database {
     constructor() {
-        this.sequelize = ORM_2.sequelize;
+        this.sequelize = Schemes_2.sequelize;
     }
     HandleData() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -30,7 +30,7 @@ class Database {
             try {
                 //vendor processing
                 for (const vendor of Data.Vendors) {
-                    yield ORM_1.Vendor.findOrCreate({
+                    yield Schemes_1.Vendor.findOrCreate({
                         where: { VendorName: vendor.VendorName },
                         defaults: {
                             ContactInfo: vendor.contactInfo,
@@ -39,10 +39,11 @@ class Database {
                     });
                     //product processing
                     for (const product of vendor.Products) {
-                        let productRecord = yield ORM_1.Product.findOrCreate({
+                        let productRecord = yield Schemes_1.Product.findOrCreate({
                             where: {
                                 ProductName: product.ProductName,
-                                VendorId: (_a = (yield ORM_1.Vendor.findOne({ where: { VendorName: vendor.VendorName } }))) === null || _a === void 0 ? void 0 : _a.VendorId
+                                //Because we want to save consistenty when we re-initialize the database, we need to search the VendorId by vendor name
+                                VendorId: (_a = (yield Schemes_1.Vendor.findOne({ where: { VendorName: vendor.VendorName } }))) === null || _a === void 0 ? void 0 : _a.get('VendorId')
                             },
                             defaults: {
                                 JSON_URL: product.JSON_URL,
@@ -51,8 +52,9 @@ class Database {
                         });
                         if (product.modules) {
                             for (const module of product.modules) {
-                                yield ORM_1.Module.findOrCreate({
-                                    where: { ModuleName: module, ProductId: productRecord[0].ProductId, VendorId: (_b = (yield ORM_1.Vendor.findOne({ where: { VendorName: vendor.VendorName } }))) === null || _b === void 0 ? void 0 : _b.VendorId },
+                                yield Schemes_2.sequelize.models.Module.findOrCreate({
+                                    //Because we want to save consistenty when we re-initialize the database, we need to search the VendorId by vendor name
+                                    where: { ModuleName: module, ProductId: productRecord[0].get('ProductId'), VendorId: (_b = (yield Schemes_1.Vendor.findOne({ where: { VendorName: vendor.VendorName } }))) === null || _b === void 0 ? void 0 : _b.get('VendorId') },
                                     defaults: { ModuleName: module }
                                 });
                             }
@@ -129,32 +131,32 @@ class Database {
                                 EoslStartDate: EOSL_Start_Date ? EOSL_Start_Date : undefined,
                                 FullReleaseNotes: release_notes
                             };
-                            const [versionRecord, created] = yield ORM_1.Version.findOrCreate({
+                            const [versionRecord, created] = yield Schemes_1.Version.findOrCreate({
                                 where: {
                                     VersionName: VersionData.VersionName,
                                     //since product id defined in database and we want to let the db re-initialize the product if it is not found, we need to search it by product name and vendor id
-                                    ProductId: (_c = (yield ORM_1.Product.findOne({
+                                    ProductId: (_c = (yield Schemes_1.Product.findOne({
                                         where: {
                                             ProductName: VersionData.ProductName,
                                             VendorId: vendor.VendorId
                                         }
-                                    }))) === null || _c === void 0 ? void 0 : _c.ProductId,
+                                    }))) === null || _c === void 0 ? void 0 : _c.get('ProductId'),
                                     //since vendor id defined in database and we want to let the db re-initialize the vendor if it is not found, we need to search it by vendor name
-                                    VendorId: (_d = (yield ORM_1.Vendor.findOne({
+                                    VendorId: (_d = (yield Schemes_1.Vendor.findOne({
                                         where: {
                                             VendorName: vendor.VendorName
                                         }
-                                    }))) === null || _d === void 0 ? void 0 : _d.VendorId
+                                    }))) === null || _d === void 0 ? void 0 : _d.get('VendorId')
                                 },
                                 include: [{
-                                        model: ORM_1.Product,
+                                        model: Schemes_1.Product,
                                         attributes: ['ProductId'],
                                         where: {
                                             ProductName: VersionData.ProductName,
                                         }
                                     },
                                     {
-                                        model: ORM_1.Vendor,
+                                        model: Schemes_1.Vendor,
                                         attributes: ['VendorId'],
                                         where: {
                                             VendorName: vendor.VendorName
@@ -163,18 +165,18 @@ class Database {
                                 ],
                                 defaults: {
                                     //as mentioned before, we need to let the db re-initialize the product if it is not found, so we need to search it by product name and vendor id
-                                    ProductId: ((_e = (yield ORM_1.Product.findOne({
+                                    ProductId: ((_e = (yield Schemes_1.Product.findOne({
                                         where: {
                                             ProductName: VersionData.ProductName,
                                             VendorId: vendor.VendorId
                                         }
-                                    }))) === null || _e === void 0 ? void 0 : _e.ProductId) || null,
+                                    }))) === null || _e === void 0 ? void 0 : _e.get('ProductId')) || null,
                                     //as mentioned before, we need to let the db re-initialize the vendor if it is not found, so we need to search it by vendor name
-                                    VendorId: ((_f = (yield ORM_1.Vendor.findOne({
+                                    VendorId: ((_f = (yield Schemes_1.Vendor.findOne({
                                         where: {
                                             VendorName: vendor.VendorName
                                         }
-                                    }))) === null || _f === void 0 ? void 0 : _f.VendorId) || null,
+                                    }))) === null || _f === void 0 ? void 0 : _f.get('VendorId')) || null,
                                     ReleaseDate: VersionData.ReleaseDate,
                                     EndOfSupportDate: VersionData.EndOfSupportDate,
                                     LevelOfSupport: VersionData.LevelOfSupport,
@@ -185,11 +187,11 @@ class Database {
                                 }
                             });
                             if (!created) {
-                                if (((_g = versionRecord.EndOfSupportDate) === null || _g === void 0 ? void 0 : _g.getTime()) !== (EndOfSupportDate_DateTime === null || EndOfSupportDate_DateTime === void 0 ? void 0 : EndOfSupportDate_DateTime.getTime())) {
+                                if (((_g = versionRecord.get('EndOfSupportDate')) === null || _g === void 0 ? void 0 : _g.getTime()) !== (EndOfSupportDate_DateTime === null || EndOfSupportDate_DateTime === void 0 ? void 0 : EndOfSupportDate_DateTime.getTime())) {
                                     yield versionRecord.update({
                                         EndOfSupportDate: EndOfSupportDate_DateTime
                                     });
-                                    yield (0, LogicFunctions_1.NotifyOnEndOfSupportChanges)(product.ProductName, vendor.VendorName, VersionData.VersionName, versionRecord.EndOfSupportDate, EndOfSupportDate_DateTime, UsersArray);
+                                    yield (0, LogicFunctions_1.NotifyOnEndOfSupportChanges)(product.ProductName, vendor.VendorName, VersionData.VersionName, versionRecord.get('EndOfSupportDate'), EndOfSupportDate_DateTime, UsersArray);
                                 }
                             }
                             else {
@@ -232,7 +234,7 @@ class Database {
                     return obj;
                 }, {});
                 // Get the model dynamically
-                const model = ORM_2.sequelize.models[table];
+                const model = Schemes_2.sequelize.models[table];
                 //get back the record that was updated
                 const [affectedCount] = yield model.update(updateValues, {
                     where: whereConditions
@@ -292,19 +294,19 @@ class Database {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const where = {};
-                let VendorId = vendor ? yield ORM_1.Vendor.findOne({ where: { VendorName: vendor } }) : null;
-                let ProductId = product ? yield ORM_1.Product.findOne({ where: { ProductName: product, VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.VendorId } }) : null;
+                let VendorId = vendor ? yield Schemes_1.Vendor.findOne({ where: { VendorName: vendor } }) : null;
+                let ProductId = product ? yield Schemes_1.Product.findOne({ where: { ProductName: product, VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.get('VendorId') } }) : null;
                 if (vendor)
-                    where.VendorId = VendorId === null || VendorId === void 0 ? void 0 : VendorId.VendorId;
+                    where.VendorId = VendorId === null || VendorId === void 0 ? void 0 : VendorId.get('VendorId');
                 if (product)
-                    where.ProductId = ProductId === null || ProductId === void 0 ? void 0 : ProductId.ProductId;
-                let versions = yield this.getAll(ORM_1.Version, where, [
+                    where.ProductId = ProductId === null || ProductId === void 0 ? void 0 : ProductId.get('ProductId');
+                let versions = yield this.getAll(Schemes_1.Version, where, [
                     {
-                        model: ORM_1.Product,
+                        model: Schemes_1.Product,
                         attributes: ['ProductName']
                     },
                     {
-                        model: ORM_1.Vendor,
+                        model: Schemes_1.Vendor,
                         attributes: ['VendorName']
                     }
                 ]);
@@ -335,11 +337,11 @@ class Database {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const where = {};
-                let VendorId = vendor ? yield ORM_1.Vendor.findOne({ where: { VendorName: vendor } }) : null;
+                let VendorId = vendor ? yield Schemes_1.Vendor.findOne({ where: { VendorName: vendor } }) : null;
                 if (vendor)
-                    where.VendorId = VendorId === null || VendorId === void 0 ? void 0 : VendorId.VendorId;
-                let products = yield this.getAll(ORM_1.Product, where, [{
-                        model: ORM_1.Vendor,
+                    where.VendorId = VendorId === null || VendorId === void 0 ? void 0 : VendorId.get('VendorId');
+                let products = yield this.getAll(Schemes_1.Product, where, [{
+                        model: Schemes_1.Vendor,
                         attributes: ['VendorName', 'VendorId']
                     }]);
                 let productsdata = products.map((product) => {
@@ -363,18 +365,18 @@ class Database {
     getModules(product, vendor) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                let VendorId = yield ORM_1.Vendor.findOne({ where: { VendorName: vendor } });
-                let ProductId = yield ORM_1.Product.findOne({ where: { ProductName: product, VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.VendorId } });
-                let modules = yield this.getAll(ORM_1.Module, {
-                    ProductId: ProductId === null || ProductId === void 0 ? void 0 : ProductId.ProductId,
-                    VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.VendorId
+                let VendorId = yield Schemes_1.Vendor.findOne({ where: { VendorName: vendor } });
+                let ProductId = yield Schemes_1.Product.findOne({ where: { ProductName: product, VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.get('VendorId') } });
+                let modules = yield this.getAll(Schemes_1.Module, {
+                    ProductId: ProductId === null || ProductId === void 0 ? void 0 : ProductId.get('ProductId'),
+                    VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.get('VendorId')
                 }, [
                     {
-                        model: ORM_1.Vendor,
+                        model: Schemes_1.Vendor,
                         attributes: ['VendorName', 'VendorId']
                     },
                     {
-                        model: ORM_1.Product,
+                        model: Schemes_1.Product,
                         attributes: ['ProductName', 'ProductId']
                     }
                 ]);
@@ -396,22 +398,22 @@ class Database {
     getIssues(product, vendor) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                let VendorId = yield ORM_1.Vendor.findOne({ where: { VendorName: vendor } });
-                let ProductId = yield ORM_1.Product.findOne({ where: { ProductName: product, VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.VendorId } });
-                let issues = yield this.getAll(ORM_1.Issue, {
-                    ProductId: ProductId === null || ProductId === void 0 ? void 0 : ProductId.ProductId,
-                    VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.VendorId
+                let VendorId = yield Schemes_1.Vendor.findOne({ where: { VendorName: vendor } });
+                let ProductId = yield Schemes_1.Product.findOne({ where: { ProductName: product, VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.get('VendorId') } });
+                let issues = yield this.getAll(Schemes_1.Issue, {
+                    ProductId: ProductId === null || ProductId === void 0 ? void 0 : ProductId.get('ProductId'),
+                    VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.get('VendorId')
                 }, [
                     {
-                        model: ORM_1.Product,
+                        model: Schemes_1.Product,
                         attributes: ['ProductName', 'ProductId']
                     },
                     {
-                        model: ORM_1.Vendor,
+                        model: Schemes_1.Vendor,
                         attributes: ['VendorName']
                     },
                     {
-                        model: ORM_1.Version,
+                        model: Schemes_1.Version,
                         attributes: ['VersionName', 'VersionId']
                     }
                 ]);
@@ -442,22 +444,22 @@ class Database {
     }
     CheckUserExists(email) {
         return __awaiter(this, void 0, void 0, function* () {
-            let user = yield this.RecordExists(ORM_1.User, { email });
+            let user = yield this.RecordExists(Schemes_1.User, { email });
             return user ? user.id : false;
         });
     }
     GetUsersArray(product, vendor) {
         return __awaiter(this, void 0, void 0, function* () {
-            let VendorId = yield ORM_1.Vendor.findOne({ where: { VendorName: vendor } });
-            let ProductId = yield ORM_1.Product.findOne({ where: { ProductName: product, VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.VendorId } });
-            const userProducts = yield this.getAll(ORM_1.UserChosenProduct, {
-                ProductId: ProductId === null || ProductId === void 0 ? void 0 : ProductId.ProductId,
-                VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.VendorId
+            let VendorId = yield Schemes_1.Vendor.findOne({ where: { VendorName: vendor } });
+            let ProductId = yield Schemes_1.Product.findOne({ where: { ProductName: product, VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.get('VendorId') } });
+            const userProducts = yield this.getAll(Schemes_1.UserChosenProduct, {
+                ProductId: ProductId === null || ProductId === void 0 ? void 0 : ProductId.get('ProductId'),
+                VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.get('VendorId')
             }, [{
-                    model: ORM_1.User,
+                    model: Schemes_1.User,
                     attributes: ['email']
                 }]);
-            return userProducts.map(userProduct => ({
+            return userProducts.map((userProduct) => ({
                 Email: userProduct.User.email,
                 LastUpdate: userProduct.LastUpdate,
                 UnitOfTime: userProduct.UnitOfTime,
@@ -470,24 +472,24 @@ class Database {
     }
     subscribe(userid, product, vendor, Unit_of_time, Frequency) {
         return __awaiter(this, void 0, void 0, function* () {
-            const VendorId = yield ORM_1.Vendor.findOne({ where: { VendorName: vendor } });
-            const ProductId = yield ORM_1.Product.findOne({ where: { ProductName: product, VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.VendorId } });
+            const VendorId = yield Schemes_1.Vendor.findOne({ where: { VendorName: vendor } });
+            const ProductId = yield Schemes_1.Product.findOne({ where: { ProductName: product, VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.get('VendorId') } });
             return new Promise((resolve, reject) => {
                 try {
-                    ORM_1.UserChosenProduct.count({
+                    Schemes_1.UserChosenProduct.count({
                         where: {
                             UserID: userid,
-                            ProductId: ProductId === null || ProductId === void 0 ? void 0 : ProductId.ProductId,
+                            ProductId: ProductId === null || ProductId === void 0 ? void 0 : ProductId.get('ProductId'),
                         }
                     }).then(count => {
                         if (count > 0) {
-                            ORM_1.UserChosenProduct.update({
+                            Schemes_1.UserChosenProduct.update({
                                 UnitOfTime: Unit_of_time,
                                 Frequency: Frequency
                             }, {
                                 where: {
                                     UserID: userid,
-                                    ProductId: ProductId === null || ProductId === void 0 ? void 0 : ProductId.ProductId,
+                                    ProductId: ProductId === null || ProductId === void 0 ? void 0 : ProductId.get('ProductId'),
                                 }
                             }).then(() => {
                                 resolve(true);
@@ -497,10 +499,10 @@ class Database {
                             });
                         }
                         else {
-                            ORM_1.UserChosenProduct.create({
+                            Schemes_1.UserChosenProduct.create({
                                 UserID: userid,
-                                ProductId: ProductId === null || ProductId === void 0 ? void 0 : ProductId.ProductId,
-                                VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.VendorId,
+                                ProductId: ProductId === null || ProductId === void 0 ? void 0 : ProductId.get('ProductId'),
+                                VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.get('VendorId'),
                                 UnitOfTime: Unit_of_time,
                                 Frequency: Frequency,
                                 LastUpdate: new Date(new Date().setFullYear(new Date().getFullYear() - 1))
@@ -526,7 +528,7 @@ class Database {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 try {
-                    ORM_1.User.create({
+                    Schemes_1.User.create({
                         email,
                         role
                     }).then(() => {
@@ -545,16 +547,16 @@ class Database {
     }
     report(vendor, product, version, module, email, severity, issueDescription, userid, rule) {
         return __awaiter(this, void 0, void 0, function* () {
-            let VendorId = yield ORM_1.Vendor.findOne({ where: { VendorName: vendor } });
-            let ProductId = yield ORM_1.Product.findOne({ where: { ProductName: product, VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.VendorId } });
-            let VersionId = yield ORM_1.Version.findOne({ where: { VersionName: version, ProductId: ProductId === null || ProductId === void 0 ? void 0 : ProductId.ProductId } });
-            let ModuleId = yield ORM_1.Module.findOne({ where: { ModuleName: module, ProductId: ProductId === null || ProductId === void 0 ? void 0 : ProductId.ProductId, VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.VendorId } });
+            let VendorId = yield Schemes_1.Vendor.findOne({ where: { VendorName: vendor } });
+            let ProductId = yield Schemes_1.Product.findOne({ where: { ProductName: product, VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.get('VendorId') } });
+            let VersionId = yield Schemes_1.Version.findOne({ where: { VersionName: version, ProductId: ProductId === null || ProductId === void 0 ? void 0 : ProductId.get('ProductId') } });
+            let ModuleId = yield Schemes_1.Module.findOne({ where: { ModuleName: module, ProductId: ProductId === null || ProductId === void 0 ? void 0 : ProductId.get('ProductId'), VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.get('VendorId') } });
             return new Promise((resolve, reject) => {
-                ORM_1.Issue.create({
-                    VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.VendorId,
-                    ProductId: ProductId === null || ProductId === void 0 ? void 0 : ProductId.ProductId,
-                    VersionId: VersionId === null || VersionId === void 0 ? void 0 : VersionId.VersionId,
-                    ModuleId: ModuleId === null || ModuleId === void 0 ? void 0 : ModuleId.ModuleId,
+                Schemes_1.Issue.create({
+                    VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.get('VendorId'),
+                    ProductId: ProductId === null || ProductId === void 0 ? void 0 : ProductId.get('ProductId'),
+                    VersionId: VersionId === null || VersionId === void 0 ? void 0 : VersionId.get('VersionId'),
+                    ModuleId: ModuleId === null || ModuleId === void 0 ? void 0 : ModuleId.get('ModuleId'),
                     Email: email,
                     Rule: rule,
                     Severity: severity,

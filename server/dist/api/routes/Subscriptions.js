@@ -21,7 +21,7 @@ router.post('/subscribe', (req, res) => __awaiter(void 0, void 0, void 0, functi
     try {
         let existinguser = yield index_1.db.CheckUserExists(email);
         if (existinguser === false) {
-            console.log('User not found, registering user');
+            index_1.logger.info('User not found, registering user');
             yield index_1.db.registerUser(email);
         }
         const userid = yield index_1.db.CheckUserExists(email);

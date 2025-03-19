@@ -19,7 +19,7 @@ const index_1 = require("../../BackendLogic/index");
 const LogicFunctions_1 = require("../../BackendLogic/Functions/LogicFunctions");
 const router = express_1.default.Router();
 const storage = multer_1.default.diskStorage({
-    destination: (req, file, cb) => {
+    destination: (_, __, cb) => {
         // Store temporarily in uploads folder
         const tempDir = 'server/uploads/temp';
         // Create temp directory if it doesn't exist
@@ -28,7 +28,7 @@ const storage = multer_1.default.diskStorage({
         }
         cb(null, tempDir);
     },
-    filename: (req, file, cb) => {
+    filename: (_, file, cb) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
         cb(null, file.originalname + '-' + uniqueSuffix + '.jpg');
     }
@@ -38,7 +38,7 @@ router.post('/:issueId/addresolution', (req, res) => __awaiter(void 0, void 0, v
     try {
         const { issueId } = req.params;
         const { resolution } = req.body;
-        console.log('Adding resolution for issue:', issueId, resolution);
+        index_1.logger.info('Adding resolution for issue:', issueId, resolution);
         yield index_1.db.UpdateRecord('Issue', ['Resolution'], [resolution], ['IssueId'], [issueId]);
         const products = yield index_1.db.getProducts();
         const productsandmodules = yield (0, LogicFunctions_1.getproductsandmodules)(products);
@@ -53,7 +53,7 @@ router.post('/:issueId/addworkaround', (req, res) => __awaiter(void 0, void 0, v
     try {
         const { issueId } = req.params;
         const { workaround } = req.body;
-        console.log('Adding workaround for issue:', issueId, workaround);
+        index_1.logger.info('Adding workaround for issue:', issueId, workaround);
         yield index_1.db.UpdateRecord('Issue', ['Workaround'], [workaround], ['IssueId'], [issueId]);
         const products = yield index_1.db.getProducts();
         const productsandmodules = yield (0, LogicFunctions_1.getproductsandmodules)(products);
@@ -68,17 +68,17 @@ router.get('/:issueId/photos', (req, res) => {
     try {
         const issueId = req.params.issueId;
         const issueDir = `server/uploads/issues/${issueId}`;
-        console.log('issueDir', issueDir);
+        index_1.logger.info('issueDir', issueDir);
         if (fs_1.default.existsSync(issueDir)) {
-            console.log('issueDir exists');
+            index_1.logger.info('issueDir exists');
             const photos = fs_1.default.readdirSync(issueDir);
-            console.log('photos', photos);
+            index_1.logger.info('photos', photos);
             res.json({
                 photos: photos.map(filename => `server/uploads/issues/${issueId}/${filename}`)
             });
         }
         else {
-            console.log('issueDir does not exist');
+            index_1.logger.info('issueDir does not exist');
             res.json({ photos: [] });
         }
     }
