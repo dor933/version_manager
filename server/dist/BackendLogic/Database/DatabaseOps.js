@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const LogicFunctions_1 = require("../Functions/LogicFunctions");
 const LogicFunctions_2 = require("../Functions/LogicFunctions");
-const Data = require('../../../Data.json');
+const Data = require("../../../Data.json");
 const index_1 = require("../index");
 const Schemes_1 = require("./Schemes");
 const Schemes_2 = require("./Schemes");
@@ -34,8 +34,8 @@ class Database {
                         where: { VendorName: vendor.VendorName },
                         defaults: {
                             ContactInfo: vendor.contactInfo,
-                            WebsiteUrl: vendor.WebsiteUrl
-                        }
+                            WebsiteUrl: vendor.WebsiteUrl,
+                        },
                     });
                     //product processing
                     for (const product of vendor.Products) {
@@ -43,25 +43,33 @@ class Database {
                             where: {
                                 ProductName: product.ProductName,
                                 //Because we want to save consistenty when we re-initialize the database, we need to search the VendorId by vendor name
-                                VendorId: (_a = (yield Schemes_1.Vendor.findOne({ where: { VendorName: vendor.VendorName } }))) === null || _a === void 0 ? void 0 : _a.get('VendorId')
+                                VendorId: (_a = (yield Schemes_1.Vendor.findOne({
+                                    where: { VendorName: vendor.VendorName },
+                                }))) === null || _a === void 0 ? void 0 : _a.get("VendorId"),
                             },
                             defaults: {
                                 JSON_URL: product.JSON_URL,
-                                ReleaseNotes: product.release_notes
-                            }
+                                ReleaseNotes: product.release_notes,
+                            },
                         });
                         if (product.modules) {
                             for (const module of product.modules) {
                                 yield Schemes_2.sequelize.models.Module.findOrCreate({
                                     //Because we want to save consistenty when we re-initialize the database, we need to search the VendorId by vendor name
-                                    where: { ModuleName: module, ProductId: productRecord[0].get('ProductId'), VendorId: (_b = (yield Schemes_1.Vendor.findOne({ where: { VendorName: vendor.VendorName } }))) === null || _b === void 0 ? void 0 : _b.get('VendorId') },
-                                    defaults: { ModuleName: module }
+                                    where: {
+                                        ModuleName: module,
+                                        ProductId: productRecord[0].get("ProductId"),
+                                        VendorId: (_b = (yield Schemes_1.Vendor.findOne({
+                                            where: { VendorName: vendor.VendorName },
+                                        }))) === null || _b === void 0 ? void 0 : _b.get("VendorId"),
+                                    },
+                                    defaults: { ModuleName: module },
                                 });
                             }
                         }
                         //versions extraction
                         let listofversions = [];
-                        if (vendor.VendorName === 'Fortra') {
+                        if (vendor.VendorName === "Fortra") {
                             listofversions = yield (0, LogicFunctions_1.ExtractFortraVersions)(product.ProductName, listoffortraversions);
                         }
                         else {
@@ -78,7 +86,7 @@ class Database {
                                     listofversions = merged_listofversions;
                                 }
                                 catch (error) {
-                                    index_1.logger.error('Error fetching data:', error);
+                                    index_1.logger.error("Error fetching data:", error);
                                     throw error;
                                 }
                             }
@@ -103,11 +111,13 @@ class Database {
                             let ExtendedEndOfSupportDate = (0, LogicFunctions_2.ParseDate)(version[4]);
                             let EOSL_Start_Date = (0, LogicFunctions_2.ParseDate)(version[5]);
                             let release_notes;
-                            if (vendor.VendorName === 'OPSWAT') {
+                            if (vendor.VendorName === "OPSWAT") {
                                 if (ProductVersionIndex !== 0) {
-                                    if (product.ProductName === 'Metadefender_Core') {
-                                        release_notes = product.release_notes + '/archived-release-notes#version-v' +
-                                            VersionNameExtracted.replace(/Version |[Vv]|\./g, '');
+                                    if (product.ProductName === "Metadefender_Core") {
+                                        release_notes =
+                                            product.release_notes +
+                                                "/archived-release-notes#version-v" +
+                                                VersionNameExtracted.replace(/Version |[Vv]|\./g, "");
                                     }
                                     else {
                                         release_notes = product.archive_release_notes;
@@ -117,19 +127,25 @@ class Database {
                                     release_notes = product.release_notes;
                                 }
                             }
-                            else if (vendor.VendorName === 'Fortra') {
+                            else if (vendor.VendorName === "Fortra") {
                                 release_notes = product.release_notes;
                             }
                             const VersionData = {
                                 VersionName: VersionNameExtracted,
                                 ProductName: product.ProductName,
                                 VendorName: vendor.VendorName,
-                                ReleaseDate: ReleaseDate_DateTime ? ReleaseDate_DateTime : undefined,
-                                EndOfSupportDate: EndOfSupportDate_DateTime ? EndOfSupportDate_DateTime : undefined,
+                                ReleaseDate: ReleaseDate_DateTime
+                                    ? ReleaseDate_DateTime
+                                    : undefined,
+                                EndOfSupportDate: EndOfSupportDate_DateTime
+                                    ? EndOfSupportDate_DateTime
+                                    : undefined,
                                 LevelOfSupport: LevelOfSupport ? LevelOfSupport : undefined,
-                                ExtendedSupportEndDate: ExtendedEndOfSupportDate ? ExtendedEndOfSupportDate : undefined,
+                                ExtendedSupportEndDate: ExtendedEndOfSupportDate
+                                    ? ExtendedEndOfSupportDate
+                                    : undefined,
                                 EoslStartDate: EOSL_Start_Date ? EOSL_Start_Date : undefined,
-                                FullReleaseNotes: release_notes
+                                FullReleaseNotes: release_notes,
                             };
                             const [versionRecord, created] = yield Schemes_1.Version.findOrCreate({
                                 where: {
@@ -138,60 +154,62 @@ class Database {
                                     ProductId: (_c = (yield Schemes_1.Product.findOne({
                                         where: {
                                             ProductName: VersionData.ProductName,
-                                            VendorId: vendor.VendorId
-                                        }
-                                    }))) === null || _c === void 0 ? void 0 : _c.get('ProductId'),
+                                            VendorId: vendor.VendorId,
+                                        },
+                                    }))) === null || _c === void 0 ? void 0 : _c.get("ProductId"),
                                     //since vendor id defined in database and we want to let the db re-initialize the vendor if it is not found, we need to search it by vendor name
                                     VendorId: (_d = (yield Schemes_1.Vendor.findOne({
                                         where: {
-                                            VendorName: vendor.VendorName
-                                        }
-                                    }))) === null || _d === void 0 ? void 0 : _d.get('VendorId')
+                                            VendorName: vendor.VendorName,
+                                        },
+                                    }))) === null || _d === void 0 ? void 0 : _d.get("VendorId"),
                                 },
-                                include: [{
+                                include: [
+                                    {
                                         model: Schemes_1.Product,
-                                        attributes: ['ProductId'],
+                                        attributes: ["ProductId"],
                                         where: {
                                             ProductName: VersionData.ProductName,
-                                        }
+                                        },
                                     },
                                     {
                                         model: Schemes_1.Vendor,
-                                        attributes: ['VendorId'],
+                                        attributes: ["VendorId"],
                                         where: {
-                                            VendorName: vendor.VendorName
-                                        }
-                                    }
+                                            VendorName: vendor.VendorName,
+                                        },
+                                    },
                                 ],
                                 defaults: {
                                     //as mentioned before, we need to let the db re-initialize the product if it is not found, so we need to search it by product name and vendor id
                                     ProductId: ((_e = (yield Schemes_1.Product.findOne({
                                         where: {
                                             ProductName: VersionData.ProductName,
-                                            VendorId: vendor.VendorId
-                                        }
-                                    }))) === null || _e === void 0 ? void 0 : _e.get('ProductId')) || null,
+                                            VendorId: vendor.VendorId,
+                                        },
+                                    }))) === null || _e === void 0 ? void 0 : _e.get("ProductId")) || null,
                                     //as mentioned before, we need to let the db re-initialize the vendor if it is not found, so we need to search it by vendor name
                                     VendorId: ((_f = (yield Schemes_1.Vendor.findOne({
                                         where: {
-                                            VendorName: vendor.VendorName
-                                        }
-                                    }))) === null || _f === void 0 ? void 0 : _f.get('VendorId')) || null,
+                                            VendorName: vendor.VendorName,
+                                        },
+                                    }))) === null || _f === void 0 ? void 0 : _f.get("VendorId")) || null,
                                     ReleaseDate: VersionData.ReleaseDate,
                                     EndOfSupportDate: VersionData.EndOfSupportDate,
                                     LevelOfSupport: VersionData.LevelOfSupport,
                                     ExtendedSupportEndDate: VersionData.ExtendedSupportEndDate,
                                     EoslStartDate: VersionData.EoslStartDate,
                                     FullReleaseNotes: VersionData.FullReleaseNotes,
-                                    Timestamp: new Date()
-                                }
+                                    Timestamp: new Date(),
+                                },
                             });
                             if (!created) {
-                                if (((_g = versionRecord.get('EndOfSupportDate')) === null || _g === void 0 ? void 0 : _g.getTime()) !== (EndOfSupportDate_DateTime === null || EndOfSupportDate_DateTime === void 0 ? void 0 : EndOfSupportDate_DateTime.getTime())) {
+                                if (((_g = versionRecord.get("EndOfSupportDate")) === null || _g === void 0 ? void 0 : _g.getTime()) !==
+                                    (EndOfSupportDate_DateTime === null || EndOfSupportDate_DateTime === void 0 ? void 0 : EndOfSupportDate_DateTime.getTime())) {
                                     yield versionRecord.update({
-                                        EndOfSupportDate: EndOfSupportDate_DateTime
+                                        EndOfSupportDate: EndOfSupportDate_DateTime,
                                     });
-                                    yield (0, LogicFunctions_1.NotifyOnEndOfSupportChanges)(product.ProductName, vendor.VendorName, VersionData.VersionName, versionRecord.get('EndOfSupportDate'), EndOfSupportDate_DateTime, UsersArray);
+                                    yield (0, LogicFunctions_1.NotifyOnEndOfSupportChanges)(product.ProductName, vendor.VendorName, VersionData.VersionName, versionRecord.get("EndOfSupportDate"), EndOfSupportDate_DateTime, UsersArray);
                                 }
                             }
                             else {
@@ -199,11 +217,14 @@ class Database {
                             }
                             if (EndOfSupportDate_DateTime) {
                                 let daysUntilExtendedEOS;
-                                const daysUntilEOS = Math.ceil((EndOfSupportDate_DateTime.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+                                const daysUntilEOS = Math.ceil((EndOfSupportDate_DateTime.getTime() - new Date().getTime()) /
+                                    (1000 * 60 * 60 * 24));
                                 if (ExtendedEndOfSupportDate) {
-                                    daysUntilExtendedEOS = Math.ceil((ExtendedEndOfSupportDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+                                    daysUntilExtendedEOS = Math.ceil((ExtendedEndOfSupportDate.getTime() - new Date().getTime()) /
+                                        (1000 * 60 * 60 * 24));
                                 }
-                                if ((daysUntilEOS <= 30 && daysUntilEOS >= 0) || daysUntilExtendedEOS && daysUntilExtendedEOS < 14) {
+                                if ((daysUntilEOS <= 30 && daysUntilEOS >= 0) ||
+                                    (daysUntilExtendedEOS && daysUntilExtendedEOS < 14)) {
                                     (0, LogicFunctions_1.NotifyOnEndOfSupport)(VersionData, daysUntilEOS, daysUntilExtendedEOS && daysUntilExtendedEOS, UsersArray);
                                 }
                             }
@@ -211,11 +232,11 @@ class Database {
                         }
                     }
                 }
-                index_1.logger.info('Successfully completed version check');
+                index_1.logger.info("Successfully completed version check");
                 return true;
             }
             catch (error) {
-                index_1.logger.error('Error in handleData', error);
+                index_1.logger.error("Error in handleData", error);
                 return error;
             }
         });
@@ -237,7 +258,7 @@ class Database {
                 const model = Schemes_2.sequelize.models[table];
                 //get back the record that was updated
                 const [affectedCount] = yield model.update(updateValues, {
-                    where: whereConditions
+                    where: whereConditions,
                 });
                 if (affectedCount === 0) {
                     return false;
@@ -248,7 +269,7 @@ class Database {
                 }
             }
             catch (err) {
-                index_1.logger.error('Error in UpdateRecord:', err);
+                index_1.logger.error("Error in UpdateRecord:", err);
                 throw err;
             }
         });
@@ -264,7 +285,7 @@ class Database {
                     return acc;
                 }, {});
                 const options = {
-                    include
+                    include,
                 };
                 // Only add where clause if there are conditions
                 if (Object.keys(filteredWhere).length > 0) {
@@ -273,7 +294,7 @@ class Database {
                 return yield model.findAll(options);
             }
             catch (err) {
-                index_1.logger.error('Error in getAll:', err);
+                index_1.logger.error("Error in getAll:", err);
                 throw err;
             }
         });
@@ -285,7 +306,7 @@ class Database {
                 return record ? record : false;
             }
             catch (err) {
-                index_1.logger.error('Error in recordExists:', err);
+                index_1.logger.error("Error in recordExists:", err);
                 throw err;
             }
         });
@@ -294,21 +315,30 @@ class Database {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const where = {};
-                let VendorId = vendor ? yield Schemes_1.Vendor.findOne({ where: { VendorName: vendor } }) : null;
-                let ProductId = product ? yield Schemes_1.Product.findOne({ where: { ProductName: product, VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.get('VendorId') } }) : null;
+                let VendorId = vendor
+                    ? yield Schemes_1.Vendor.findOne({ where: { VendorName: vendor } })
+                    : null;
+                let ProductId = product
+                    ? yield Schemes_1.Product.findOne({
+                        where: {
+                            ProductName: product,
+                            VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.get("VendorId"),
+                        },
+                    })
+                    : null;
                 if (vendor)
-                    where.VendorId = VendorId === null || VendorId === void 0 ? void 0 : VendorId.get('VendorId');
+                    where.VendorId = VendorId === null || VendorId === void 0 ? void 0 : VendorId.get("VendorId");
                 if (product)
-                    where.ProductId = ProductId === null || ProductId === void 0 ? void 0 : ProductId.get('ProductId');
+                    where.ProductId = ProductId === null || ProductId === void 0 ? void 0 : ProductId.get("ProductId");
                 let versions = yield this.getAll(Schemes_1.Version, where, [
                     {
                         model: Schemes_1.Product,
-                        attributes: ['ProductName']
+                        attributes: ["ProductName"],
                     },
                     {
                         model: Schemes_1.Vendor,
-                        attributes: ['VendorName']
-                    }
+                        attributes: ["VendorName"],
+                    },
                 ]);
                 let versionsdata = versions.map((version) => {
                     return {
@@ -317,18 +347,28 @@ class Database {
                         ProductName: version.Product.ProductName,
                         VendorName: version.Vendor.VendorName,
                         ReleaseDate: version.ReleaseDate ? version.ReleaseDate : undefined,
-                        EndOfSupportDate: version.EndOfSupportDate ? version.EndOfSupportDate : undefined,
-                        LevelOfSupport: version.LevelOfSupport ? version.LevelOfSupport : undefined,
-                        ExtendedSupportEndDate: version.ExtendedSupportEndDate ? version.ExtendedSupportEndDate : undefined,
-                        EoslStartDate: version.EoslStartDate ? version.EoslStartDate : undefined,
-                        FullReleaseNotes: version.FullReleaseNotes ? version.FullReleaseNotes : undefined,
-                        Timestamp: version.Timestamp ? version.Timestamp : undefined
+                        EndOfSupportDate: version.EndOfSupportDate
+                            ? version.EndOfSupportDate
+                            : undefined,
+                        LevelOfSupport: version.LevelOfSupport
+                            ? version.LevelOfSupport
+                            : undefined,
+                        ExtendedSupportEndDate: version.ExtendedSupportEndDate
+                            ? version.ExtendedSupportEndDate
+                            : undefined,
+                        EoslStartDate: version.EoslStartDate
+                            ? version.EoslStartDate
+                            : undefined,
+                        FullReleaseNotes: version.FullReleaseNotes
+                            ? version.FullReleaseNotes
+                            : undefined,
+                        Timestamp: version.Timestamp ? version.Timestamp : undefined,
                     };
                 });
                 return versionsdata;
             }
             catch (error) {
-                index_1.logger.error('Error in getVersions', error);
+                index_1.logger.error("Error in getVersions", error);
                 throw error;
             }
         });
@@ -337,13 +377,17 @@ class Database {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const where = {};
-                let VendorId = vendor ? yield Schemes_1.Vendor.findOne({ where: { VendorName: vendor } }) : null;
+                let VendorId = vendor
+                    ? yield Schemes_1.Vendor.findOne({ where: { VendorName: vendor } })
+                    : null;
                 if (vendor)
-                    where.VendorId = VendorId === null || VendorId === void 0 ? void 0 : VendorId.get('VendorId');
-                let products = yield this.getAll(Schemes_1.Product, where, [{
+                    where.VendorId = VendorId === null || VendorId === void 0 ? void 0 : VendorId.get("VendorId");
+                let products = yield this.getAll(Schemes_1.Product, where, [
+                    {
                         model: Schemes_1.Vendor,
-                        attributes: ['VendorName', 'VendorId']
-                    }]);
+                        attributes: ["VendorName", "VendorId"],
+                    },
+                ]);
                 let productsdata = products.map((product) => {
                     return {
                         ProductName: product.ProductName,
@@ -357,7 +401,7 @@ class Database {
                 return productsdata;
             }
             catch (error) {
-                index_1.logger.error('Error in getProducts', error);
+                index_1.logger.error("Error in getProducts", error);
                 throw error;
             }
         });
@@ -366,31 +410,33 @@ class Database {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 let VendorId = yield Schemes_1.Vendor.findOne({ where: { VendorName: vendor } });
-                let ProductId = yield Schemes_1.Product.findOne({ where: { ProductName: product, VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.get('VendorId') } });
+                let ProductId = yield Schemes_1.Product.findOne({
+                    where: { ProductName: product, VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.get("VendorId") },
+                });
                 let modules = yield this.getAll(Schemes_1.Module, {
-                    ProductId: ProductId === null || ProductId === void 0 ? void 0 : ProductId.get('ProductId'),
-                    VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.get('VendorId')
+                    ProductId: ProductId === null || ProductId === void 0 ? void 0 : ProductId.get("ProductId"),
+                    VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.get("VendorId"),
                 }, [
                     {
                         model: Schemes_1.Vendor,
-                        attributes: ['VendorName', 'VendorId']
+                        attributes: ["VendorName", "VendorId"],
                     },
                     {
                         model: Schemes_1.Product,
-                        attributes: ['ProductName', 'ProductId']
-                    }
+                        attributes: ["ProductName", "ProductId"],
+                    },
                 ]);
                 let modulesdata = modules.map((module) => {
                     return {
                         ModuleName: module.ModuleName,
                         ProductName: module.Product.ProductName,
-                        VendorName: module.Vendor.VendorName
+                        VendorName: module.Vendor.VendorName,
                     };
                 });
                 return modulesdata;
             }
             catch (error) {
-                index_1.logger.error('Error in getModules', error);
+                index_1.logger.error("Error in getModules", error);
                 throw error;
             }
         });
@@ -399,23 +445,25 @@ class Database {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 let VendorId = yield Schemes_1.Vendor.findOne({ where: { VendorName: vendor } });
-                let ProductId = yield Schemes_1.Product.findOne({ where: { ProductName: product, VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.get('VendorId') } });
+                let ProductId = yield Schemes_1.Product.findOne({
+                    where: { ProductName: product, VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.get("VendorId") },
+                });
                 let issues = yield this.getAll(Schemes_1.Issue, {
-                    ProductId: ProductId === null || ProductId === void 0 ? void 0 : ProductId.get('ProductId'),
-                    VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.get('VendorId')
+                    ProductId: ProductId === null || ProductId === void 0 ? void 0 : ProductId.get("ProductId"),
+                    VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.get("VendorId"),
                 }, [
                     {
                         model: Schemes_1.Product,
-                        attributes: ['ProductName', 'ProductId']
+                        attributes: ["ProductName", "ProductId"],
                     },
                     {
                         model: Schemes_1.Vendor,
-                        attributes: ['VendorName']
+                        attributes: ["VendorName"],
                     },
                     {
                         model: Schemes_1.Version,
-                        attributes: ['VersionName', 'VersionId']
-                    }
+                        attributes: ["VersionName", "VersionId"],
+                    },
                 ]);
                 let issuesdata = issues.map((issue) => {
                     return {
@@ -431,34 +479,40 @@ class Database {
                         UserID: issue.UserID,
                         Ratification: issue.Ratification,
                         Workaround: issue.Workaround ? issue.Workaround : undefined,
-                        Resolution: issue.Resolution ? issue.Resolution : undefined
+                        Resolution: issue.Resolution ? issue.Resolution : undefined,
                     };
                 });
                 return issuesdata;
             }
             catch (error) {
-                index_1.logger.error('Error in getIssues', error);
+                index_1.logger.error("Error in getIssues", error);
                 throw error;
             }
         });
     }
     CheckUserExists(email) {
         return __awaiter(this, void 0, void 0, function* () {
-            let user = yield this.RecordExists(Schemes_1.User, { email });
+            let user = yield this.RecordExists(Schemes_1.User, {
+                email,
+            });
             return user ? user.id : false;
         });
     }
     GetUsersArray(product, vendor) {
         return __awaiter(this, void 0, void 0, function* () {
             let VendorId = yield Schemes_1.Vendor.findOne({ where: { VendorName: vendor } });
-            let ProductId = yield Schemes_1.Product.findOne({ where: { ProductName: product, VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.get('VendorId') } });
+            let ProductId = yield Schemes_1.Product.findOne({
+                where: { ProductName: product, VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.get("VendorId") },
+            });
             const userProducts = yield this.getAll(Schemes_1.UserChosenProduct, {
-                ProductId: ProductId === null || ProductId === void 0 ? void 0 : ProductId.get('ProductId'),
-                VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.get('VendorId')
-            }, [{
+                ProductId: ProductId === null || ProductId === void 0 ? void 0 : ProductId.get("ProductId"),
+                VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.get("VendorId"),
+            }, [
+                {
                     model: Schemes_1.User,
-                    attributes: ['email']
-                }]);
+                    attributes: ["email"],
+                },
+            ]);
             return userProducts.map((userProduct) => ({
                 Email: userProduct.User.email,
                 LastUpdate: userProduct.LastUpdate,
@@ -466,56 +520,64 @@ class Database {
                 Frequency: userProduct.Frequency,
                 UserID: userProduct.UserID,
                 ProductId: userProduct.ProductId,
-                VendorId: userProduct.VendorId
+                VendorId: userProduct.VendorId,
             }));
         });
     }
     subscribe(userid, product, vendor, Unit_of_time, Frequency) {
         return __awaiter(this, void 0, void 0, function* () {
             const VendorId = yield Schemes_1.Vendor.findOne({ where: { VendorName: vendor } });
-            const ProductId = yield Schemes_1.Product.findOne({ where: { ProductName: product, VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.get('VendorId') } });
+            const ProductId = yield Schemes_1.Product.findOne({
+                where: { ProductName: product, VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.get("VendorId") },
+            });
             return new Promise((resolve, reject) => {
                 try {
                     Schemes_1.UserChosenProduct.count({
                         where: {
                             UserID: userid,
-                            ProductId: ProductId === null || ProductId === void 0 ? void 0 : ProductId.get('ProductId'),
-                        }
-                    }).then(count => {
+                            ProductId: ProductId === null || ProductId === void 0 ? void 0 : ProductId.get("ProductId"),
+                        },
+                    })
+                        .then((count) => {
                         if (count > 0) {
                             Schemes_1.UserChosenProduct.update({
                                 UnitOfTime: Unit_of_time,
-                                Frequency: Frequency
+                                Frequency: Frequency,
                             }, {
                                 where: {
                                     UserID: userid,
-                                    ProductId: ProductId === null || ProductId === void 0 ? void 0 : ProductId.get('ProductId'),
-                                }
-                            }).then(() => {
+                                    ProductId: ProductId === null || ProductId === void 0 ? void 0 : ProductId.get("ProductId"),
+                                },
+                            })
+                                .then(() => {
                                 resolve(true);
-                            }).catch(err => {
-                                index_1.logger.error('Error updating subscription:', err);
-                                reject({ error: 'Database error', details: err });
+                            })
+                                .catch((err) => {
+                                index_1.logger.error("Error updating subscription:", err);
+                                reject({ error: "Database error", details: err });
                             });
                         }
                         else {
                             Schemes_1.UserChosenProduct.create({
                                 UserID: userid,
-                                ProductId: ProductId === null || ProductId === void 0 ? void 0 : ProductId.get('ProductId'),
-                                VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.get('VendorId'),
+                                ProductId: ProductId === null || ProductId === void 0 ? void 0 : ProductId.get("ProductId"),
+                                VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.get("VendorId"),
                                 UnitOfTime: Unit_of_time,
                                 Frequency: Frequency,
-                                LastUpdate: new Date(new Date().setFullYear(new Date().getFullYear() - 1))
-                            }).then(() => {
-                                resolve({ success: true, message: 'Subscription added' });
-                            }).catch(err => {
-                                index_1.logger.error('Error inserting subscription:', err);
-                                reject({ error: 'Database error', details: err });
+                                LastUpdate: new Date(new Date().setFullYear(new Date().getFullYear() - 1)),
+                            })
+                                .then(() => {
+                                resolve({ success: true, message: "Subscription added" });
+                            })
+                                .catch((err) => {
+                                index_1.logger.error("Error inserting subscription:", err);
+                                reject({ error: "Database error", details: err });
                             });
                         }
-                    }).catch(err => {
-                        index_1.logger.error('Error checking for existing subscription:', err);
-                        reject({ error: 'Database error', details: err });
+                    })
+                        .catch((err) => {
+                        index_1.logger.error("Error checking for existing subscription:", err);
+                        reject({ error: "Database error", details: err });
                     });
                 }
                 catch (err) {
@@ -530,12 +592,14 @@ class Database {
                 try {
                     Schemes_1.User.create({
                         email,
-                        role
-                    }).then(() => {
-                        index_1.logger.info('User registered successfully- ' + email);
+                        role,
+                    })
+                        .then(() => {
+                        index_1.logger.info("User registered successfully- " + email);
                         resolve(true);
-                    }).catch(err => {
-                        index_1.logger.error('Error registering user- ' + email, err.message);
+                    })
+                        .catch((err) => {
+                        index_1.logger.error("Error registering user- " + email, err.message);
                         reject(false);
                     });
                 }
@@ -548,26 +612,38 @@ class Database {
     report(vendor, product, version, module, email, severity, issueDescription, userid, rule) {
         return __awaiter(this, void 0, void 0, function* () {
             let VendorId = yield Schemes_1.Vendor.findOne({ where: { VendorName: vendor } });
-            let ProductId = yield Schemes_1.Product.findOne({ where: { ProductName: product, VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.get('VendorId') } });
-            let VersionId = yield Schemes_1.Version.findOne({ where: { VersionName: version, ProductId: ProductId === null || ProductId === void 0 ? void 0 : ProductId.get('ProductId') } });
-            let ModuleId = yield Schemes_1.Module.findOne({ where: { ModuleName: module, ProductId: ProductId === null || ProductId === void 0 ? void 0 : ProductId.get('ProductId'), VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.get('VendorId') } });
+            let ProductId = yield Schemes_1.Product.findOne({
+                where: { ProductName: product, VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.get("VendorId") },
+            });
+            let VersionId = yield Schemes_1.Version.findOne({
+                where: { VersionName: version, ProductId: ProductId === null || ProductId === void 0 ? void 0 : ProductId.get("ProductId") },
+            });
+            let ModuleId = yield Schemes_1.Module.findOne({
+                where: {
+                    ModuleName: module,
+                    ProductId: ProductId === null || ProductId === void 0 ? void 0 : ProductId.get("ProductId"),
+                    VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.get("VendorId"),
+                },
+            });
             return new Promise((resolve, reject) => {
                 Schemes_1.Issue.create({
-                    VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.get('VendorId'),
-                    ProductId: ProductId === null || ProductId === void 0 ? void 0 : ProductId.get('ProductId'),
-                    VersionId: VersionId === null || VersionId === void 0 ? void 0 : VersionId.get('VersionId'),
-                    ModuleId: ModuleId === null || ModuleId === void 0 ? void 0 : ModuleId.get('ModuleId'),
+                    VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.get("VendorId"),
+                    ProductId: ProductId === null || ProductId === void 0 ? void 0 : ProductId.get("ProductId"),
+                    VersionId: VersionId === null || VersionId === void 0 ? void 0 : VersionId.get("VersionId"),
+                    ModuleId: ModuleId === null || ModuleId === void 0 ? void 0 : ModuleId.get("ModuleId"),
                     Email: email,
                     Rule: rule,
                     Severity: severity,
                     Issue: issueDescription,
                     DateField: new Date().toISOString(),
                     UserID: userid,
-                    Ratification: 1
-                }).then(issue => {
+                    Ratification: 1,
+                })
+                    .then((issue) => {
                     resolve(issue.IssueId);
-                }).catch(err => {
-                    console.error('Error reporting issue', err.message);
+                })
+                    .catch((err) => {
+                    console.error("Error reporting issue", err.message);
                     reject(false);
                 });
             });
@@ -576,9 +652,12 @@ class Database {
     close() {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
-                this.sequelize.close().then(() => {
+                this.sequelize
+                    .close()
+                    .then(() => {
                     resolve();
-                }).catch(err => {
+                })
+                    .catch((err) => {
                     reject(err);
                 });
             });

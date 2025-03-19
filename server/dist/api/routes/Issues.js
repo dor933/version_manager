@@ -21,7 +21,7 @@ const router = express_1.default.Router();
 const storage = multer_1.default.diskStorage({
     destination: (_, __, cb) => {
         // Store temporarily in uploads folder
-        const tempDir = 'server/uploads/temp';
+        const tempDir = "server/uploads/temp";
         // Create temp directory if it doesn't exist
         if (!fs_1.default.existsSync(tempDir)) {
             fs_1.default.mkdirSync(tempDir, { recursive: true });
@@ -29,65 +29,65 @@ const storage = multer_1.default.diskStorage({
         cb(null, tempDir);
     },
     filename: (_, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, file.originalname + '-' + uniqueSuffix + '.jpg');
-    }
+        const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+        cb(null, file.originalname + "-" + uniqueSuffix + ".jpg");
+    },
 });
 const upload = (0, multer_1.default)({ storage: storage });
-router.post('/:issueId/addresolution', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.post("/:issueId/addresolution", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { issueId } = req.params;
         const { resolution } = req.body;
-        index_1.logger.info('Adding resolution for issue:', issueId, resolution);
-        yield index_1.db.UpdateRecord('Issue', ['Resolution'], [resolution], ['IssueId'], [issueId]);
+        index_1.logger.info("Adding resolution for issue:", issueId, resolution);
+        yield index_1.db.UpdateRecord("Issue", ["Resolution"], [resolution], ["IssueId"], [issueId]);
         const products = yield index_1.db.getProducts();
         const productsandmodules = yield (0, LogicFunctions_1.getproductsandmodules)(products);
         res.json({ success: true, productsandmodules: productsandmodules });
     }
     catch (error) {
-        index_1.logger.error('Error adding resolution:', error);
+        index_1.logger.error("Error adding resolution:", error);
         res.status(500).json({ success: false });
     }
 }));
-router.post('/:issueId/addworkaround', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.post("/:issueId/addworkaround", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { issueId } = req.params;
         const { workaround } = req.body;
-        index_1.logger.info('Adding workaround for issue:', issueId, workaround);
-        yield index_1.db.UpdateRecord('Issue', ['Workaround'], [workaround], ['IssueId'], [issueId]);
+        index_1.logger.info("Adding workaround for issue:", issueId, workaround);
+        yield index_1.db.UpdateRecord("Issue", ["Workaround"], [workaround], ["IssueId"], [issueId]);
         const products = yield index_1.db.getProducts();
         const productsandmodules = yield (0, LogicFunctions_1.getproductsandmodules)(products);
         res.json({ success: true, productsandmodules: productsandmodules });
     }
     catch (error) {
-        index_1.logger.error('Error adding workaround:', error);
+        index_1.logger.error("Error adding workaround:", error);
         res.status(500).json({ success: false });
     }
 }));
-router.get('/:issueId/photos', (req, res) => {
+router.get("/:issueId/photos", (req, res) => {
     try {
         const issueId = req.params.issueId;
         const issueDir = `server/uploads/issues/${issueId}`;
-        index_1.logger.info('issueDir', issueDir);
+        index_1.logger.info("issueDir", issueDir);
         if (fs_1.default.existsSync(issueDir)) {
-            index_1.logger.info('issueDir exists');
+            index_1.logger.info("issueDir exists");
             const photos = fs_1.default.readdirSync(issueDir);
-            index_1.logger.info('photos', photos);
+            index_1.logger.info("photos", photos);
             res.json({
-                photos: photos.map(filename => `server/uploads/issues/${issueId}/${filename}`)
+                photos: photos.map((filename) => `server/uploads/issues/${issueId}/${filename}`),
             });
         }
         else {
-            index_1.logger.info('issueDir does not exist');
+            index_1.logger.info("issueDir does not exist");
             res.json({ photos: [] });
         }
     }
     catch (error) {
-        index_1.logger.error('Error getting photos:', error);
+        index_1.logger.error("Error getting photos:", error);
         res.status(500).json({ success: false });
     }
 });
-router.post('/:issueId/addphotos', upload.array('photos'), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.post("/:issueId/addphotos", upload.array("photos"), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const issueId = req.params.issueId;
         const photos = req.files;
@@ -109,9 +109,9 @@ router.post('/:issueId/addphotos', upload.array('photos'), (req, res) => __await
         res.json({ success: false });
     }
 }));
-router.post('/report', upload.array('photos'), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.post("/report", upload.array("photos"), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { vendor, product, version, module, email, severity, issueDescription, rule } = req.body;
+        const { vendor, product, version, module, email, severity, issueDescription, rule, } = req.body;
         const photos = req.files;
         let userid = yield index_1.db.CheckUserExists(email);
         if (!userid) {
@@ -135,7 +135,7 @@ router.post('/report', upload.array('photos'), (req, res) => __awaiter(void 0, v
             res.json({
                 report: true,
                 issueId: issueId,
-                productsandmodules: productsandmodules
+                productsandmodules: productsandmodules,
             });
         }
         else {
