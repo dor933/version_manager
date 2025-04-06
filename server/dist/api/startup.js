@@ -15,7 +15,7 @@ const port = process.env.PORT || 3001;
 // Middleware
 app.use(express_1.default.json());
 // Debug middleware to log all requests
-app.use((req, res, next) => {
+app.use((req, _, next) => {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
     next();
 });

@@ -16,7 +16,7 @@ const express_1 = __importDefault(require("express"));
 const index_1 = require("../../BackendLogic/index");
 const LogicFunctions_1 = require("../../BackendLogic/Functions/LogicFunctions");
 const router = express_1.default.Router();
-router.get('/versions', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.get("/versions", (_, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const versions = yield index_1.db.getVersions();
         let products = yield index_1.db.getProducts();
@@ -24,11 +24,11 @@ router.get('/versions', (req, res) => __awaiter(void 0, void 0, void 0, function
         res.json({ versions, productsandmodules });
     }
     catch (error) {
-        index_1.logger.error('Error in getVersions', error);
+        index_1.logger.error("Error in getVersions", error);
         throw error;
     }
 }));
-router.get('/sync', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.get("/sync", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const sync = yield index_1.db.HandleData();
     const versions = yield index_1.db.getVersions();
     res.json({ sync, versions });

@@ -17,7 +17,7 @@ export default function GenericSelect({singleitem, isitemdisabled, ispopupopen, 
     >
         {
             options.map((option) => (
-                <MenuItem value={option}>{option}</MenuItem>
+                <MenuItem value={option}>{option.replace(/_/g, ' ')}</MenuItem>
             ))
         }
     </Select>

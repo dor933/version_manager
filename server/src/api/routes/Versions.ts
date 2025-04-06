@@ -19,7 +19,7 @@ router.get("/versions", async (_, res) => {
   }
 });
 
-router.get("/sync", async (_, res) => {
+router.get("/sync", async (req, res) => {
   const sync = await db.HandleData();
   const versions = await db.getVersions();
   res.json({ sync, versions });

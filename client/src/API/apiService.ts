@@ -1,7 +1,7 @@
-import axios from 'axios';
+import axios from "axios";
 
-const BASE_URL = 'http://localhost:3001/api';
-const BASE_URL_LOCAL = 'http://localhost:3001';
+const BASE_URL = "http://192.168.27.42:3001/api";
+const BASE_URL_LOCAL = "http://192.168.27.42:3001";
 
 export const apiService = {
   // Versions
@@ -24,7 +24,7 @@ export const apiService = {
   addPhotosToIssue: async (issueId: number, photos: File[]) => {
     const formData = new FormData();
     photos.forEach((file) => {
-      formData.append('photos', file);
+      formData.append("photos", file);
     });
 
     const response = await axios.post(
@@ -32,32 +32,40 @@ export const apiService = {
       formData,
       {
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+          "Content-Type": "multipart/form-data",
+        },
       }
     );
     return response;
   },
 
   addResolution: async (issueId: number, resolution: string) => {
-    const response = await axios.post(`${BASE_URL}/issues/${issueId}/addresolution`, {
-      resolution
-    } , {
-      headers: {
-        'Content-Type': 'application/json'
+    const response = await axios.post(
+      `${BASE_URL}/issues/${issueId}/addresolution`,
+      {
+        resolution,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
       }
-    });
+    );
     return response;
   },
 
   addWorkaround: async (issueId: number, workaround: string) => {
-    const response = await axios.post(`${BASE_URL}/issues/${issueId}/addworkaround`, {
-      workaround
-    }, {
-      headers: {
-        'Content-Type': 'application/json'
+    const response = await axios.post(
+      `${BASE_URL}/issues/${issueId}/addworkaround`,
+      {
+        workaround,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
       }
-    });
+    );
     return response;
   },
 
@@ -69,7 +77,10 @@ export const apiService = {
     Unit_of_time: string;
     Frequency: number;
   }) => {
-    const response = await axios.post(`${BASE_URL}/subscribe`, subscriptionData);
+    const response = await axios.post(
+      `${BASE_URL}/subscribe`,
+      subscriptionData
+    );
     return response;
   },
 
@@ -77,13 +88,12 @@ export const apiService = {
   submitReport: (formData: FormData) => {
     return axios.post(`${BASE_URL}/issues/report`, formData, {
       headers: {
-        'Content-Type': 'multipart/form-data'
-      }
+        "Content-Type": "multipart/form-data",
+      },
     });
   },
 
   photoUrl: (photo: string) => {
-    return `${BASE_URL_LOCAL}` + '/'+ photo;
-  }
-
+    return `${BASE_URL_LOCAL}` + "/" + photo;
+  },
 };
