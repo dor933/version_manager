@@ -1112,7 +1112,7 @@ class Database {
         }
         if (shouldSendEmail) {
         // Send the email directly
-        await sendEosEmail(testVersion.users, testVersion.frequency, emailBody, testVersion);
+        await sendEosEmail(testVersion.users, testVersion.frequency, emailBody, testVersion, true);
         }
       }
       

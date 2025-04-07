@@ -387,7 +387,7 @@ async function createEolVersionToNotify(versionInfo:any, UsersArray:any, daysUnt
     }
 }
 
-async function sendEosEmail(users:any, frequency:string, emailBody:any, versionInfo:any,) {
+async function sendEosEmail(users:any, frequency:string, emailBody:any, versionInfo:any, IsNotificationTest?:boolean) {
 
     const uniqueEmails = [...new Set(users.map((user:any) => user.Email))];
     let shouldSendEmail=false;
@@ -461,7 +461,7 @@ async function sendEosEmail(users:any, frequency:string, emailBody:any, versionI
       }
     }
 
-    if(shouldSendEmail){
+    if(shouldSendEmail && !IsNotificationTest){
       UpdateLastUpdate(frequency);
     }
   }
