@@ -24,7 +24,7 @@ export default function CustomizedSelects({options, label, value, setVendor, sty
           displayEmpty
           renderValue={(selected) => {
             if (!selected || selected === '') {
-              return <em style={{ color: '#C4C4C4' }}>{label}</em>;
+              return <em style={{ color: '#C4C4C4' }}>{label.replace(/_/g, ' ')}</em>;
             }
             return selected;
           }}
