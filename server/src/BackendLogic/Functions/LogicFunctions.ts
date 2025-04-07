@@ -405,6 +405,7 @@ async function sendEosEmail(users:any, frequency:string, emailBody:any, versionI
           earliestUpdate = lastUpdateMs;
         }
       }
+
         
       const frequencyParts = frequency.split('_');
       const unitOfTime = frequencyParts[0];
@@ -443,6 +444,8 @@ async function sendEosEmail(users:any, frequency:string, emailBody:any, versionI
             nextUpdateTime: new Date(nextUpdateTime).toISOString(),
             currentTime: new Date().toISOString()
           });
+
+          UpdateLastUpdate(frequency);
         } catch (error) {
           logger.error('Error sending EOL email:', { error, email });
         }
@@ -460,17 +463,18 @@ async function sendEosEmail(users:any, frequency:string, emailBody:any, versionI
     }
   }
 
-  async function UpdateLastUpdate( frequency:string){
+  async function UpdateLastUpdate( frequency:string,){
     const currentDate = new Date().toISOString();
     const frequencyParts = frequency.split('_');
     const unitOfTime = frequencyParts[0];
     const frequencyValue = frequencyParts[1];
-    
+
+
     // Get all products with this frequency setting
     const allProductsWithFrequency = await UserChosenProduct.findAll({
       where: {
         UnitOfTime: unitOfTime,
-        Frequency: frequencyValue
+        Frequency: frequencyValue,
       }
     });
     
@@ -481,10 +485,13 @@ async function sendEosEmail(users:any, frequency:string, emailBody:any, versionI
       });
     }
     
-    logger.info('Updated LastUpdate for all products with frequency:', { 
+    logger.info('Updated LastUpdate for all products for user:', { 
       frequency, 
-      productsCount: allProductsWithFrequency.length 
+      productsCount: allProductsWithFrequency.length,
     });
+
+    
+    
     
 }
     

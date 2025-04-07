@@ -454,11 +454,6 @@ class Database {
           }
 
           await sendEosEmail(users, frequency, emailBody, versionInfo);
-
-    
-          
-        // Update LastUpdate for ALL products with this frequency
-          await UpdateLastUpdate(frequency);
      
       }
       
