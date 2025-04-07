@@ -23,7 +23,7 @@ export default function FormControlSelect({singleitem, setSingleItem, isitemdisa
       <MenuItem value={`All ${label}s`}>{`All ${label}s`}</MenuItem>
       }
       {items.map((item) => (
-        <MenuItem key={item} value={item}>{item}</MenuItem>
+        <MenuItem key={item} value={item}>{item.replace(/_/g, ' ')}</MenuItem>
       ))}
     </Select>
   </FormControl>  )

@@ -16,6 +16,7 @@ import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined
 import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined';
 import { apiService } from './API/apiService';
 import { Main } from './css/HomeCSS'
+import { useMediaQuery } from '@mui/material';
 
 export default function Home() {
   
@@ -31,6 +32,7 @@ const [readNotifications, setReadNotifications] = React.useState<boolean>(false)
 const [versionsToNotify, setVersionsToNotify] = React.useState<any[]>([]);
 const [openSubscribe, setOpenSubscribe] = React.useState<boolean>(false);
 const [productsAndModules, setProductsAndModules] = React.useState<any>(null);
+const isnotextraLarge = useMediaQuery('(max-width: 1500px)');
 
 
 useEffect(() => {
@@ -190,9 +192,9 @@ const onCloseSubscribe = () => {
              
              />
            </Box>
-           <Grid item xs={4} style={{display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'column'}}>
+           <Grid item xs={6} xl={4} style={{display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'column'}}>
              
-             <Box sx={{display:'flex', backgroundColor:'#509CDB', borderRadius:'4px', paddingLeft:'13px', paddingRight:'13px', paddingTop:'14px', paddingBottom:'14px', cursor:'pointer' }} onClick={() => {
+             <Box sx={{display:'flex', backgroundColor:'#509CDB', borderRadius:'4px', paddingLeft: isnotextraLarge ? '10px' : '13px', paddingRight: isnotextraLarge ? '10px' : '13px', paddingTop:'14px', paddingBottom:'14px', cursor:'pointer' }} onClick={() => {
               if(!openSubscribe){
                 return setOpenSubscribe(true);
               }
@@ -216,7 +218,7 @@ const onCloseSubscribe = () => {
           </Grid>
         </Grid>
       
-        <Grid container xs={12} style={{display:'flex', justifyContent:'flex-start', alignItems:'center', flexDirection:'row', paddingLeft:'80px'}}>
+        <Grid container xs={12} style={{display:'flex', justifyContent:'flex-start', alignItems:'center', flexDirection:'row', paddingLeft: isnotextraLarge ? '0px' : '80px'}}>
 
             <Table versions={versions? versions: []}  distinctVendors={distinctVendors} productsandmodules={productsAndModules} />
        

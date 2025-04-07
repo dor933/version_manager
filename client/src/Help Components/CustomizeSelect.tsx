@@ -3,7 +3,6 @@ import { styled } from '@mui/material/styles';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
-import InputBase from '@mui/material/InputBase';
 import { CustomizedSelectsProps } from '../Component Props/HelpComponentsProps';
 import { CustomizeSelectCSS } from '../css/CustomizeSelectCSS';
 
@@ -34,7 +33,7 @@ export default function CustomizedSelects({options, label, value, setVendor, sty
             <em>All</em>
           </MenuItem>
           {options.map((option: string) => (
-            <MenuItem key={option} value={option}>{option}</MenuItem>
+            <MenuItem key={option} value={option}>{option.replace(/_/g, ' ')}</MenuItem>
           ))}
         </Select>
       </FormControl>

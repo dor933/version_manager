@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const BASE_URL = "http://192.168.27.42:3001/api";
-const BASE_URL_LOCAL = "http://192.168.27.42:3001";
+const BASE_URL = "http://localhost:3001/api";
+const BASE_URL_LOCAL = "http://localhost:3001";
 
 export const apiService = {
   // Versions
@@ -39,6 +39,16 @@ export const apiService = {
     return response;
   },
 
+  sendTestNotification: async (data: {
+    email: string;
+    productToNotify: string;
+    vendorToNotify: string;
+    unitOfTime: string;
+    interval: number;
+  }) => {
+    const response = await axios.post(`${BASE_URL}/NotifyTest`, data);
+    return response;
+  },
   addResolution: async (issueId: number, resolution: string) => {
     const response = await axios.post(
       `${BASE_URL}/issues/${issueId}/addresolution`,

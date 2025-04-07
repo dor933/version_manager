@@ -55,6 +55,10 @@ exports.ExtractFortraVersionsToJson = ExtractFortraVersionsToJson;
 exports.ExtractOpswatKeyIndexes = ExtractOpswatKeyIndexes;
 exports.ExtractFortraVersions = ExtractFortraVersions;
 exports.getproductsandmodules = getproductsandmodules;
+exports.SendEosNotifications = SendEosNotifications;
+exports.sendEosEmail = sendEosEmail;
+exports.UpdateLastUpdate = UpdateLastUpdate;
+exports.createEolVersionToNotify = createEolVersionToNotify;
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const nodemailer_1 = __importDefault(require("nodemailer"));
@@ -64,6 +68,7 @@ const axios_1 = __importDefault(require("axios"));
 const cheerio = __importStar(require("cheerio"));
 const index_2 = require("../index");
 const HelperFunctions_1 = require("./HelperFunctions");
+const Schemes_1 = require("../Database/Schemes");
 let identifier = 0;
 function ParseDate(dateStr) {
     if (!dateStr)
@@ -107,33 +112,20 @@ function getproductsandmodules(products) {
 }
 function NotifyOnEndOfSupport(versionData, daysUntilEOS, daysUntilExtendedEOS, users_array) {
     return __awaiter(this, void 0, void 0, function* () {
-        var _a, _b, _c;
-        const product = versionData.ProductName;
-        const version = versionData.VersionName;
-        // Calculate days until end of support
-        let emailBody = {};
-        if (daysUntilExtendedEOS) {
-            emailBody = (0, HelperFunctions_1.EmailBodyCreator)('Team', `End of Extended Support Alert: ${product.replace(/_/g, ' ')} ${version}`, `Hey Team`, `The end of extended support date for ${product.replace(/_/g, ' ')} ${version} is approaching.`, `End of Support Date:`, `The end of extended support date for ${product.replace(/_/g, ' ')} ${version} is:`, `${(_a = versionData.ExtendedSupportEndDate) === null || _a === void 0 ? void 0 : _a.toDateString()} ,`, `Number of days remaining:`, `${daysUntilEOS}`);
-        }
-        else {
-            if (daysUntilEOS <= 7) { // Notify when 30 days or less remaining
-                emailBody = (0, HelperFunctions_1.EmailBodyCreator)('Team', `Critical: End of Support Approaching - 7 days or less remaining`, `Hey Team`, `The end of support date for ${product.replace(/_/g, ' ')} ${version} is approaching.`, `End of Support Date:`, `The end of support date for ${product.replace(/_/g, ' ')} ${version} is:`, `${(_b = versionData.EndOfSupportDate) === null || _b === void 0 ? void 0 : _b.toDateString()} ,`, `Number of days remaining:`, `${daysUntilEOS}`);
-            }
-            else if (daysUntilEOS <= 30) {
-                emailBody = (0, HelperFunctions_1.EmailBodyCreator)('Team', `End of Support Alert: ${product.replace(/_/g, ' ')} ${version}`, `Hey Team`, `The end of support date for ${product.replace(/_/g, ' ')} ${version} is approaching.`, `End of Support Date:`, `The end of support date for ${product.replace(/_/g, ' ')} ${version} is:`, `${(_c = versionData.EndOfSupportDate) === null || _c === void 0 ? void 0 : _c.toDateString()} ,`, `Number of days remaining:`, `${daysUntilEOS}`);
-            }
-        }
-        try {
-            yield SendEmail({
-                subject: `End of Support Alert: ${product.replace(/_/g, ' ')} ${version}`,
-                content: emailBody,
-                vendor_name: versionData.VendorName,
-                users_array: users_array
-            });
-        }
-        catch (error) {
-            index_1.logger.error('Error sending email:', { error });
-        }
+        // This function is now just a placeholder since EOL notification processing 
+        // is fully handled by the Database.processEolNotifications method
+        // We keep this function to maintain compatibility with existing code
+        index_1.logger.info(`EOL notification for ${versionData.ProductName} ${versionData.VersionName} will be handled in batch processing`);
+        return;
+    });
+}
+// This function is now redundant since the batch processing is handled
+// by the Database.processEolNotifications method
+function SendEosNotifications(_a) {
+    return __awaiter(this, arguments, void 0, function* ({ versionData, emailBody, users_array }) {
+        // Just log that we received this call but processing happens in batch
+        index_1.logger.info(`EOL notification for ${versionData.ProductName} ${versionData.VersionName} will be handled in batch processing`);
+        return;
     });
 }
 function ExtractFortraVersions(productname, listoffortraversions) {
@@ -308,10 +300,126 @@ function NotifyNewVersion(newVersion, users_array) {
         }
     });
 }
+function createEolVersionToNotify(versionInfo, UsersArray, daysUntilEOS, daysUntilExtendedEOS, eolVersionsToNotify) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const usersByFrequency = {};
+        for (const user of UsersArray) {
+            const frequencyKey = `${user.UnitOfTime}_${user.Frequency}`;
+            if (!usersByFrequency[frequencyKey]) {
+                usersByFrequency[frequencyKey] = [];
+            }
+            usersByFrequency[frequencyKey].push(user);
+        }
+        // Store the version for notification with each frequency group
+        for (const frequencyKey in usersByFrequency) {
+            eolVersionsToNotify.push({
+                versionData: versionInfo,
+                daysUntilEOS,
+                daysUntilExtendedEOS: daysUntilExtendedEOS,
+                users: usersByFrequency[frequencyKey],
+                frequency: frequencyKey
+            });
+        }
+    });
+}
+function sendEosEmail(users, frequency, emailBody, versionInfo) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const uniqueEmails = [...new Set(users.map((user) => user.Email))];
+        // Send emails to each unique user
+        for (const email of uniqueEmails) {
+            const userProducts = users.filter((u) => u.Email === email);
+            // Check if we should send a notification based on LastUpdate
+            let shouldSendEmail = false;
+            let earliestUpdate = new Date().getTime();
+            for (const product of userProducts) {
+                const lastUpdateMs = new Date(product.LastUpdate).getTime();
+                if (lastUpdateMs < earliestUpdate) {
+                    earliestUpdate = lastUpdateMs;
+                }
+            }
+            const frequencyParts = frequency.split('_');
+            const unitOfTime = frequencyParts[0];
+            const frequencyValue = parseInt(frequencyParts[1]);
+            const frequencyMs = (0, HelperFunctions_1.GetMilliseconds)(unitOfTime);
+            const totalOffset = frequencyValue * frequencyMs;
+            const nextUpdateTime = earliestUpdate + totalOffset;
+            shouldSendEmail = nextUpdateTime < new Date().getTime();
+            if (shouldSendEmail) {
+                try {
+                    const transporter = nodemailer_1.default.createTransport({
+                        host: "mail.bulwarx.local",
+                        port: 25,
+                        secure: false,
+                        tls: {
+                            ciphers: 'SSLv3:TLSv1:TLSv1.1:TLSv1.2:TLSv1.3',
+                            rejectUnauthorized: false
+                        }
+                    });
+                    yield transporter.sendMail({
+                        from: process.env.USER_EMAIL,
+                        to: email,
+                        subject: `End of Support Alert: ${versionInfo.versionData.ProductName.replace(/_/g, ' ')} ${versionInfo.versionData.VersionName}`,
+                        html: (0, EmailTemplate_1.createEmailTemplate)(emailBody, versionInfo.versionData.VendorName)
+                    });
+                    index_1.logger.info('EOL notification sent:', {
+                        email,
+                        version: versionInfo.versionData.VersionName,
+                        product: versionInfo.versionData.ProductName,
+                        frequency: frequency,
+                        nextUpdateTime: new Date(nextUpdateTime).toISOString(),
+                        currentTime: new Date().toISOString()
+                    });
+                }
+                catch (error) {
+                    index_1.logger.error('Error sending EOL email:', { error, email });
+                }
+            }
+            else {
+                index_1.logger.info('No email sent (last update is not old enough):', {
+                    email,
+                    version: versionInfo.versionData.VersionName,
+                    product: versionInfo.versionData.ProductName,
+                    frequency: frequency,
+                    nextUpdateTime: new Date(nextUpdateTime).toISOString(),
+                    currentTime: new Date().toISOString()
+                });
+            }
+        }
+    });
+}
+function UpdateLastUpdate(frequency) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const currentDate = new Date().toISOString();
+        const frequencyParts = frequency.split('_');
+        const unitOfTime = frequencyParts[0];
+        const frequencyValue = frequencyParts[1];
+        // Get all products with this frequency setting
+        const allProductsWithFrequency = yield Schemes_1.UserChosenProduct.findAll({
+            where: {
+                UnitOfTime: unitOfTime,
+                Frequency: frequencyValue
+            }
+        });
+        // Update LastUpdate for all these products
+        for (const product of allProductsWithFrequency) {
+            yield product.update({
+                LastUpdate: currentDate
+            });
+        }
+        index_1.logger.info('Updated LastUpdate for all products with frequency:', {
+            frequency,
+            productsCount: allProductsWithFrequency.length
+        });
+    });
+}
 function SendEmail(_a) {
     return __awaiter(this, arguments, void 0, function* ({ subject, content, vendor_name, users_array }) {
         // Early return if no users or initialization
         if (users_array === undefined || users_array === '' || index_1.isinit === true) {
+            return;
+        }
+        // Skip end of support notifications as they're handled by SendEosNotifications
+        if (subject.includes('End of Support Alert:') || subject.includes('Critical: End of Support Approaching')) {
             return;
         }
         const transporter = nodemailer_1.default.createTransport({

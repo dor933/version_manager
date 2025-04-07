@@ -51,4 +51,15 @@ router.post('/subscribe', (req, res) => __awaiter(void 0, void 0, void 0, functi
         res.json({ subscribe: false });
     }
 }));
+router.post('/NotifyTest', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { email, productToNotify, vendorToNotify, unitOfTime, interval } = req.body;
+        const result = yield index_1.db.processTestNotifications(email, productToNotify, unitOfTime, interval, vendorToNotify);
+        res.json(result);
+    }
+    catch (err) {
+        index_1.logger.error(err);
+        res.status(500).json({ error: 'Failed to process test notification' });
+    }
+}));
 exports.default = router;

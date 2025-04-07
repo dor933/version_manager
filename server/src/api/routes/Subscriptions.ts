@@ -49,5 +49,16 @@ router.post('/subscribe', async (req, res) => {
     }
   
   });
+
+  router.post('/NotifyTest', async (req, res) => {
+    try { 
+      const { email, productToNotify, vendorToNotify, unitOfTime, interval } = req.body;
+      const result = await db.processTestNotifications(email, productToNotify, unitOfTime, interval, vendorToNotify);
+      res.json( result );
+    } catch (err: any) {
+      logger.error(err);
+      res.status(500).json({ error: 'Failed to process test notification' });
+    }
+  });
   
 export default router; 

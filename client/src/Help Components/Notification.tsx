@@ -1,5 +1,5 @@
 import React, {  useEffect, useState } from 'react';
-import { Box, Typography, Paper, Grid, TextField, FormControl } from '@mui/material';
+import { Box, Typography, Paper, Grid, TextField, FormControl, InputLabel, Select, MenuItem, CircularProgress } from '@mui/material';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { z } from 'zod';
 import FormControlSelect from './NotificationSelect';
@@ -20,14 +20,14 @@ export default function Notification({ open, onClose, versions_to_notify, type, 
   const [products, setProducts] = useState([]);
   const [singleproduct, setSingleProduct] = useState('');
   const [isProductsDisabled, setIsProductsDisabled] = useState(true);
-  const [Unit, setUnit] = useState('');
-  const [Interval, setinterval] = useState('');
+  const [frequency, setFrequency] = useState('');
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isSucceeded, setIsSucceeded] = useState(false);
   const [title, setTitle] = useState('');
   const [mainMessage, setMainMessage] = useState('');
   const [subMessage, setSubMessage] = useState('');
   const [buttonText, setButtonText] = useState('');
+  const [isprocessrequest, setIsprocessrequest] = useState(false);
 
   useEffect(() => {
 
@@ -60,61 +60,109 @@ export default function Notification({ open, onClose, versions_to_notify, type, 
  
 
     const handleSubscribe = () => {
-
       const emailValidation = emailSchema.safeParse(email);
       if (!emailValidation.success) {
-        
-         handlePopup('Error', 'Please enter a valid email address', false, 'OK');
-         return;
+        handlePopup('Error', 'Please enter a valid email address', false, 'OK');
+        return;
       }
 
-        if(vendor === '') {
-           handlePopup('Error', 'Please select a vendor', false, 'OK');
-           return;
-        }
-        else if(singleproduct === ''){
-           handlePopup('Error', 'Please select a product', false, 'OK');
-           return;
-        }
-      
-        else if(Unit === ''){
-           handlePopup('Error', 'Please select a unit', false, 'OK');
-           return;
-        }
-        else if(Interval === ''){
-           handlePopup('Error', 'Please select an interval', false, 'OK');
-           return;
-        }
-   
-  
+      if(vendor === '') {
+        handlePopup('Error', 'Please select a vendor', false, 'OK');
+        return;
+      }
+      else if(singleproduct === ''){
+        handlePopup('Error', 'Please select a product', false, 'OK');
+        return;
+      }
+      else if(frequency === ''){
+        handlePopup('Error', 'Please select a notification frequency', false, 'OK');
+        return;
+      }
 
-        apiService.subscribe({
-              vendor: vendor,
-            email: email,
-            product: singleproduct,
-            Unit_of_time: Unit,
-            Frequency: parseInt(Interval)
-        })
-        .then((response) => {
-            console.log('response', response);
-            return response.data;
-        })
-        .then(data => {
-            console.log(data);
-            if(data.subscribe==='Already Subscribed'){
-                handlePopup('Error', 'You are already subscribed to notifications', false, 'OK');
-            }
-            else if(data.subscribe){
-                handlePopup('Success', 'You are now subscribed to notifications', true, 'OK');
-            }
-            else{
-                handlePopup('Error', 'Error subscribing', false, 'OK');
-            }
-        })
-        .catch(error => console.error('Error subscribing:', error));
-        
-        console.log(vendor, email, singleproduct, Unit, Interval);
+      // Convert frequency to the format your API expects
+      let unitAndInterval = {
+        Unit_of_time: 'Days',
+        Frequency: 1
+      };
+      
+      if (frequency === 'Daily') {
+        unitAndInterval = { Unit_of_time: 'Days', Frequency: 1 };
+      } else if (frequency === 'Weekly') {
+        unitAndInterval = { Unit_of_time: 'Days', Frequency: 7 };
+      } else if (frequency === 'Monthly') {
+        unitAndInterval = { Unit_of_time: 'Months', Frequency: 1 };
+      }
+
+      apiService.subscribe({
+        vendor: vendor,
+        email: email,
+        product: singleproduct,
+        ...unitAndInterval
+      })
+      .then((response) => {
+        console.log('response', response);
+        return response.data;
+      })
+      .then(data => {
+        console.log(data);
+        if(data.subscribe==='Already Subscribed'){
+          handlePopup('Error', 'You are already subscribed to notifications', false, 'OK');
+        }
+        else if(data.subscribe){
+          handlePopup('Success', 'You are now subscribed to notifications', true, 'OK');
+        }
+        else{
+          handlePopup('Error', 'Error subscribing', false, 'OK');
+        }
+      })
+      .catch(error => console.error('Error subscribing:', error));
     }
+
+  const handleTestNotification = () => {
+
+    const emailValidation = emailSchema.safeParse(email);
+    if (!emailValidation.success) {
+      handlePopup('Error', 'Please enter a valid email address', false, 'OK');
+      return;
+    }
+
+    if(vendor === '') {
+      handlePopup('Error', 'Please select a vendor', false, 'OK');
+      return;
+    }
+    else if(singleproduct === ''){
+      handlePopup('Error', 'Please select a product', false, 'OK');
+      return;
+    }
+
+    setIsprocessrequest(true);
+
+    console.log(singleproduct, vendor);
+    console.log(frequency);
+    console.log(email);
+
+    apiService.sendTestNotification({
+      email: email,
+      productToNotify:singleproduct,
+      vendorToNotify:vendor,
+      unitOfTime: 'Days',
+      interval: 7
+    })
+    .then((response) => {
+      console.log('response', response);
+      return response.data;
+    })
+    .then(data => {
+      if(data.success){
+        handlePopup('Success', 'Test notification sent successfully', true, 'OK');
+      }
+      else{
+        handlePopup('Error', 'Error sending test notification', false, 'OK');
+      }
+    })
+    .catch(error => console.error('Error sending test notification:', error))
+    .finally(() => setIsprocessrequest(false));
+  };
 
   if (!open) return null;
 
@@ -254,30 +302,30 @@ export default function Notification({ open, onClose, versions_to_notify, type, 
                   />
                   </Grid>
             
-                  <Grid item xs={6}>
-                    <FormControlSelect   
-                    label="Unit"
-                    singleitem={Unit}
-                    setSingleItem={setUnit}
-                    items={ !isPopupOpen ? ["Hours", "Days", "Months"] : []}
-                    customSelectStyle={customSelectStyle}
-                    />
+                  <Grid item xs={12}>
+                    <FormControl fullWidth variant="outlined">
+                      <InputLabel id="frequency-label">Notification Frequency</InputLabel>
+                      <Select
+                        labelId="frequency-label"
+                        id="frequency"
+                        value={frequency}
+                        label="Notification Frequency"
+                        onChange={(e) => setFrequency(e.target.value as string)}
+                        disabled={isPopupOpen}
+                        sx={customSelectStyle}
+                      >
+                        {["Daily", "Weekly", "Monthly"].map((option) => (
+                          <MenuItem key={option} value={option}>{option}</MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
                   </Grid>
-                  <Grid item xs={6}>
-                    <TextField 
-                      variant="outlined" 
-                      label="Interval of time"
-                      fullWidth
-                      disabled={isPopupOpen}
-                      value={Interval}
-                      onChange={(e) => setinterval(e.target.value)}
-                      sx={customTextFieldStyle}
-                    />
-                  </Grid>
+            
                   <Grid item xs={12} style={{
                     display: 'flex', 
                     justifyContent: 'center', 
-                    alignItems: 'center'
+                    alignItems: 'center',
+                    gap: '10px'
                   }}>
                     <Box 
                       sx={{
@@ -286,11 +334,13 @@ export default function Notification({ open, onClose, versions_to_notify, type, 
                         borderRadius: '4px',
                         padding: '13px',
                         cursor: 'pointer',
+                        flex: 1,
+                        justifyContent: 'center',
                         '&:hover': {
                           backgroundColor: '#4084C2'
                         }
                       }} 
-                      onClick={ !isPopupOpen ? handleSubscribe : undefined}
+                      onClick={!isPopupOpen ? handleSubscribe : undefined}
                     >
                       <Typography sx={{ 
                         color: '#FFF',
@@ -303,6 +353,38 @@ export default function Notification({ open, onClose, versions_to_notify, type, 
                       }}>
                         Subscribe
                       </Typography>
+                    </Box>
+                    
+                    <Box 
+                      sx={{
+                        display: 'flex',
+                        backgroundColor: '#6FCF97',
+                        borderRadius: '4px',
+                        padding: '13px',
+                        cursor: 'pointer',
+                        flex: 1,
+                        justifyContent: isprocessrequest ? 'space-between' : 'center',
+                        '&:hover': {
+                          backgroundColor: '#5DB585'
+                        }
+                      }} 
+                      onClick={!isPopupOpen ? handleTestNotification : undefined}
+                    >
+                      <Typography sx={{ 
+                        color: '#FFF',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        lineHeight: '16px',
+                        letterSpacing: '0.1px',
+                        textAlign: 'center',
+                        fontFamily: 'Kumbh Sans',
+                     
+                      }}>
+                        Test Notification
+                      </Typography>
+
+
+                      {isprocessrequest && <CircularProgress size={15} sx={{color:'#FFF'}} />}
                     </Box>
                   </Grid>
                 </Grid>

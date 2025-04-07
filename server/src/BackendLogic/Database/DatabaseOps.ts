@@ -1,13 +1,15 @@
 import {
-  NotifyOnEndOfSupport,
   NotifyOnEndOfSupportChanges,
   NotifyNewVersion,
   ExtractVersionsFromJson,
   ExtractFortraVersionsToJson,
   ExtractOpswatKeyIndexes,
   ExtractFortraVersions,
+  UpdateLastUpdate,
+  createEolVersionToNotify,
 } from "../Functions/LogicFunctions";
 import { ParseDate } from "../Functions/LogicFunctions";
+import { EmailBodyCreator, GetMilliseconds } from "../Functions/HelperFunctions";
 import { DataStructure, VersionData } from "../../Types/MainDataTypes";
 const Data = require("../../../Data.json") as DataStructure;
 import { logger } from "../index";
@@ -24,6 +26,8 @@ import {
 } from "./Schemes";
 import { sequelize } from "./Schemes";
 import axios from "axios";
+import { sendEosEmail } from "../Functions/LogicFunctions";
+import test from "node:test";
 
 class Database {
   sequelize: Sequelize;
@@ -32,10 +36,38 @@ class Database {
     this.sequelize = sequelize;
   }
 
-  async HandleData(): Promise<boolean | unknown> {
+  async HandleData(
+    testOptions?: {
+      email?: string;
+      productToNotify?: string;
+      vendorToNotify?: string;
+      unitOfTime?: string;
+      interval?: number;
+    }
+  ): Promise<boolean | unknown> {
+    // Special handling for test notifications
+    if (testOptions?.email && testOptions?.productToNotify) {
+      return await this.processTestNotifications(
+        testOptions.email,
+        testOptions.productToNotify,
+        testOptions.unitOfTime || 'Days',
+        testOptions.interval || 7,
+        testOptions.vendorToNotify || 'All'
+      );
+    }
+
     let listoffortraversions = await ExtractFortraVersionsToJson(
       Data.Vendors[1].JSON_URL!
     );
+
+    // Collection to store versions that need EOL notifications
+    const eolVersionsToNotify: {
+      versionData: VersionData;
+      daysUntilEOS: number;
+      daysUntilExtendedEOS?: number;
+      users: any[];
+      frequency: string; // Format: "UnitOfTime_Frequency"
+    }[] = [];
 
     try {
       //vendor processing
@@ -286,17 +318,22 @@ class Database {
                 (daysUntilEOS <= 30 && daysUntilEOS >= 0) ||
                 (daysUntilExtendedEOS && daysUntilExtendedEOS < 14)
               ) {
-                NotifyOnEndOfSupport(
-                  VersionData,
-                  daysUntilEOS,
-                  daysUntilExtendedEOS && daysUntilExtendedEOS,
-                  UsersArray
-                );
+                // Instead of calling NotifyOnEndOfSupport directly, collect versions that need notification
+                if (UsersArray && UsersArray.length > 0) {
+                  // Group users by frequency
+                  await createEolVersionToNotify(VersionData, UsersArray, daysUntilEOS! , daysUntilExtendedEOS! , eolVersionsToNotify);
+             
+                }
               }
             }
             ProductVersionIndex++;
           }
         }
+      }
+
+      // Process all EOL notifications at once
+      if (eolVersionsToNotify.length > 0) {
+        await this.processEolNotifications(eolVersionsToNotify);
       }
 
       logger.info("Successfully completed version check");
@@ -307,6 +344,134 @@ class Database {
       return error;
     }
   }
+
+  // New method to process all EOL notifications in batches by frequency
+  async processEolNotifications(
+    eolVersionsToNotify: {
+      versionData: VersionData;
+      daysUntilEOS: number;
+      daysUntilExtendedEOS?: number;
+      users: any[];
+      frequency: string;
+    }[]
+  ) {
+    try{
+      logger.info(JSON.stringify(eolVersionsToNotify)+ 'eolVersionsToNotify');
+      // Group versions by frequency
+      const versionsByFrequency: {
+        [key: string]: {
+          versions: {
+            versionData: VersionData;
+            daysUntilEOS: number;
+            daysUntilExtendedEOS?: number;
+          }[];
+          users: any[];
+        };
+      } = {};
+
+      // Collect unique versions and users for each frequency
+      for (const item of eolVersionsToNotify) {
+        if (!versionsByFrequency[item.frequency]) {
+          versionsByFrequency[item.frequency] = {
+            versions: [],
+            users: []
+          };
+        }
+
+        // Add version if not already added for this frequency
+        const versionExists = versionsByFrequency[item.frequency].versions.some(
+          v => v.versionData.VersionName === item.versionData.VersionName && 
+               v.versionData.ProductName === item.versionData.ProductName
+        );
+
+        if (!versionExists) {
+          versionsByFrequency[item.frequency].versions.push({
+            versionData: item.versionData,
+            daysUntilEOS: item.daysUntilEOS,
+            daysUntilExtendedEOS: item.daysUntilExtendedEOS
+          });
+        }
+
+        // Add unique users
+        for (const user of item.users) {
+          const userExists = versionsByFrequency[item.frequency].users.some(
+            u => u.Email === user.Email && 
+                 u.ProductId === user.ProductId && 
+                 u.VendorId === user.VendorId
+          );
+
+          if (!userExists) {
+            versionsByFrequency[item.frequency].users.push(user);
+          }
+        }
+      }
+
+      // Process notifications for each frequency group
+      for (const frequency in versionsByFrequency) {
+        const { versions, users } = versionsByFrequency[frequency];
+
+        // Send notifications for each version
+        for (const versionInfo of versions) {
+          // Create appropriate email body for the notification
+          let emailBody;
+          
+          if (versionInfo.daysUntilExtendedEOS) {
+            emailBody = EmailBodyCreator(
+              'Team', 
+              `End of Extended Support Alert: ${versionInfo.versionData.ProductName.replace(/_/g, ' ')} ${versionInfo.versionData.VersionName}`, 
+              `Hey Team`, 
+              `The end of extended support date for ${versionInfo.versionData.ProductName.replace(/_/g, ' ')} ${versionInfo.versionData.VersionName} is approaching.`, 
+              `End of Support Date:`, 
+              `The end of extended support date for ${versionInfo.versionData.ProductName.replace(/_/g, ' ')} ${versionInfo.versionData.VersionName} is:`, 
+              `${versionInfo.versionData.ExtendedSupportEndDate?.toDateString()} ,`, 
+              `Number of days remaining:`, 
+              `${versionInfo.daysUntilExtendedEOS}`
+            );
+          } else if (versionInfo.daysUntilEOS <= 7) {
+            emailBody = EmailBodyCreator(
+              'Team', 
+              `Critical: End of Support Approaching - 7 days or less remaining`, 
+              `Hey Team`, 
+              `The end of support date for ${versionInfo.versionData.ProductName.replace(/_/g, ' ')} ${versionInfo.versionData.VersionName} is approaching.`, 
+              `End of Support Date:`, 
+              `The end of support date for ${versionInfo.versionData.ProductName.replace(/_/g, ' ')} ${versionInfo.versionData.VersionName} is:`, 
+              `${versionInfo.versionData.EndOfSupportDate?.toDateString()} ,`, 
+              `Number of days remaining:`, 
+              `${versionInfo.daysUntilEOS}`
+            );
+          } else {
+            emailBody = EmailBodyCreator(
+              'Team', 
+              `End of Support Alert: ${versionInfo.versionData.ProductName.replace(/_/g, ' ')} ${versionInfo.versionData.VersionName}`, 
+              `Hey Team`, 
+              `The end of support date for ${versionInfo.versionData.ProductName.replace(/_/g, ' ')} ${versionInfo.versionData.VersionName} is approaching.`, 
+              `End of Support Date:`, 
+              `The end of support date for ${versionInfo.versionData.ProductName.replace(/_/g, ' ')} ${versionInfo.versionData.VersionName} is:`, 
+              `${versionInfo.versionData.EndOfSupportDate?.toDateString()} ,`, 
+              `Number of days remaining:`, 
+              `${versionInfo.daysUntilEOS}`
+            );
+          }
+
+          await sendEosEmail(users, frequency, emailBody, versionInfo);
+
+    
+          
+        // Update LastUpdate for ALL products with this frequency
+          await UpdateLastUpdate(frequency);
+     
+      }
+      
+    
+    
+  }
+} catch (error) {
+  logger.error('Error processing EOL notifications:', error);
+}
+}
+  
+
+
 
   async UpdateRecord(
     table: string,
@@ -779,6 +944,196 @@ class Database {
           reject(err);
         });
     });
+  }
+
+  // New method to process test notifications
+  async processTestNotifications(
+    email: string,
+    productToNotify: string,
+    unitOfTime: string,
+    interval: number,
+    vendortoNotify: string,
+  ): Promise<boolean | unknown> {
+    try {
+      logger.info(`Processing test notification for ${email} with products: ${productToNotify}, vendor: ${vendortoNotify}`);
+      
+      // Collection to store versions that need test EOL notifications
+      let testVersionsToNotify: {
+        versionData: VersionData;
+        daysUntilEOS: number;
+        daysUntilExtendedEOS?: number;
+        users: any[];
+        frequency: string;
+      }[] = [];
+      
+      let products = [];
+      
+      if (productToNotify === 'All Products' && vendortoNotify === 'All Vendors') {
+        // Get all products from all vendors
+        products = await this.getProducts();
+      } else if (productToNotify === 'All Products' && vendortoNotify !== 'All Vendors') {
+        // Get all products from a specific vendor
+        products = await this.getProducts(vendortoNotify);
+      } 
+       else {
+        // Specific product from specific vendor
+        const specificProducts = await this.getProducts(vendortoNotify);
+        products = specificProducts.filter(p => p.ProductName === productToNotify);
+      }
+      
+      if (products.length === 0) {
+        logger.warn(`No products found matching criteria: product=${productToNotify}, vendor=${vendortoNotify}`);
+        return { 
+          success: false, 
+          message: `No products found matching criteria: product=${productToNotify}, vendor=${vendortoNotify}` 
+        };
+      }
+      
+      // For each product in the filtered list
+      for (const testProduct of products) {
+        // Get versions for this product
+        const versions = await this.getVersions(testProduct.VendorName, testProduct.ProductName);
+        
+        if (!versions || versions.length === 0) {
+          logger.warn(`No versions found for ${testProduct.ProductName} (${testProduct.VendorName})`);
+          continue;
+        }
+        
+        for (const version of versions) {
+          const endOfSupportDate = version.EndOfSupportDate as Date;
+          const extendedEndOfSupportDate = version.ExtendedSupportEndDate as Date;
+          
+          // Skip versions without EOS date
+          if (!endOfSupportDate) {
+            continue;
+          }
+          
+          // Calculate days until EOS
+          const daysUntilEOS = Math.ceil(
+            (endOfSupportDate.getTime() - new Date().getTime()) /
+            (1000 * 60 * 60 * 24)
+          );
+          
+          // Calculate days until extended EOS if available
+          let daysUntilExtendedEOS;
+          if (extendedEndOfSupportDate) {
+            daysUntilExtendedEOS = Math.ceil(
+              (extendedEndOfSupportDate.getTime() - new Date().getTime()) /
+              (1000 * 60 * 60 * 24)
+            );
+          }
+          
+          // Create a fake user for the test
+          const testUser = {
+            Email: email,
+            LastUpdate: new Date(0), // Very old date to ensure notification will be sent
+            UnitOfTime: unitOfTime,
+            Frequency: interval.toString(),
+            UserID: -1, // Special ID for test users
+            ProductId: testProduct.ProductId,
+            VendorId: testProduct.VendorId
+          };
+          
+          // Create version data
+          const versionData: VersionData = {
+            VersionName: version.VersionName,
+            ProductName: testProduct.ProductName,
+            VendorName: testProduct.VendorName,
+            ReleaseDate: version.ReleaseDate,
+            EndOfSupportDate: endOfSupportDate,
+            LevelOfSupport: version.LevelOfSupport,
+            ExtendedSupportEndDate: extendedEndOfSupportDate,
+            EoslStartDate: version.EoslStartDate, // Use directly from version
+            FullReleaseNotes: version.FullReleaseNotes // Use directly from version
+          };
+          
+          // Add to test notifications
+          testVersionsToNotify.push({
+            versionData,
+            daysUntilEOS,
+            daysUntilExtendedEOS,
+            users: [testUser],
+            frequency: `${unitOfTime}_${interval}`
+          });
+        }
+      }
+      
+      if (testVersionsToNotify.length === 0) {
+        logger.warn('No test notifications to send - no versions with EOS dates found');
+        return { 
+          success: false, 
+          message: 'No valid versions found for test notification' 
+        };
+      }
+
+      testVersionsToNotify= testVersionsToNotify.filter(v => (v.daysUntilEOS >=0 && v.daysUntilEOS <= 30) || (v.daysUntilExtendedEOS? v.daysUntilExtendedEOS >=0 && v.daysUntilExtendedEOS <= 14 : false))
+      
+      // Process test notifications
+      for (const testVersion of testVersionsToNotify) {
+        // Create appropriate email body
+        let emailBody;
+        let shouldSendEmail = false;
+        
+        if (testVersion.daysUntilExtendedEOS && testVersion.daysUntilExtendedEOS <= 14) {
+          shouldSendEmail = true;
+          emailBody = EmailBodyCreator(
+            testVersion.users[0].Email, 
+            `End of Extended Support Alert: ${testVersion.versionData.ProductName.replace(/_/g, ' ')} ${testVersion.versionData.VersionName}`, 
+            `Hey ${testVersion.users[0].Email}`, 
+            `This is a TEST notification. The end of extended support date for ${testVersion.versionData.ProductName.replace(/_/g, ' ')} ${testVersion.versionData.VersionName} is approaching.`, 
+            `End of Support Date:`, 
+            `The end of extended support date for ${testVersion.versionData.ProductName.replace(/_/g, ' ')} ${testVersion.versionData.VersionName} is:`, 
+            `${testVersion.versionData.ExtendedSupportEndDate?.toDateString()} ,`, 
+            `Number of days remaining:`, 
+            `${testVersion.daysUntilExtendedEOS}`
+          );
+        } else if (testVersion.daysUntilEOS <= 7) {
+          shouldSendEmail = true;
+          emailBody = EmailBodyCreator(
+            testVersion.users[0].Email, 
+            `Critical: End of Support Approaching - 7 days or less remaining`, 
+            `Hey ${testVersion.users[0].Email}`, 
+            `This is a TEST notification. The end of support date for ${testVersion.versionData.ProductName.replace(/_/g, ' ')} ${testVersion.versionData.VersionName} is approaching.`, 
+            `End of Support Date:`, 
+            `The end of support date for ${testVersion.versionData.ProductName.replace(/_/g, ' ')} ${testVersion.versionData.VersionName} is:`, 
+            `${testVersion.versionData.EndOfSupportDate?.toDateString()} ,`, 
+            `Number of days remaining:`, 
+            `${testVersion.daysUntilEOS}`
+          );
+        } else if (testVersion.daysUntilEOS <= 30) {
+          shouldSendEmail = true;
+          emailBody = EmailBodyCreator(
+            testVersion.users[0].Email, 
+            `End of Support Alert: ${testVersion.versionData.ProductName.replace(/_/g, ' ')} ${testVersion.versionData.VersionName}`, 
+            `Hey ${testVersion.users[0].Email}`, 
+            `This is a TEST notification. The end of support date for ${testVersion.versionData.ProductName.replace(/_/g, ' ')} ${testVersion.versionData.VersionName} is approaching.`, 
+            `End of Support Date:`, 
+            `The end of support date for ${testVersion.versionData.ProductName.replace(/_/g, ' ')} ${testVersion.versionData.VersionName} is:`, 
+            `${testVersion.versionData.EndOfSupportDate?.toDateString()} ,`, 
+            `Number of days remaining:`, 
+            `${testVersion.daysUntilEOS}`
+          );
+        }
+        if (shouldSendEmail) {
+        // Send the email directly
+        await sendEosEmail(testVersion.users, testVersion.frequency, emailBody, testVersion);
+        }
+      }
+      
+      logger.info(`Successfully sent ${testVersionsToNotify.length} test notifications to ${email}`);
+      return { 
+        success: true, 
+        message: `Sent ${testVersionsToNotify.length} test notifications to ${email}`,
+        notifiedProducts: testVersionsToNotify.map(v => ({
+          product: v.versionData.ProductName,
+          version: v.versionData.VersionName,
+          daysUntilEOS: v.daysUntilEOS
+        }))
+      };
+    } catch (error) {
+      logger.error('Error processing test notifications:', error);
+      return { success: false, error };
+    }
   }
 }
 
