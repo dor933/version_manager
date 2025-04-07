@@ -390,13 +390,13 @@ async function createEolVersionToNotify(versionInfo:any, UsersArray:any, daysUnt
 async function sendEosEmail(users:any, frequency:string, emailBody:any, versionInfo:any,) {
 
     const uniqueEmails = [...new Set(users.map((user:any) => user.Email))];
+    let shouldSendEmail=false;
           
     // Send emails to each unique user
     for (const email of uniqueEmails) {
       const userProducts = users.filter((u:any) => u.Email === email);
         
       // Check if we should send a notification based on LastUpdate
-      let shouldSendEmail = false;
       let earliestUpdate = new Date().getTime();
         
       for (const product of userProducts) {
@@ -445,7 +445,6 @@ async function sendEosEmail(users:any, frequency:string, emailBody:any, versionI
             currentTime: new Date().toISOString()
           });
 
-          UpdateLastUpdate(frequency);
         } catch (error) {
           logger.error('Error sending EOL email:', { error, email });
         }
@@ -460,6 +459,10 @@ async function sendEosEmail(users:any, frequency:string, emailBody:any, versionI
           currentTime: new Date().toISOString()
         });
       }
+    }
+
+    if(shouldSendEmail){
+      UpdateLastUpdate(frequency);
     }
   }
 
@@ -485,7 +488,7 @@ async function sendEosEmail(users:any, frequency:string, emailBody:any, versionI
       });
     }
     
-    logger.info('Updated LastUpdate for all products for user:', { 
+    logger.info('Updated LastUpdate for all products with frequency:', { 
       frequency, 
       productsCount: allProductsWithFrequency.length,
     });

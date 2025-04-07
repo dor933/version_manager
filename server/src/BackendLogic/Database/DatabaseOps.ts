@@ -454,7 +454,8 @@ class Database {
           }
 
           await sendEosEmail(users, frequency, emailBody, versionInfo);
-     
+          await UpdateLastUpdate(frequency);
+
       }
       
     
