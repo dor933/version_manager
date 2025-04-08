@@ -4,9 +4,10 @@ import issueRoutes from "./routes/Issues";
 import subscriptionRoutes from "./routes/Subscriptions";
 import path from "path";
 import fs from "fs";
+import https from "https";
 
 const app = express();
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 443;
 
 // Middleware
 app.use(express.json());
@@ -33,8 +34,6 @@ app.use((req, res, next) => {
   next();
 });
 
-
-
 // Routes
 
 app.use("/api", versionRoutes);
@@ -42,18 +41,16 @@ app.use("/api/issues", issueRoutes);
 app.use("/api", subscriptionRoutes);
 
 // Add this after your other middleware and route configurations
-if (process.env.ENVIRONMENT === 'PRODUCTION') {
+if (process.env.ENVIRONMENT === "PRODUCTION") {
   // Serve static files from client/build
-  const clientBuildPath = path.join(__dirname, '../../../client/build');
+  const clientBuildPath = path.join(__dirname, "../../../client/build");
   app.use(express.static(clientBuildPath));
-  
+
   // Serve index.html for any other routes (for client-side routing)
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(clientBuildPath, 'index.html'));
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(clientBuildPath, "index.html"));
   });
 }
-
-
 
 // Error handling middleware should be last
 app.use((err: any, req: any, res: any, next: any) => {
@@ -62,7 +59,21 @@ app.use((err: any, req: any, res: any, next: any) => {
 });
 
 export function startServer() {
-  app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+  const certPath = path.join(
+    __dirname,
+    "../../certificates",
+    "certificate.pem"
+  );
+  const keyPath = path.join(__dirname, "../../certificates", "private-key.pem");
+
+  const httpsOptions = {
+    key: fs.readFileSync(keyPath),
+    cert: fs.readFileSync(certPath),
+  };
+
+  https.createServer(httpsOptions, app).listen(port, () => {
+    console.log(
+      `HTTPS Server running on https://vmanager.bulwarx.local:${port}`
+    );
   });
 }

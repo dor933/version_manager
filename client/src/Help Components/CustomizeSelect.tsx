@@ -26,7 +26,7 @@ export default function CustomizedSelects({options, label, value, setVendor, sty
             if (!selected || selected === '') {
               return <em style={{ color: '#C4C4C4' }}>{label.replace(/_/g, ' ')}</em>;
             }
-            return selected;
+            return selected.replace(/_/g, ' ');
           }}
         >
             <MenuItem value="">

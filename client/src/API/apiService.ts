@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:3001/api";
-const BASE_URL_LOCAL = "http://localhost:3001";
+const BASE_URL = "api";
+const BASE_URL_LOCAL = "";
 
 export const apiService = {
   // Versions

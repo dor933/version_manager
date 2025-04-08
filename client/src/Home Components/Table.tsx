@@ -83,12 +83,14 @@ export default function StickyHeadTable({versions, distinctVendors, productsandm
       const dateField = dateFilterType === 'Release Date' ? 'ReleaseDate' : 'EndOfSupportDate';
       
       if (startDate) {
-        const startDateObj = new Date(startDate);
+        let startDateObj = new Date(startDate);
+        startDateObj.setHours(0o0,0o0,0o0,0o0)
         newFiltered = newFiltered.filter((v) => new Date(v[dateField]!) >= startDateObj);
       }
       
       if (endDate) {
         const endDateObj = new Date(endDate);
+        endDateObj.setHours(23,59,59,59)
         // Add 1 day to include the end date in results
         newFiltered = newFiltered.filter((v) => new Date(v[dateField]!) < endDateObj);
       }
