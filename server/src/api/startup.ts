@@ -33,11 +33,27 @@ app.use((req, res, next) => {
   next();
 });
 
+
+
 // Routes
 
 app.use("/api", versionRoutes);
 app.use("/api/issues", issueRoutes);
 app.use("/api", subscriptionRoutes);
+
+// Add this after your other middleware and route configurations
+if (process.env.ENVIRONMENT === 'PRODUCTION') {
+  // Serve static files from client/build
+  const clientBuildPath = path.join(__dirname, '../../../client/build');
+  app.use(express.static(clientBuildPath));
+  
+  // Serve index.html for any other routes (for client-side routing)
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(clientBuildPath, 'index.html'));
+  });
+}
+
+
 
 // Error handling middleware should be last
 app.use((err: any, req: any, res: any, next: any) => {

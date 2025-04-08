@@ -24,6 +24,9 @@
     "start:client": "cd client && npm start",
     "start": "concurrently \"npm run start:server\" \"npm run start:client\"",
     "dev": "npm run build && npm run start",
+    "build:prod": "npm run build && npm run build:client",
+   "start:prod": "node server/dist/BackendLogic/index.js",
+    "start:prod:all": "npm run build:prod && npm run start:prod",
     "package": "pkg ."
   },
   "keywords": [],
@@ -38,6 +41,7 @@
     "@types/node-windows": "^0.1.6",
     "@types/nodemailer": "^6.4.17",
     "@types/yargs": "^17.0.33",
+    "mkcert": "^3.2.0",
     "typescript": "^5.7.2"
   },
   "dependencies": {
