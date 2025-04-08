@@ -304,7 +304,7 @@ function createEolVersionToNotify(versionInfo, UsersArray, daysUntilEOS, daysUnt
     return __awaiter(this, void 0, void 0, function* () {
         const usersByFrequency = {};
         for (const user of UsersArray) {
-            const frequencyKey = `${user.UnitOfTime}_${user.Frequency}`;
+            const frequencyKey = user.UnitOfTime;
             if (!usersByFrequency[frequencyKey]) {
                 usersByFrequency[frequencyKey] = [];
             }
@@ -322,94 +322,137 @@ function createEolVersionToNotify(versionInfo, UsersArray, daysUntilEOS, daysUnt
         }
     });
 }
-function sendEosEmail(users, frequency, emailBody, versionInfo) {
+function sendEosEmail(users, frequency, emailBody, versionInfo, IsNotificationTest) {
     return __awaiter(this, void 0, void 0, function* () {
         const uniqueEmails = [...new Set(users.map((user) => user.Email))];
-        // Send emails to each unique user
-        for (const email of uniqueEmails) {
-            const userProducts = users.filter((u) => u.Email === email);
-            // Check if we should send a notification based on LastUpdate
-            let shouldSendEmail = false;
-            let earliestUpdate = new Date().getTime();
-            for (const product of userProducts) {
-                const lastUpdateMs = new Date(product.LastUpdate).getTime();
-                if (lastUpdateMs < earliestUpdate) {
-                    earliestUpdate = lastUpdateMs;
-                }
-            }
+        let shouldSendEmail = false;
+        try {
+            // Get the time unit from the frequency
             const frequencyParts = frequency.split('_');
             const unitOfTime = frequencyParts[0];
-            const frequencyValue = parseInt(frequencyParts[1]);
-            const frequencyMs = (0, HelperFunctions_1.GetMilliseconds)(unitOfTime);
-            const totalOffset = frequencyValue * frequencyMs;
-            const nextUpdateTime = earliestUpdate + totalOffset;
-            shouldSendEmail = nextUpdateTime < new Date().getTime();
-            if (shouldSendEmail) {
-                try {
-                    const transporter = nodemailer_1.default.createTransport({
-                        host: "mail.bulwarx.local",
-                        port: 25,
-                        secure: false,
-                        tls: {
-                            ciphers: 'SSLv3:TLSv1:TLSv1.1:TLSv1.2:TLSv1.3',
-                            rejectUnauthorized: false
-                        }
-                    });
-                    yield transporter.sendMail({
-                        from: process.env.USER_EMAIL,
-                        to: email,
-                        subject: `End of Support Alert: ${versionInfo.versionData.ProductName.replace(/_/g, ' ')} ${versionInfo.versionData.VersionName}`,
-                        html: (0, EmailTemplate_1.createEmailTemplate)(emailBody, versionInfo.versionData.VendorName)
-                    });
-                    index_1.logger.info('EOL notification sent:', {
-                        email,
-                        version: versionInfo.versionData.VersionName,
-                        product: versionInfo.versionData.ProductName,
-                        frequency: frequency,
-                        nextUpdateTime: new Date(nextUpdateTime).toISOString(),
-                        currentTime: new Date().toISOString()
-                    });
+            // Get the LastUpdate from the TimeUnits table
+            const timeUnitRecord = yield Schemes_1.sequelize.models.TimeUnits.findOne({
+                where: { UnitOfTime: unitOfTime }
+            });
+            if (!timeUnitRecord && !IsNotificationTest) {
+                index_1.logger.warn(`No TimeUnit record found for ${unitOfTime}`);
+                return;
+            }
+            // Calculate when the next update should be
+            let nextUpdateTime;
+            if (IsNotificationTest) {
+                // For test notifications, always send
+                shouldSendEmail = true;
+            }
+            else {
+                // Safe access to timeUnitRecord with null check and type assertion
+                if (timeUnitRecord) {
+                    const lastUpdateValue = timeUnitRecord.get('LastUpdate');
+                    if (lastUpdateValue) {
+                        const lastUpdateTime = new Date(lastUpdateValue.toString()).getTime();
+                        // Get milliseconds for this time unit (always one unit)
+                        const timeUnitMs = (0, HelperFunctions_1.GetMilliseconds)(unitOfTime);
+                        // No longer need to multiply by frequency value since it's always 1 unit
+                        nextUpdateTime = lastUpdateTime + timeUnitMs;
+                        // Determine if we should send an email now
+                        shouldSendEmail = nextUpdateTime < new Date().getTime();
+                    }
+                    else {
+                        index_1.logger.warn(`LastUpdate is null for TimeUnit ${unitOfTime}`);
+                        shouldSendEmail = true; // Default to sending if no LastUpdate set
+                    }
                 }
-                catch (error) {
-                    index_1.logger.error('Error sending EOL email:', { error, email });
+                else {
+                    index_1.logger.warn(`TimeUnit record not found for ${unitOfTime}`);
+                    shouldSendEmail = true; // Default to sending if no TimeUnit record
+                }
+            }
+            // Send emails to each unique user if it's time to update
+            if (shouldSendEmail) {
+                const transporter = nodemailer_1.default.createTransport({
+                    host: "mail.bulwarx.local",
+                    port: 25,
+                    secure: false,
+                    tls: {
+                        ciphers: 'SSLv3:TLSv1:TLSv1.1:TLSv1.2:TLSv1.3',
+                        rejectUnauthorized: false
+                    }
+                });
+                for (const email of uniqueEmails) {
+                    try {
+                        yield transporter.sendMail({
+                            from: process.env.USER_EMAIL,
+                            to: email,
+                            subject: `End of Support Alert: ${versionInfo.versionData.ProductName.replace(/_/g, ' ')} ${versionInfo.versionData.VersionName}`,
+                            html: (0, EmailTemplate_1.createEmailTemplate)(emailBody, versionInfo.versionData.VendorName)
+                        });
+                        index_1.logger.info('EOL notification sent:', {
+                            email,
+                            version: versionInfo.versionData.VersionName,
+                            product: versionInfo.versionData.ProductName,
+                            unitOfTime,
+                            nextUpdateTime: nextUpdateTime ? new Date(nextUpdateTime).toISOString() : 'N/A',
+                            currentTime: new Date().toISOString()
+                        });
+                    }
+                    catch (error) {
+                        index_1.logger.error('Error sending EOL email:', { error, email });
+                    }
+                }
+                // Update the LastUpdate time for this time unit
+                if (!IsNotificationTest) {
+                    yield UpdateLastUpdate(frequency);
                 }
             }
             else {
                 index_1.logger.info('No email sent (last update is not old enough):', {
-                    email,
-                    version: versionInfo.versionData.VersionName,
-                    product: versionInfo.versionData.ProductName,
-                    frequency: frequency,
-                    nextUpdateTime: new Date(nextUpdateTime).toISOString(),
+                    unitOfTime,
+                    nextUpdateTime: nextUpdateTime ? new Date(nextUpdateTime).toISOString() : 'N/A',
                     currentTime: new Date().toISOString()
                 });
             }
+        }
+        catch (error) {
+            index_1.logger.error('Error processing EOL notifications:', error);
         }
     });
 }
 function UpdateLastUpdate(frequency) {
     return __awaiter(this, void 0, void 0, function* () {
-        const currentDate = new Date().toISOString();
-        const frequencyParts = frequency.split('_');
-        const unitOfTime = frequencyParts[0];
-        const frequencyValue = frequencyParts[1];
-        // Get all products with this frequency setting
-        const allProductsWithFrequency = yield Schemes_1.UserChosenProduct.findAll({
-            where: {
-                UnitOfTime: unitOfTime,
-                Frequency: frequencyValue
-            }
-        });
-        // Update LastUpdate for all these products
-        for (const product of allProductsWithFrequency) {
-            yield product.update({
-                LastUpdate: currentDate
+        try {
+            const currentDate = new Date().toISOString();
+            // In the new approach, the frequency string just contains the time unit
+            // We're no longer using the frequency_value format
+            const unitOfTime = frequency.includes('_') ? frequency.split('_')[0] : frequency;
+            // Get the TimeUnit record
+            const timeUnitRecord = yield Schemes_1.sequelize.models.TimeUnits.findOne({
+                where: { UnitOfTime: unitOfTime }
             });
+            if (timeUnitRecord) {
+                // Update the LastUpdate field in the TimeUnits table
+                yield Schemes_1.sequelize.models.TimeUnits.update({ LastUpdate: currentDate }, { where: { UnitOfTime: unitOfTime } });
+                index_1.logger.info('Updated LastUpdate for TimeUnit:', {
+                    unitOfTime,
+                    lastUpdate: currentDate
+                });
+                // Get all products with this time unit
+                const allProductsWithTimeUnit = yield Schemes_1.UserChosenProduct.findAll({
+                    where: {
+                        UnitOfTime: unitOfTime
+                    }
+                });
+                index_1.logger.info('Products affected by TimeUnit update:', {
+                    unitOfTime,
+                    productsCount: allProductsWithTimeUnit.length
+                });
+            }
+            else {
+                index_1.logger.warn(`Cannot update LastUpdate - TimeUnit not found: ${unitOfTime}`);
+            }
         }
-        index_1.logger.info('Updated LastUpdate for all products with frequency:', {
-            frequency,
-            productsCount: allProductsWithFrequency.length
-        });
+        catch (error) {
+            index_1.logger.error('Error updating LastUpdate:', error);
+        }
     });
 }
 function SendEmail(_a) {

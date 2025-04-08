@@ -5,7 +5,7 @@ const router = express.Router();
 
 
 router.post('/subscribe', async (req, res) => {
-    const { vendor, email , product, Unit_of_time, Frequency} = req.body;
+    const { vendor, email , product, unitOfTime} = req.body;
   
     let result:any;
   
@@ -27,18 +27,18 @@ router.post('/subscribe', async (req, res) => {
     if(vendor==='All Vendors'){
       let allproducts:any= await db.getProducts()
       for(let product of allproducts){
-        result= await db.subscribe(userid, product.ProductName, product.VendorName, Unit_of_time, Frequency);
+        result= await db.subscribe(userid, product.ProductName, product.VendorName, unitOfTime);
       }
     }
     else if(product==='All Products'){
       let allproducts:any= await db.getProducts(vendor);
       for(let product of allproducts){
-        result= await db.subscribe(userid, product.ProductName, product.VendorName, Unit_of_time,Frequency);
+        result= await db.subscribe(userid, product.ProductName, product.VendorName, unitOfTime);
       }
     }
   
     else{
-      result= await db.subscribe(userid, product, vendor, Unit_of_time, Frequency);
+      result= await db.subscribe(userid, product, vendor, unitOfTime);
     }
     
     res.json({subscribe:result});

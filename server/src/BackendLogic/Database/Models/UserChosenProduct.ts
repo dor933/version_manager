@@ -28,12 +28,6 @@ export const UserChosenProduct_Model = {
         type: DataTypes.STRING,
         allowNull: false
     },
-    Frequency: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    LastUpdate: {
-        type: DataTypes.DATE,
-        allowNull: false
-    }
+   
+    
 }; 

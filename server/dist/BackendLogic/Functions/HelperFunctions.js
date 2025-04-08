@@ -30,19 +30,19 @@ const isType1Product = (productName) => {
     return ['Metadefender_Core', 'OCMv7', 'Metadefender_Kiosk', 'Metadefender_Vault', 'Metadefender_Gateway_Email_Security', 'Metadefender_Icap_Server', 'Metadefender_MFT', 'Metadefender_Cloud'].includes(productName);
 };
 exports.isType1Product = isType1Product;
-// Modify the getMilliseconds function to handle case-sensitivity
-const GetMilliseconds = (frequency) => {
+// Get milliseconds for a time unit (Day, Week, Month)
+const GetMilliseconds = (timeUnit) => {
     const conversions = {
-        'HOURS': 3600000,
-        'DAYS': 86400000,
-        'MONTHS': 2629746000,
-        'Hours': 3600000,
-        'Days': 86400000,
-        'Months': 2629746000,
+        'DAY': 86400000, // 24 * 60 * 60 * 1000 (1 day in ms)
+        'WEEK': 604800000, // 7 * 24 * 60 * 60 * 1000 (7 days in ms)
+        'MONTH': 2629746000, // ~30.44 days in ms (average month)
+        'Day': 86400000,
+        'Week': 604800000,
+        'Month': 2629746000,
     };
-    const result = conversions[frequency];
+    const result = conversions[timeUnit];
     if (!result) {
-        console.error('Invalid frequency:', frequency);
+        console.error('Invalid time unit:', timeUnit);
         return 0;
     }
     return result;

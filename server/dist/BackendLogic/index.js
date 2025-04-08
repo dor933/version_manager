@@ -177,7 +177,7 @@ process.on('unhandledRejection', (reason) => {
     try {
         // Sync database without forcing recreation
         logger.info('Syncing database models...');
-        yield (0, Schemes_1.syncModels)();
+        yield (0, Schemes_1.syncModels)(true);
         // Then start handling data
         yield db.HandleData();
         logger.info('Initiation finished successfully');

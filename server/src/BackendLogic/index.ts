@@ -195,7 +195,7 @@ process.on('unhandledRejection', (reason) => {
         // Sync database without forcing recreation
 
         logger.info('Syncing database models...');
-        await syncModels();
+        await syncModels(true);
 
         
         // Then start handling data

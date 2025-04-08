@@ -80,24 +80,22 @@ export default function Notification({ open, onClose, versions_to_notify, type, 
       }
 
       // Convert frequency to the format your API expects
-      let unitAndInterval = {
-        Unit_of_time: 'Days',
-        Frequency: 1
-      };
+   
+      let unitOfTime:string;
       
       if (frequency === 'Daily') {
-        unitAndInterval = { Unit_of_time: 'Days', Frequency: 1 };
+        unitOfTime = 'Day';
       } else if (frequency === 'Weekly') {
-        unitAndInterval = { Unit_of_time: 'Days', Frequency: 7 };
+        unitOfTime = 'Week';
       } else if (frequency === 'Monthly') {
-        unitAndInterval = { Unit_of_time: 'Months', Frequency: 1 };
+        unitOfTime = 'Month';
       }
 
       apiService.subscribe({
         vendor: vendor,
         email: email,
         product: singleproduct,
-        ...unitAndInterval
+        unitOfTime: unitOfTime!
       })
       .then((response) => {
         console.log('response', response);

@@ -56,6 +56,13 @@ class Database {
       );
     }
 
+    // Ensure TimeUnits table has all needed time units
+    try {
+      await this.ensureTimeUnitsExist();
+    } catch (error) {
+      logger.error("Error ensuring TimeUnits exist:", error);
+    }
+
     let listoffortraversions = await ExtractFortraVersionsToJson(
       Data.Vendors[1].JSON_URL!
     );
@@ -160,7 +167,7 @@ class Database {
 
           //version processing
           for (const version of listofversions) {
-            let UsersArray = await this.GetUsersArray(
+            let UsersArray = await this.GetUsersChosenProducts(
               product.ProductName,
               vendor.VendorName
             );
@@ -454,7 +461,6 @@ class Database {
           }
 
           await sendEosEmail(users, frequency, emailBody, versionInfo);
-          await UpdateLastUpdate(frequency);
 
       }
       
@@ -755,7 +761,7 @@ class Database {
     return user ? (user as any).id : false;
   }
 
-  async GetUsersArray(product: string, vendor: string) {
+  async GetUsersChosenProducts(product: string, vendor: string) {
     let VendorId = await Vendor.findOne({ where: { VendorName: vendor } });
     let ProductId = await Product.findOne({
       where: { ProductName: product, VendorId: VendorId?.get("VendorId") },
@@ -791,8 +797,7 @@ class Database {
     userid: number,
     product: string,
     vendor: string,
-    Unit_of_time: string,
-    Frequency: string
+    unitOfTime: string
   ) {
     const VendorId = await Vendor.findOne({ where: { VendorName: vendor } });
     const ProductId = await Product.findOne({
@@ -811,8 +816,7 @@ class Database {
             if (count > 0) {
               UserChosenProduct.update(
                 {
-                  UnitOfTime: Unit_of_time,
-                  Frequency: Frequency,
+                  UnitOfTime: unitOfTime,
                 },
                 {
                   where: {
@@ -833,11 +837,8 @@ class Database {
                 UserID: userid,
                 ProductId: ProductId?.get("ProductId"),
                 VendorId: VendorId?.get("VendorId"),
-                UnitOfTime: Unit_of_time,
-                Frequency: Frequency,
-                LastUpdate: new Date(
-                  new Date().setFullYear(new Date().getFullYear() - 1)
-                ),
+                UnitOfTime: unitOfTime,
+              
               })
                 .then(() => {
                   resolve({ success: true, message: "Subscription added" });
@@ -1130,6 +1131,30 @@ class Database {
       logger.error('Error processing test notifications:', error);
       return { success: false, error };
     }
+  }
+
+  // New method to ensure TimeUnits table is properly populated
+  async ensureTimeUnitsExist(): Promise<void> {
+    // Define the standard time units
+    const standardTimeUnits = ['Day', 'Week', 'Month'];
+    
+    for (const unit of standardTimeUnits) {
+      // Check if this time unit exists
+      const existingUnit = await sequelize.models.TimeUnits.findOne({
+        where: { UnitOfTime: unit }
+      });
+      
+      if (!existingUnit) {
+        // Create the time unit with current time as LastUpdate
+        await sequelize.models.TimeUnits.create({
+          UnitOfTime: unit,
+          LastUpdate: new Date().toISOString()
+        });
+        logger.info(`Created missing TimeUnit: ${unit}`);
+      }
+    }
+    
+    logger.info("Ensured all standard TimeUnits exist");
   }
 }
 

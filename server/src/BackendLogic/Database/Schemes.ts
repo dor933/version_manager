@@ -7,6 +7,7 @@ import { Version_Model } from "./Models/Version";
 import { Module_Model } from "./Models/Module";
 import { Issue_Model } from "./Models/Issue";
 import { UserChosenProduct_Model } from "./Models/UserChosenProduct";
+import { TimeUnits_Model } from "./Models/TimeUnits";
 // Create and export the Sequelize instance
 export const sequelize = new Sequelize({
   dialect: "sqlite",
@@ -32,6 +33,7 @@ export const UserChosenProduct = sequelize.define(
   "UserChosenProduct",
   UserChosenProduct_Model
 );
+export const TimeUnits = sequelize.define("TimeUnits", TimeUnits_Model);
 
 // Define associations
 UserChosenProduct.belongsTo(User, {
@@ -133,6 +135,14 @@ Issue.belongsTo(Version, {
   targetKey: "VersionId",
   onDelete: "CASCADE",
 });
+
+UserChosenProduct.belongsTo(TimeUnits, {
+  foreignKey: "UnitOfTime",
+  targetKey: "UnitOfTime",
+  onDelete: "CASCADE",
+});
+
+
 
 // Export the sync function with optional force parameter
 export async function syncModels(force: boolean = false) {

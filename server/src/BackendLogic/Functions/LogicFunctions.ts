@@ -9,7 +9,7 @@ import axios from 'axios';
 import * as cheerio from 'cheerio';
 import { db } from '../index';
 import { EmailBodyCreator, FortraVersionObjectCreator, GetMilliseconds, isType1Product } from './HelperFunctions';
-import { UserChosenProduct } from '../Database/Schemes';
+import { UserChosenProduct, sequelize } from '../Database/Schemes';
 
 let identifier=0;
 
@@ -368,7 +368,7 @@ async function createEolVersionToNotify(versionInfo:any, UsersArray:any, daysUnt
     const usersByFrequency: { [key: string]: any[] } = {};
                   
     for (const user of UsersArray) {
-      const frequencyKey = `${user.UnitOfTime}_${user.Frequency}`;
+      const frequencyKey = user.UnitOfTime;
       if (!usersByFrequency[frequencyKey]) {
         usersByFrequency[frequencyKey] = [];
       }
@@ -388,114 +388,143 @@ async function createEolVersionToNotify(versionInfo:any, UsersArray:any, daysUnt
 }
 
 async function sendEosEmail(users:any, frequency:string, emailBody:any, versionInfo:any, IsNotificationTest?:boolean) {
-
-    const uniqueEmails = [...new Set(users.map((user:any) => user.Email))];
-    let shouldSendEmail=false;
+  const uniqueEmails = [...new Set(users.map((user:any) => user.Email))];
+  let shouldSendEmail = false;
+        
+  try {
+    // Get the time unit from the frequency
+    const frequencyParts = frequency.split('_');
+    const unitOfTime = frequencyParts[0];
+    
+    // Get the LastUpdate from the TimeUnits table
+    const timeUnitRecord = await sequelize.models.TimeUnits.findOne({
+      where: { UnitOfTime: unitOfTime }
+    });
+    
+    if (!timeUnitRecord && !IsNotificationTest) {
+      logger.warn(`No TimeUnit record found for ${unitOfTime}`);
+      return;
+    }
+    
+    // Calculate when the next update should be
+    let nextUpdateTime;
+    if (IsNotificationTest) {
+      // For test notifications, always send
+      shouldSendEmail = true;
+    } else {
+      // Safe access to timeUnitRecord with null check and type assertion
+      if (timeUnitRecord) {
+        const lastUpdateValue = timeUnitRecord.get('LastUpdate');
+        if (lastUpdateValue) {
+          const lastUpdateTime = new Date(lastUpdateValue.toString()).getTime();
+          // Get milliseconds for this time unit (always one unit)
+          const timeUnitMs = GetMilliseconds(unitOfTime);
+          // No longer need to multiply by frequency value since it's always 1 unit
+          nextUpdateTime = lastUpdateTime + timeUnitMs;
           
-    // Send emails to each unique user
-    for (const email of uniqueEmails) {
-      const userProducts = users.filter((u:any) => u.Email === email);
-        
-      // Check if we should send a notification based on LastUpdate
-      let earliestUpdate = new Date().getTime();
-        
-      for (const product of userProducts) {
-        const lastUpdateMs = new Date(product.LastUpdate).getTime();
-        if (lastUpdateMs < earliestUpdate) {
-          earliestUpdate = lastUpdateMs;
+          // Determine if we should send an email now
+          shouldSendEmail = nextUpdateTime < new Date().getTime();
+        } else {
+          logger.warn(`LastUpdate is null for TimeUnit ${unitOfTime}`);
+          shouldSendEmail = true; // Default to sending if no LastUpdate set
         }
+      } else {
+        logger.warn(`TimeUnit record not found for ${unitOfTime}`);
+        shouldSendEmail = true; // Default to sending if no TimeUnit record
       }
-
-        
-      const frequencyParts = frequency.split('_');
-      const unitOfTime = frequencyParts[0];
-      const frequencyValue = parseInt(frequencyParts[1]);
-        
-      const frequencyMs = GetMilliseconds(unitOfTime);
-      const totalOffset = frequencyValue * frequencyMs;
-      const nextUpdateTime = earliestUpdate + totalOffset;
-        
-      shouldSendEmail = nextUpdateTime < new Date().getTime();
-        
-      if (shouldSendEmail) {
+    }
+    
+    // Send emails to each unique user if it's time to update
+    if (shouldSendEmail) {
+      const transporter = nodemailer.createTransport({
+        host: "mail.bulwarx.local",
+        port: 25,
+        secure: false,
+        tls: {
+          ciphers: 'SSLv3:TLSv1:TLSv1.1:TLSv1.2:TLSv1.3',
+          rejectUnauthorized: false
+        }
+      });
+      
+      for (const email of uniqueEmails) {
         try {
-          const transporter = nodemailer.createTransport({
-            host: "mail.bulwarx.local",
-            port: 25,
-            secure: false,
-            tls: {
-              ciphers: 'SSLv3:TLSv1:TLSv1.1:TLSv1.2:TLSv1.3',
-              rejectUnauthorized: false
-            }
-          });
-            
           await transporter.sendMail({
             from: process.env.USER_EMAIL,
             to: email as string,
             subject: `End of Support Alert: ${versionInfo.versionData.ProductName.replace(/_/g, ' ')} ${versionInfo.versionData.VersionName}`,
             html: createEmailTemplate(emailBody, versionInfo.versionData.VendorName)
           });
-            
+          
           logger.info('EOL notification sent:', { 
             email, 
             version: versionInfo.versionData.VersionName, 
             product: versionInfo.versionData.ProductName,
-            frequency: frequency,
-            nextUpdateTime: new Date(nextUpdateTime).toISOString(),
+            unitOfTime,
+            nextUpdateTime: nextUpdateTime ? new Date(nextUpdateTime).toISOString() : 'N/A',
             currentTime: new Date().toISOString()
           });
-
         } catch (error) {
           logger.error('Error sending EOL email:', { error, email });
         }
       }
-      else{
-        logger.info('No email sent (last update is not old enough):', { 
-          email, 
-          version: versionInfo.versionData.VersionName, 
-          product: versionInfo.versionData.ProductName,
-          frequency: frequency,
-          nextUpdateTime: new Date(nextUpdateTime).toISOString(),
-          currentTime: new Date().toISOString()
-        });
+      
+      // Update the LastUpdate time for this time unit
+      if (!IsNotificationTest) {
+        await UpdateLastUpdate(frequency);
       }
-    }
-
-    if(shouldSendEmail && !IsNotificationTest){
-      UpdateLastUpdate(frequency);
-    }
-  }
-
-  async function UpdateLastUpdate( frequency:string,){
-    const currentDate = new Date().toISOString();
-    const frequencyParts = frequency.split('_');
-    const unitOfTime = frequencyParts[0];
-    const frequencyValue = frequencyParts[1];
-
-
-    // Get all products with this frequency setting
-    const allProductsWithFrequency = await UserChosenProduct.findAll({
-      where: {
-        UnitOfTime: unitOfTime,
-        Frequency: frequencyValue,
-      }
-    });
-    
-    // Update LastUpdate for all these products
-    for (const product of allProductsWithFrequency) {
-      await product.update({
-        LastUpdate: currentDate
+    } else {
+      logger.info('No email sent (last update is not old enough):', { 
+        unitOfTime,
+        nextUpdateTime: nextUpdateTime ? new Date(nextUpdateTime).toISOString() : 'N/A',
+        currentTime: new Date().toISOString()
       });
     }
-    
-    logger.info('Updated LastUpdate for all products with frequency:', { 
-      frequency, 
-      productsCount: allProductsWithFrequency.length,
-    });
+  } catch (error) {
+    logger.error('Error processing EOL notifications:', error);
+  }
+}
 
+async function UpdateLastUpdate(frequency: string) {
+  try {
+    const currentDate = new Date().toISOString();
+    // In the new approach, the frequency string just contains the time unit
+    // We're no longer using the frequency_value format
+    const unitOfTime = frequency.includes('_') ? frequency.split('_')[0] : frequency;
     
+    // Get the TimeUnit record
+    const timeUnitRecord = await sequelize.models.TimeUnits.findOne({
+      where: { UnitOfTime: unitOfTime }
+    });
     
-    
+    if (timeUnitRecord) {
+      // Update the LastUpdate field in the TimeUnits table
+      await sequelize.models.TimeUnits.update(
+        { LastUpdate: currentDate },
+        { where: { UnitOfTime: unitOfTime } }
+      );
+      
+      logger.info('Updated LastUpdate for TimeUnit:', { 
+        unitOfTime, 
+        lastUpdate: currentDate
+      });
+      
+      // Get all products with this time unit
+      const allProductsWithTimeUnit = await UserChosenProduct.findAll({
+        where: {
+          UnitOfTime: unitOfTime
+        }
+      });
+      
+      logger.info('Products affected by TimeUnit update:', { 
+        unitOfTime,
+        productsCount: allProductsWithTimeUnit.length
+      });
+    } else {
+      logger.warn(`Cannot update LastUpdate - TimeUnit not found: ${unitOfTime}`);
+    }
+  } catch (error) {
+    logger.error('Error updating LastUpdate:', error);
+  }
 }
     
 

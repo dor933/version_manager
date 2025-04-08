@@ -30,12 +30,4 @@ exports.UserChosenProduct_Model = {
         type: sequelize_1.DataTypes.STRING,
         allowNull: false
     },
-    Frequency: {
-        type: sequelize_1.DataTypes.STRING,
-        allowNull: false
-    },
-    LastUpdate: {
-        type: sequelize_1.DataTypes.DATE,
-        allowNull: false
-    }
 };

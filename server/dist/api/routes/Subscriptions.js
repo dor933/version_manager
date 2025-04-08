@@ -16,7 +16,7 @@ const express_1 = __importDefault(require("express"));
 const index_1 = require("../../BackendLogic/index");
 const router = express_1.default.Router();
 router.post('/subscribe', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { vendor, email, product, Unit_of_time, Frequency } = req.body;
+    const { vendor, email, product, unitOfTime } = req.body;
     let result;
     try {
         let existinguser = yield index_1.db.CheckUserExists(email);
@@ -32,17 +32,17 @@ router.post('/subscribe', (req, res) => __awaiter(void 0, void 0, void 0, functi
         if (vendor === 'All Vendors') {
             let allproducts = yield index_1.db.getProducts();
             for (let product of allproducts) {
-                result = yield index_1.db.subscribe(userid, product.ProductName, product.VendorName, Unit_of_time, Frequency);
+                result = yield index_1.db.subscribe(userid, product.ProductName, product.VendorName, unitOfTime);
             }
         }
         else if (product === 'All Products') {
             let allproducts = yield index_1.db.getProducts(vendor);
             for (let product of allproducts) {
-                result = yield index_1.db.subscribe(userid, product.ProductName, product.VendorName, Unit_of_time, Frequency);
+                result = yield index_1.db.subscribe(userid, product.ProductName, product.VendorName, unitOfTime);
             }
         }
         else {
-            result = yield index_1.db.subscribe(userid, product, vendor, Unit_of_time, Frequency);
+            result = yield index_1.db.subscribe(userid, product, vendor, unitOfTime);
         }
         res.json({ subscribe: result });
     }

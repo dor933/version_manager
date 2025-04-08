@@ -84,8 +84,7 @@ export const apiService = {
     vendor: string;
     email: string;
     product: string;
-    Unit_of_time: string;
-    Frequency: number;
+    unitOfTime: string;
   }) => {
     const response = await axios.post(
       `${BASE_URL}/subscribe`,

@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserChosenProduct = exports.Issue = exports.Module = exports.Version = exports.Product = exports.Vendor = exports.User = exports.sequelize = void 0;
+exports.TimeUnits = exports.UserChosenProduct = exports.Issue = exports.Module = exports.Version = exports.Product = exports.Vendor = exports.User = exports.sequelize = void 0;
 exports.syncModels = syncModels;
 const sequelize_1 = require("sequelize");
 const index_1 = require("../index");
@@ -20,6 +20,7 @@ const Version_1 = require("./Models/Version");
 const Module_1 = require("./Models/Module");
 const Issue_1 = require("./Models/Issue");
 const UserChosenProduct_1 = require("./Models/UserChosenProduct");
+const TimeUnits_1 = require("./Models/TimeUnits");
 // Create and export the Sequelize instance
 exports.sequelize = new sequelize_1.Sequelize({
     dialect: "sqlite",
@@ -41,6 +42,7 @@ exports.Version = exports.sequelize.define("Version", Version_1.Version_Model, {
 exports.Module = exports.sequelize.define("Module", Module_1.Module_Model);
 exports.Issue = exports.sequelize.define("Issue", Issue_1.Issue_Model);
 exports.UserChosenProduct = exports.sequelize.define("UserChosenProduct", UserChosenProduct_1.UserChosenProduct_Model);
+exports.TimeUnits = exports.sequelize.define("TimeUnits", TimeUnits_1.TimeUnits_Model);
 // Define associations
 exports.UserChosenProduct.belongsTo(exports.User, {
     foreignKey: "UserID",
@@ -123,6 +125,11 @@ exports.Issue.belongsTo(exports.Vendor, {
 exports.Issue.belongsTo(exports.Version, {
     foreignKey: "VersionId",
     targetKey: "VersionId",
+    onDelete: "CASCADE",
+});
+exports.UserChosenProduct.belongsTo(exports.TimeUnits, {
+    foreignKey: "UnitOfTime",
+    targetKey: "UnitOfTime",
     onDelete: "CASCADE",
 });
 // Export the sync function with optional force parameter

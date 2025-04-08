@@ -32,6 +32,13 @@ class Database {
             if ((testOptions === null || testOptions === void 0 ? void 0 : testOptions.email) && (testOptions === null || testOptions === void 0 ? void 0 : testOptions.productToNotify)) {
                 return yield this.processTestNotifications(testOptions.email, testOptions.productToNotify, testOptions.unitOfTime || 'Days', testOptions.interval || 7, testOptions.vendorToNotify || 'All');
             }
+            // Ensure TimeUnits table has all needed time units
+            try {
+                yield this.ensureTimeUnitsExist();
+            }
+            catch (error) {
+                index_1.logger.error("Error ensuring TimeUnits exist:", error);
+            }
             let listoffortraversions = yield (0, LogicFunctions_1.ExtractFortraVersionsToJson)(Data.Vendors[1].JSON_URL);
             // Collection to store versions that need EOL notifications
             const eolVersionsToNotify = [];
@@ -107,7 +114,7 @@ class Database {
                         let ProductVersionIndex = 0;
                         //version processing
                         for (const version of listofversions) {
-                            let UsersArray = yield this.GetUsersArray(product.ProductName, vendor.VendorName);
+                            let UsersArray = yield this.GetUsersChosenProducts(product.ProductName, vendor.VendorName);
                             let VersionNameExtracted = version[0];
                             if (!VersionNameExtracted) {
                                 index_1.logger.warn(`Skipping version with undefined name for product ${product.ProductName}`);
@@ -310,8 +317,6 @@ class Database {
                             emailBody = (0, HelperFunctions_1.EmailBodyCreator)('Team', `End of Support Alert: ${versionInfo.versionData.ProductName.replace(/_/g, ' ')} ${versionInfo.versionData.VersionName}`, `Hey Team`, `The end of support date for ${versionInfo.versionData.ProductName.replace(/_/g, ' ')} ${versionInfo.versionData.VersionName} is approaching.`, `End of Support Date:`, `The end of support date for ${versionInfo.versionData.ProductName.replace(/_/g, ' ')} ${versionInfo.versionData.VersionName} is:`, `${(_c = versionInfo.versionData.EndOfSupportDate) === null || _c === void 0 ? void 0 : _c.toDateString()} ,`, `Number of days remaining:`, `${versionInfo.daysUntilEOS}`);
                         }
                         yield (0, LogicFunctions_3.sendEosEmail)(users, frequency, emailBody, versionInfo);
-                        // Update LastUpdate for ALL products with this frequency
-                        yield (0, LogicFunctions_1.UpdateLastUpdate)(frequency);
                     }
                 }
             }
@@ -577,7 +582,7 @@ class Database {
             return user ? user.id : false;
         });
     }
-    GetUsersArray(product, vendor) {
+    GetUsersChosenProducts(product, vendor) {
         return __awaiter(this, void 0, void 0, function* () {
             let VendorId = yield Schemes_1.Vendor.findOne({ where: { VendorName: vendor } });
             let ProductId = yield Schemes_1.Product.findOne({
@@ -603,7 +608,7 @@ class Database {
             }));
         });
     }
-    subscribe(userid, product, vendor, Unit_of_time, Frequency) {
+    subscribe(userid, product, vendor, unitOfTime) {
         return __awaiter(this, void 0, void 0, function* () {
             const VendorId = yield Schemes_1.Vendor.findOne({ where: { VendorName: vendor } });
             const ProductId = yield Schemes_1.Product.findOne({
@@ -620,8 +625,7 @@ class Database {
                         .then((count) => {
                         if (count > 0) {
                             Schemes_1.UserChosenProduct.update({
-                                UnitOfTime: Unit_of_time,
-                                Frequency: Frequency,
+                                UnitOfTime: unitOfTime,
                             }, {
                                 where: {
                                     UserID: userid,
@@ -641,9 +645,7 @@ class Database {
                                 UserID: userid,
                                 ProductId: ProductId === null || ProductId === void 0 ? void 0 : ProductId.get("ProductId"),
                                 VendorId: VendorId === null || VendorId === void 0 ? void 0 : VendorId.get("VendorId"),
-                                UnitOfTime: Unit_of_time,
-                                Frequency: Frequency,
-                                LastUpdate: new Date(new Date().setFullYear(new Date().getFullYear() - 1)),
+                                UnitOfTime: unitOfTime,
                             })
                                 .then(() => {
                                 resolve({ success: true, message: "Subscription added" });
@@ -854,7 +856,7 @@ class Database {
                     }
                     if (shouldSendEmail) {
                         // Send the email directly
-                        yield (0, LogicFunctions_3.sendEosEmail)(testVersion.users, testVersion.frequency, emailBody, testVersion);
+                        yield (0, LogicFunctions_3.sendEosEmail)(testVersion.users, testVersion.frequency, emailBody, testVersion, true);
                     }
                 }
                 index_1.logger.info(`Successfully sent ${testVersionsToNotify.length} test notifications to ${email}`);
@@ -872,6 +874,28 @@ class Database {
                 index_1.logger.error('Error processing test notifications:', error);
                 return { success: false, error };
             }
+        });
+    }
+    // New method to ensure TimeUnits table is properly populated
+    ensureTimeUnitsExist() {
+        return __awaiter(this, void 0, void 0, function* () {
+            // Define the standard time units
+            const standardTimeUnits = ['Day', 'Week', 'Month'];
+            for (const unit of standardTimeUnits) {
+                // Check if this time unit exists
+                const existingUnit = yield Schemes_2.sequelize.models.TimeUnits.findOne({
+                    where: { UnitOfTime: unit }
+                });
+                if (!existingUnit) {
+                    // Create the time unit with current time as LastUpdate
+                    yield Schemes_2.sequelize.models.TimeUnits.create({
+                        UnitOfTime: unit,
+                        LastUpdate: new Date().toISOString()
+                    });
+                    index_1.logger.info(`Created missing TimeUnit: ${unit}`);
+                }
+            }
+            index_1.logger.info("Ensured all standard TimeUnits exist");
         });
     }
 }
